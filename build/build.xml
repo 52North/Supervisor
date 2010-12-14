@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project name="OwsSupervisor" default="war" basedir="..">
+
+	<description>A basic build file for OwsSupervisor.</description>
+
+	<property file="build/build.properties" />
+
+	<propertyfile file="build/buildinfo.properties" comment="Build Information File - DO NOT CHANGE">
+		<entry key="build.num" type="int" default="0000" operation="+" pattern="0000" />
+		<entry key="build.date" type="date" value="now" pattern="dd.MM.yyyy HH:mm" />
+	</propertyfile>
+	<property file="build/buildinfo.properties" />
+
+	<path id="project.class.path">
+		<fileset dir="WebContent/WEB-INF/lib" includes="**/*.jar" />
+	</path>
+
+	<target name='prepare'>
+		<delete dir='dist' />
+		<mkdir dir='dist' />
+		<!-- tmp is the 'WebContent' directory -->
+		<mkdir dir='tmp' />
+	</target>
+
+	<target name="copy" depends='prepare'>
+		<copy todir='tmp'>
+			<fileset dir="WebContent" />
+		</copy>
+		<copy file="build/log4j.xml" tofile="tmp/WEB-INF/classes/log4j.xml" overwrite="true" />
+
+		<replace file="tmp/WEB-INF/web.xml" token="@BUILDINFO@" value="Version ${service.version} from ${build.date} - Build no. ${build.num}" />
+		<replace file="tmp/WEB-INF/conf/supervisor.config" token="@SERVICE_VERSION@" value="${service.version}" />
+	</target>
+
+	<target name="javac" depends="copy" description="Compile java source">
+		<javac srcdir="src" includes="**" encoding="utf-8" destdir="tmp/WEB-INF/classes" source="1.6" target="1.6" nowarn="true" debug="true" debuglevel="lines,vars,source">
+			<classpath refid="project.class.path" />
+		</javac>
+		<!-- copy all other classes, i.e. log4j config and source files-->
+		<copy todir="tmp/WEB-INF/classes">
+			<fileset dir="src" />
+		</copy>
+	</target>
+
+	<target name="war" depends="javac" description="Create a war file">
+		<zip destfile="dist/${webapp.name}.war" basedir="tmp" />
+		<delete dir='tmp' />
+	</target>
+
+</project>
