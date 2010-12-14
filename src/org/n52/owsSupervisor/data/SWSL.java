@@ -64,8 +64,9 @@ public abstract class SWSL {
 		try {
 			URL weathersos = new URL(
 					"http://v-swe.uni-muenster.de:8080/WeatherSOS/sos");
-			IServiceChecker checker02 = new SosCapabilitiesCheck(weathersos,
+			IServiceChecker capsChecker = new SosCapabilitiesCheck(weathersos,
 					EMAIL_DN, EVERY_12_HOURS);
+			checkers.add(capsChecker);
 
 			String[] offerings = new String[] { "RAIN_GAUGE", "LUMINANCE",
 					"HUMIDITY", "ATMOSPHERIC_PRESSURE",
@@ -82,11 +83,11 @@ public abstract class SWSL {
 			long maximumAge = 1000 * 60 * 30;
 
 			for (int i = 0; i < offerings.length; i++) {
-				IServiceChecker checker01 = new SosLatestObservationCheck(
+				IServiceChecker checker = new SosLatestObservationCheck(
 						weathersos, offerings[i], obsProps[i], proc,
 						maximumAge, EMAIL_DN, EVERY_HALF_HOUR);
 
-				checkers.add(checker01);
+				checkers.add(checker);
 			}
 
 		} catch (MalformedURLException e) {
@@ -97,9 +98,9 @@ public abstract class SWSL {
 		try {
 			URL sir = new URL(
 					"http://giv-genesis.uni-muenster.de:8080/SIR2/sir");
-			IServiceChecker checker03 = new SirCapabilitiesCheck(sir, EMAIL_DN,
+			IServiceChecker capsChecker = new SirCapabilitiesCheck(sir, EMAIL_DN,
 					EVERY_12_HOURS);
-			checkers.add(checker03);
+			checkers.add(capsChecker);
 		} catch (MalformedURLException e) {
 			log.error("Could not create URL for checker.", e);
 		}
@@ -107,9 +108,9 @@ public abstract class SWSL {
 		// SOR @ giv-genesis
 		try {
 			URL sir = new URL("http://giv-genesis.uni-muenster.de:8080/SOR/sor");
-			IServiceChecker checker04 = new SorCapabilitiesCheck(sir, EMAIL_DN,
+			IServiceChecker capsChecker = new SorCapabilitiesCheck(sir, EMAIL_DN,
 					EVERY_12_HOURS);
-			checkers.add(checker04);
+			checkers.add(capsChecker);
 		} catch (MalformedURLException e) {
 			log.error("Could not create URL for checker.", e);
 		}

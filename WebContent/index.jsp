@@ -13,7 +13,8 @@
 <title>OWS Supervisor</title>
 
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-<meta http-equiv="Refresh" content="60" />
+<meta http-equiv="Refresh"
+	content="<%=supervisor.getPageRefreshIntervalSecs()%>" />
 
 <link href="styles.css" rel="stylesheet" type="text/css" />
 
@@ -36,18 +37,27 @@
 
 
 
-<p>The following list shows all supervised services and their latest
-status (maximum of <%=supervisor.getMaximumNumberOfResults()%> elements, please refresh page manually):</p>
+<p class="infotext">The following list shows a maximum of <%=supervisor.getMaximumNumberOfResults()%>
+of the latest check results. The page refreshes automatically every <%=supervisor.getPageRefreshIntervalSecs()%>
+seconds.</p>
 
 <ul>
 	<%
 		Collection<ICheckResult> results = supervisor.getCheckResults();
 		for (ICheckResult current : results) {
+			String style = "";
+			switch (current.getType()) {
+			case POSITIVE:
+				style = "checkPositive";
+				break;
+			case NEGATIVE:
+				style = "checkNegative";
+				break;
+			}
 	%>
 	<li><span class="checkTime"><%=current.getTimeOfCheck()%></span>:
 	<span class="checkService"><%=current.getServiceIdentifier()%></span> -
-	<span class="<%=current.getType().getStyle()%>"><%=current.getResult()%></span>
-	</li>
+	<span class="<%=style%>"><%=current.getResult()%></span></li>
 	<%
 		}
 	%>
@@ -58,7 +68,6 @@ daniel.nuest@uni-muenster.de</p>
 
 </div>
 
-<!-- 
 <div class="center"><a
 	href="http://validator.w3.org/check?uri=referer"> <img
 	src="http://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML 1.1" /> </a>
@@ -66,7 +75,6 @@ daniel.nuest@uni-muenster.de</p>
 <a href="http://jigsaw.w3.org/css-validator/check/referer"> <img
 	src="http://jigsaw.w3.org/css-validator/images/vcss"
 	alt="CSS is valid!" /> </a></div>
- -->
 
 </body>
 </html>
