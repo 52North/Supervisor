@@ -122,7 +122,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 		Date maxAge = new Date(System.currentTimeMillis()
 				- this.maximumAgeOfObservation);
 
-		log.debug("Checking for lates observation " + this.off + "/"
+		log.debug("Checking for latest observation " + this.off + "/"
 				+ this.observedProp + " which must be after " + maxAge);
 
 		this.results.clear();
@@ -156,11 +156,11 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 					try {
 						Date timeToCheck = ISO8601LocalFormat.parse(timeString);
 						if (timeToCheck.after(maxAge)) {
-							// save the result
+							// ALL OKAY - save the result
 							this.results.add(new CheckResultImpl(new Date(),
 									this.serviceUrl.toString(), POSITIVE_TEXT
-											+ " " + this.observedProp + " "
-											+ this.proc, ResultType.POSITIVE));
+											+ getObservationString(),
+									ResultType.POSITIVE));
 							return true;
 						}
 
@@ -176,11 +176,15 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 						log.error(
 								"Could not parse sampling time " + timeString,
 								e);
-						this.results.add(new CheckResultImpl(new Date(),
-								this.serviceUrl.toString(), NEGATIVE_TEXT + " "
-										+ this.observedProp + " " + this.proc
-										+ " -- could not parse the given time "
-										+ timeString, ResultType.NEGATIVE));
+						this.results
+								.add(new CheckResultImpl(
+										new Date(),
+										this.serviceUrl.toString(),
+										NEGATIVE_TEXT
+												+ getObservationString()
+												+ " -- Could not parse the given time "
+												+ timeString + ".",
+										ResultType.NEGATIVE));
 						return false;
 					}
 				}
@@ -190,7 +194,8 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 								new Date(),
 								this.serviceUrl.toString(),
 								NEGATIVE_TEXT
-										+ " ... Response did not contain TimeInstant as samplingTime!",
+										+ getObservationString()
+										+ " -- Response did not contain TimeInstant as samplingTime!",
 								ResultType.NEGATIVE));
 				return false;
 			}
@@ -207,6 +212,11 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 					ResultType.NEGATIVE));
 			return false;
 		}
+	}
+
+	private String getObservationString() {
+		return " Offering: " + this.off + "; Observed property: "
+				+ this.observedProp + "; Procedure: " + this.proc + ".";
 	}
 
 	private GetObservationDocument buildRequest() {

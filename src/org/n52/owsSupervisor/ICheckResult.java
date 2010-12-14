@@ -35,17 +35,7 @@ import java.util.Date;
 public interface ICheckResult {
 
 	public static enum ResultType {
-		POSITIVE("checkPositive"), NEGATIVE("checkNegative");
-
-		private String style;
-
-		private ResultType(String styleP) {
-			this.style = styleP;
-		}
-
-		public String getStyle() {
-			return this.style;
-		}
+		POSITIVE, NEGATIVE
 	}
 
 	public Date getTimeOfCheck();

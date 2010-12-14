@@ -69,5 +69,13 @@ public class SupervisorBean {
 	public int getMaximumNumberOfResults() {
 		return SupervisorProperties.getInstance().getMaximumResults();
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getPageRefreshIntervalSecs() {
+		return SupervisorProperties.getInstance().getPageRefreshSecs();
+	}
 
 }

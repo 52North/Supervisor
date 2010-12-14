@@ -81,6 +81,8 @@ public class SupervisorProperties {
 	private static final String MAX_CHECK_LIST_SIZE = "MAX_CHECK_LIST_SIZE";
 
 	private static final String SEND_EMAIL_INTERVAL_MINS = "SEND_EMAIL_INTERVAL_MINS";
+	
+	private static final String HTML_PAGE_REFRESH_SECS = "HTML_PAGE_REFRESH_SECS";
 
 	private static SupervisorProperties instance;
 
@@ -97,6 +99,8 @@ public class SupervisorProperties {
 	private int maximumResults;
 
 	private int emailSendPeriodMins;
+
+	private int pageRefreshSecs;
 
 	/**
 	 * Constructor to create an instance of the PropertiesManager
@@ -151,6 +155,7 @@ public class SupervisorProperties {
 
 		this.maximumResults = Integer.parseInt(props
 				.getProperty(MAX_CHECK_LIST_SIZE));
+		this.pageRefreshSecs = Integer.parseInt(props.getProperty(HTML_PAGE_REFRESH_SECS));
 
 		log.info("NEW " + this.toString());
 	}
@@ -258,6 +263,14 @@ public class SupervisorProperties {
 	 */
 	public int getEmailSendPeriodMins() {
 		return this.emailSendPeriodMins;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public int getPageRefreshSecs() {
+		return this.pageRefreshSecs;
 	}
 
 }
