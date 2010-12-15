@@ -70,10 +70,10 @@ daniel.nuest@uni-muenster.de</p>
 
 <div class="center"><a
 	href="http://validator.w3.org/check?uri=referer"> <img
-	src="http://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML 1.1" /> </a>
-
-<a href="http://jigsaw.w3.org/css-validator/check/referer"> <img
-	src="http://jigsaw.w3.org/css-validator/images/vcss"
+	src="<%=request.getContextPath()%>/images/valid-xhtml11.png"
+	alt="Valid XHTML 1.1" /> </a> <a
+	href="http://jigsaw.w3.org/css-validator/check/referer"> <img
+	src="<%=request.getContextPath()%>/images/vcss.gif"
 	alt="CSS is valid!" /> </a></div>
 
 </body>
