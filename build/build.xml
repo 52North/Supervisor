@@ -28,9 +28,11 @@
 			<fileset dir="WebContent" />
 		</copy>
 		<copy file="build/log4j.xml" tofile="tmp/WEB-INF/classes/log4j.xml" overwrite="true" />
+		<delete dir="tmp/WEB-INF/unused_lib" />
 
-		<replace file="tmp/WEB-INF/web.xml" token="@BUILDINFO@" value="Version ${service.version} from ${build.date} - Build no. ${build.num}" />
+		<replace file="tmp/WEB-INF/web.xml" token="@BUILDINFO@" value="Version ${service.version} built ${build.date} - Build no. ${build.num}" />
 		<replace file="tmp/WEB-INF/conf/supervisor.config" token="@SERVICE_VERSION@" value="${service.version}" />
+		<replace file="tmp/WEB-INF/conf/supervisor.config" token="@ADMIN_EMAIL@" value="${admin.email}" />
 	</target>
 
 	<target name="javac" depends="copy" description="Compile java source">
