@@ -105,12 +105,14 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
 		if (this.version != "1.1") {
 			log.error("OWS Version not supported: " + this.version);
-			this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... OWS Version not supported: " + this.version,
-					ResultType.NEGATIVE));
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(),
+					NEGATIVE_TEXT + " ... OWS Version not supported: "
+							+ this.version, ResultType.NEGATIVE));
 			return false;
 		}
+		
+		clearResults();
 
 		// create get capabilities document
 		GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory
@@ -121,6 +123,7 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 		try {
 			XmlObject response = Client.xSendPostRequest(
 					this.serviceUrl.toString(), getCapDoc);
+			getCapDoc = null;
 
 			// parse response - this is the test!
 			CapabilitiesBaseType caps = CapabilitiesBaseType.Factory
@@ -128,23 +131,25 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 			log.debug("Parsed caps with version " + caps.getVersion());
 		} catch (IOException e) {
 			log.error("Could not send request", e);
-			this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(),
-					NEGATIVE_TEXT + " ... Could not send request!",
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(), NEGATIVE_TEXT
+							+ " ... Could not send request!",
 					ResultType.NEGATIVE));
 			return false;
 		} catch (XmlException e) {
 			log.error("Could not send request", e);
-			this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... Could not parse response to CapabilitiesBaseType!",
+			addResult(new CheckResultImpl(
+					new Date(),
+					this.serviceUrl.toString(),
+					NEGATIVE_TEXT
+							+ " ... Could not parse response to CapabilitiesBaseType!",
 					ResultType.NEGATIVE));
 			return false;
 		}
 
-		// save the result
-		this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-				.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
+		// save the good result
+		addResult(new CheckResultImpl(new Date(), this.serviceUrl.toString(),
+				POSITIVE_TEXT, ResultType.POSITIVE));
 
 		return true;
 	}

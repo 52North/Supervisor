@@ -60,11 +60,26 @@ public class SendEmailTask extends TimerTask {
 
 	private static Logger log = Logger.getLogger(SendEmailTask.class);
 
+	private String adminEmail = null;
+
 	/**
 	 * 
+	 * @param notificationsP
 	 */
 	public SendEmailTask(Collection<FailureNotificationElement> notificationsP) {
 		this.notifications = notificationsP;
+		log.info("NEW " + this.toString());
+	}
+
+	/**
+	 * 
+	 * @param adminEmail
+	 * @param notificationsP
+	 */
+	public SendEmailTask(String adminEmailP,
+			Collection<FailureNotificationElement> notificationsP) {
+		this.notifications = notificationsP;
+		this.adminEmail = adminEmailP;
 		log.info("NEW " + this.toString());
 	}
 
@@ -77,9 +92,29 @@ public class SendEmailTask extends TimerTask {
 	public void run() {
 		if (this.notifications.size() < 1) {
 			log.debug("No notifications. Yay!");
+//			long heapSize = Runtime.getRuntime().totalMemory();
+//			long heapMaxSize = Runtime.getRuntime().maxMemory();
+//			long heapFreeSize = Runtime.getRuntime().freeMemory();
+//			System.out.println("Size is " + heapSize/1024 + " of " + heapMaxSize/1024 + " leaving " + heapFreeSize/1024 + ".");
 			return;
 		}
 
+		try {
+			doTask();
+		} catch (Error e) {
+			log.error("Error fulfilling task");
+			if (this.adminEmail != null) {
+				try {
+					sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 0);
+				} catch (MessagingException e1) {
+					log.error("Could not send email on error!");
+				}
+			}
+			throw e;
+		}
+	}
+
+	private void doTask() {
 		log.info("*** Sending emails based on " + this.notifications.size()
 				+ " notifications.");
 

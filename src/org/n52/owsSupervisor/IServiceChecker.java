@@ -55,6 +55,11 @@ public interface IServiceChecker {
 	/**
 	 * 
 	 */
+	public void addResult(ICheckResult r);
+
+	/**
+	 * 
+	 */
 	public void notifyFailure();
 
 	/**

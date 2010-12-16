@@ -84,17 +84,17 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 		if (log.isDebugEnabled()) {
 			log.debug("Checking SOS Capabilities for " + this.serviceUrl);
 		}
-		
+
 		if (this.version != "1.1") {
 			log.error("OWS Version not supported: " + this.version);
-			this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... OWS Version not supported: " + this.version,
-					ResultType.NEGATIVE));
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(),
+					NEGATIVE_TEXT + " ... OWS Version not supported: "
+							+ this.version, ResultType.NEGATIVE));
 			return false;
 		}
-		
-		this.results.clear();
+
+		clearResults();
 
 		// create get capabilities document
 		GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory
@@ -105,6 +105,8 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 		try {
 			XmlObject response = Client.xSendPostRequest(
 					this.serviceUrl.toString(), getCapDoc);
+			getCapDoc = null;
+			
 			// check it!
 			if (response instanceof CapabilitiesDocument) {
 				CapabilitiesDocument caps = (CapabilitiesDocument) response;
@@ -112,29 +114,30 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 						+ caps.getCapabilities().getVersion());
 
 				// save the result
-				this.results.add(new CheckResultImpl(new Date(),
+				addResult(new CheckResultImpl(new Date(),
 						this.serviceUrl.toString(), POSITIVE_TEXT,
 						ResultType.POSITIVE));
 				return true;
 			}
-			this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... Response was not a Capabilities document!",
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(), NEGATIVE_TEXT
+							+ " ... Response was not a Capabilities document!",
 					ResultType.NEGATIVE));
 			return false;
 		} catch (IOException e) {
 			log.error("Could not send request", e);
-			this.results.add(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(),
-					NEGATIVE_TEXT + " ... Could not send request!",
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(), NEGATIVE_TEXT
+							+ " ... Could not send request!",
 					ResultType.NEGATIVE));
 			return false;
 		}
 	}
-	
+
 	@Override
 	public String toString() {
-		return "SirCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
+		return "SirCapabilitiesCheck [" + getService() + ", check interval="
+				+ getCheckIntervalMillis() + "]";
 	}
 
 }

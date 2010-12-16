@@ -24,31 +24,49 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+
+package org.n52.owsSupervisor.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.IServiceChecker;
+import org.n52.owsSupervisor.checkImpl.CheckResultImpl;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class CheckerCollection implements IServiceChecker {
+public class HeapChecker implements IServiceChecker {
 
-	private static Logger log = Logger.getLogger(CheckerCollection.class);
+	private long interval;
 
-	private Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+	private CheckResultImpl result;
+
+	private static Logger log = Logger.getLogger(SendEmailTask.class);
+
+	private static final long L1024_2 = 1024 * 1024;
 
 	/**
+	 * @param l
 	 * 
-	 * @param checkers
 	 */
-	public CheckerCollection(Collection<IServiceChecker> checkersP) {
-		this.checkers = checkersP;
+	public HeapChecker(long intervalMillis) {
+		this.interval = intervalMillis;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.n52.owsSupervisor.IServiceChecker#getService()
+	 */
+	@Override
+	public String getService() {
+		return null;
 	}
 
 	/*
@@ -58,24 +76,15 @@ public class CheckerCollection implements IServiceChecker {
 	 */
 	@Override
 	public boolean check() {
-		log.debug("Checking collection of " + this.checkers.size());
-
-		boolean b = true;
-		int success = 0;
-		int failure = 0;
-		for (IServiceChecker c : this.checkers) {
-			if (!c.check()) {
-				b = false;
-				failure++;
-			} else {
-				success++;
-			}
-		}
-
-		log.debug("Checked collection: " + success + " successful and "
-				+ failure + " failed checks.");
-
-		return b;
+		long heapSize = Runtime.getRuntime().totalMemory();
+		long heapMaxSize = Runtime.getRuntime().maxMemory();
+		long heapFreeSize = Runtime.getRuntime().freeMemory();
+		String s = "Size (Mb) is " + heapSize / L1024_2 + " of " + heapMaxSize
+				/ L1024_2 + " leaving " + heapFreeSize / L1024_2 + ".";
+		log.debug(s);
+		this.result = new CheckResultImpl(new Date(), "Internal Heap Checker", s,
+				ResultType.POSITIVE);
+		return true;
 	}
 
 	/*
@@ -85,17 +94,21 @@ public class CheckerCollection implements IServiceChecker {
 	 */
 	@Override
 	public Collection<ICheckResult> getResults() {
-		ArrayList<ICheckResult> results = new ArrayList<ICheckResult>();
-		for (IServiceChecker c : this.checkers) {
-			results.addAll(c.getResults());
-		}
-		return results;
+		ArrayList<ICheckResult> l = new ArrayList<ICheckResult>();
+		l.add(this.result);
+		return l;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.n52.owsSupervisor.IServiceChecker#addResult(org.n52.owsSupervisor
+	 * .ICheckResult)
+	 */
 	@Override
 	public void addResult(ICheckResult r) {
-		throw new UnsupportedOperationException(
-				"Collection of checkers, which can contain different intervals!");
+		//
 	}
 
 	/*
@@ -105,9 +118,7 @@ public class CheckerCollection implements IServiceChecker {
 	 */
 	@Override
 	public void notifyFailure() {
-		for (IServiceChecker c : this.checkers) {
-			c.notifyFailure();
-		}
+		//
 	}
 
 	/*
@@ -117,18 +128,7 @@ public class CheckerCollection implements IServiceChecker {
 	 */
 	@Override
 	public long getCheckIntervalMillis() {
-		throw new UnsupportedOperationException(
-				"Collection of checkers, which can contain different intervals!");
-	}
-
-	@Override
-	public String getService() {
-		throw new UnsupportedOperationException(
-				"Collection of checkers, which can multiple services!");
-	}
-
-	public Collection<IServiceChecker> getCheckers() {
-		return this.checkers;
+		return this.interval;
 	}
 
 }
