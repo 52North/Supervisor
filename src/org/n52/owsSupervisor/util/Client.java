@@ -69,7 +69,7 @@ public class Client {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String sendPostRequest(String requestUrl, String request)
+	public String sendPostRequest(String requestUrl, String request)
 			throws IOException {
 		if (request.isEmpty()) {
 			return "The request is empty!";
@@ -85,7 +85,7 @@ public class Client {
 	 * @return
 	 * @throws IOException
 	 */
-	public static XmlObject xSendPostRequest(String requestUrl,
+	public XmlObject xSendPostRequest(String requestUrl,
 			XmlObject request) throws IOException {
 		XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
 		return response;
@@ -99,7 +99,7 @@ public class Client {
 	 * @throws IOException
 	 * @throws HttpException
 	 */
-	private static XmlObject doSend(String requestUrl, String request,
+	private XmlObject doSend(String requestUrl, String request,
 			String requestMethod) throws UnsupportedEncodingException,
 			IOException, HttpException {
 		if (log.isDebugEnabled())
@@ -160,7 +160,7 @@ public class Client {
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	public static String sendGetRequest(String requestUrl, String request)
+	public String sendGetRequest(String requestUrl, String request)
 			throws UnsupportedEncodingException, HttpException, IOException {
 		if (request.isEmpty()) {
 			return "The request is empty!";
@@ -177,7 +177,7 @@ public class Client {
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	public static XmlObject xSendGetRequest(String requestUrl, String request)
+	public XmlObject xSendGetRequest(String requestUrl, String request)
 			throws UnsupportedEncodingException, HttpException, IOException {
 		XmlObject response = doSend(requestUrl, GET_METHOD, request);
 		return response;

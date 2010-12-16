@@ -67,6 +67,10 @@ public class Supervisor extends GenericServlet {
 	private static List<FailureNotificationElement> notifications;
 
 	private IJobScheduler scheduler;
+	
+	private static int gcCounter = 0;
+
+	private static int gcInterval = 100;
 
 	/**
 	 * 
@@ -101,7 +105,8 @@ public class Supervisor extends GenericServlet {
 
 		// initialize checkers
 		initCheckers();
-
+		gcInterval = this.checkers.size() * 2;
+		
 		// add task for email notifications
 		String adminEmail = sp.getAdminEmail();
 		if (adminEmail.contains("@ADMIN_EMAIL@")) {
@@ -169,8 +174,13 @@ public class Supervisor extends GenericServlet {
 				// fit.
 				latestResults.remove(0);
 			}
-			// had weird java heap space errors, try this...
-			System.gc();
+			
+			gcCounter++;
+			if(gcCounter > gcInterval) {
+				gcCounter = 0;
+				// had weird java heap space errors, try this... helps!
+				System.gc();
+			}
 		}
 
 		latestResults.addAll(results);

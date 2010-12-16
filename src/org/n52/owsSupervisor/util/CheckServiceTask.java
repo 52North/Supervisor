@@ -67,14 +67,12 @@ public class CheckServiceTask extends TimerTask {
 		Collection<ICheckResult> currentResults = checkIt(this.checker);
 		Supervisor.appendLatestResults(currentResults);
 		
-		log.info("Ran check, got " + currentResults.size() + " results.");
+		log.info("*** Ran check, got " + currentResults.size() + " results.");
 	}
 
 	private Collection<ICheckResult> checkIt(IServiceChecker c) {
 		boolean b = c.check();
-		if (b) {
-			log.debug("Check successful: " + c);
-		} else {
+		if (!b) {
 			log.debug("Check FAILED: " + c);
 			c.notifyFailure();
 		}
