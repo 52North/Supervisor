@@ -39,6 +39,7 @@ import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.n52.owsSupervisor.util.Client;
 
 /**
  * @author Daniel Nüst
@@ -59,6 +60,8 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
 	public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:SS.SSS");
+	
+	protected Client client = new Client();
 
 	/**
 	 * 

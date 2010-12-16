@@ -37,7 +37,6 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
-import org.n52.owsSupervisor.util.Client;
 import org.n52.owsSupervisor.util.XmlTools;
 
 /**
@@ -121,7 +120,7 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
 		// send the document
 		try {
-			XmlObject response = Client.xSendPostRequest(
+			XmlObject response = this.client.xSendPostRequest(
 					this.serviceUrl.toString(), getCapDoc);
 			getCapDoc = null;
 

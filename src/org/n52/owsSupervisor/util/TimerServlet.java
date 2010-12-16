@@ -137,7 +137,9 @@ public class TimerServlet extends GenericServlet {
 	public void destroy() {
 		super.destroy();
 		log.info("Destroy " + this.toString());
+		executor.shutdownNow();
 		executor = null;
+		this.tasks.clear();
 		this.tasks = null;
 	}
 

@@ -12,10 +12,6 @@
 		<servlet-name>Timer</servlet-name>
 		<servlet-class>org.n52.owsSupervisor.util.TimerServlet</servlet-class>
 		<init-param>
-			<param-name>isDaemon</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<init-param>
 			<param-name>configFile</param-name>
 			<param-value>/WEB-INF/conf/supervisor.config</param-value>
 		</init-param>
