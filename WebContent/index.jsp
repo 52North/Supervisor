@@ -38,8 +38,7 @@
 
 
 <p class="infotext">The following list shows a maximum of <%=supervisor.getMaximumNumberOfResults()%>
-of the latest check results. The page refreshes automatically every <%=supervisor.getPageRefreshIntervalSecs()%>
-seconds.</p>
+of the latest check results (automatic refresh every <%=supervisor.getPageRefreshIntervalSecs()%> seconds).</p>
 
 <ul>
 	<%
@@ -73,8 +72,8 @@ daniel.nuest@uni-muenster.de</p>
 	src="<%=request.getContextPath()%>/images/valid-xhtml11.png"
 	alt="Valid XHTML 1.1" /> </a> <a
 	href="http://jigsaw.w3.org/css-validator/check/referer"> <img
-	src="<%=request.getContextPath()%>/images/vcss.gif"
-	alt="CSS is valid!" /> </a></div>
+	src="<%=request.getContextPath()%>/images/vcss.gif" alt="CSS is valid!" />
+</a></div>
 
 </body>
 </html>
