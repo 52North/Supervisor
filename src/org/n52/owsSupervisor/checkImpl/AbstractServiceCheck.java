@@ -48,7 +48,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
 	private static Logger log = Logger.getLogger(AbstractServiceCheck.class);
 
-	protected List<ICheckResult> results = new ArrayList<ICheckResult>();
+	private List<ICheckResult> results = new ArrayList<ICheckResult>();
 
 	protected URL serviceUrl;
 
@@ -59,14 +59,6 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
 	public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:SS.SSS");
-
-	/**
-	 * 
-	 * @param notifyEmail
-	 */
-	public AbstractServiceCheck() {
-		//
-	}
 
 	/**
 	 * 
@@ -102,6 +94,11 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 	}
 
 	@Override
+	public void addResult(ICheckResult r) {
+		this.results.add(r);
+	}
+
+	@Override
 	public void notifyFailure() {
 		if (this.email == null) {
 			log.error("Can not notify via email, is null!");
@@ -123,6 +120,16 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 	@Override
 	public long getCheckIntervalMillis() {
 		return this.checkIntervalMillis;
+	}
+
+	/**
+	 * 
+	 */
+	public void clearResults() {
+		if (log.isDebugEnabled()) {
+			log.debug("Clearing " + this.results.size() + " results");
+		}
+		this.results.clear();
 	}
 
 }

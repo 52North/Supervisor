@@ -37,6 +37,7 @@ import org.n52.owsSupervisor.checkImpl.SirCapabilitiesCheck;
 import org.n52.owsSupervisor.checkImpl.SorCapabilitiesCheck;
 import org.n52.owsSupervisor.checkImpl.SosCapabilitiesCheck;
 import org.n52.owsSupervisor.checkImpl.SosLatestObservationCheck;
+import org.n52.owsSupervisor.util.HeapChecker;
 
 /**
  * @author Daniel Nüst
@@ -60,6 +61,10 @@ public abstract class SWSL {
 	private static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
 
 	static {
+		// Debugging
+		HeapChecker hc = new HeapChecker(EVERY_HALF_HOUR);
+		checkers.add(hc);
+
 		// WeatherSOS
 		try {
 			URL weathersos = new URL(
@@ -89,7 +94,6 @@ public abstract class SWSL {
 
 				checkers.add(checker);
 			}
-
 		} catch (MalformedURLException e) {
 			log.error("Could not create URL for checker.", e);
 		}
@@ -98,8 +102,8 @@ public abstract class SWSL {
 		try {
 			URL sir = new URL(
 					"http://giv-genesis.uni-muenster.de:8080/SIR2/sir");
-			IServiceChecker capsChecker = new SirCapabilitiesCheck(sir, EMAIL_DN,
-					EVERY_12_HOURS);
+			IServiceChecker capsChecker = new SirCapabilitiesCheck(sir,
+					EMAIL_DN, EVERY_12_HOURS);
 			checkers.add(capsChecker);
 		} catch (MalformedURLException e) {
 			log.error("Could not create URL for checker.", e);
@@ -108,8 +112,8 @@ public abstract class SWSL {
 		// SOR @ giv-genesis
 		try {
 			URL sir = new URL("http://giv-genesis.uni-muenster.de:8080/SOR/sor");
-			IServiceChecker capsChecker = new SorCapabilitiesCheck(sir, EMAIL_DN,
-					EVERY_12_HOURS);
+			IServiceChecker capsChecker = new SorCapabilitiesCheck(sir,
+					EMAIL_DN, EVERY_12_HOURS);
 			checkers.add(capsChecker);
 		} catch (MalformedURLException e) {
 			log.error("Could not create URL for checker.", e);

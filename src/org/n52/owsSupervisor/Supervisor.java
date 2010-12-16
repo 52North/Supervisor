@@ -102,10 +102,18 @@ public class Supervisor extends GenericServlet {
 		// initialize checkers
 		initCheckers();
 
-		// add tast for email notifications
-		timerServlet.submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(
-				notifications), sp.getEmailSendPeriodMins(), sp
-				.getEmailSendPeriodMins());
+		// add task for email notifications
+		String adminEmail = sp.getAdminEmail();
+		if (adminEmail.contains("@ADMIN_EMAIL@")) {
+			timerServlet.submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(
+					notifications), sp.getEmailSendPeriodMins(), sp
+					.getEmailSendPeriodMins());
+		} else {
+			log.info("Found admin email address for send email task.");
+			timerServlet.submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(
+					adminEmail, notifications), sp.getEmailSendPeriodMins(), sp
+					.getEmailSendPeriodMins());
+		}
 
 		log.info("*** INITIALIZED SUPERVISOR ***");
 	}
@@ -129,11 +137,14 @@ public class Supervisor extends GenericServlet {
 			throws ServletException, IOException {
 		log.fatal("'service' method is not supported. ServletRequest: " + arg0);
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();
-		log.info("Destroy " + this.toString());
+		this.checkers = null;
+		latestResults = null;
+		notifications = null;
+		log.info("Destroyed " + this.toString());
 	}
 
 	/**
@@ -151,9 +162,15 @@ public class Supervisor extends GenericServlet {
 	public static void appendLatestResults(Collection<ICheckResult> results) {
 		if (latestResults.size() >= SupervisorProperties.getInstance()
 				.getMaximumResults()) {
-			for (int i = 0; i < results.size(); i++) {
-				latestResults.remove(i);
+			log.debug("Too many results. Got " + results.size() + " new and "
+					+ latestResults.size() + " existing.");
+			for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
+				// remove the first element so many times that the new results
+				// fit.
+				latestResults.remove(0);
 			}
+			// had weird java heap space errors, try this...
+			System.gc();
 		}
 
 		latestResults.addAll(results);
@@ -173,7 +190,7 @@ public class Supervisor extends GenericServlet {
 	 * 
 	 */
 	public static void clearNotifications() {
-		log.debug("Clearing notifications!");
+		log.info("Clearing notifications!");
 		notifications.clear();
 	}
 

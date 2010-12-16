@@ -33,6 +33,8 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletContext;
@@ -73,27 +75,21 @@ public class TimerServlet extends GenericServlet {
 	 */
 	public static final String NAME_IN_CONTEXT = "TimerServlet";
 
-	/**
-     * 
-     */
-	private static final String IS_DAEMON_INIT_PARAM_NAME = "isDaemon";
+	private static final String CHECK_THREAD_COUNT = "CHECK_THREAD_COUNT";
 
 	private static Logger log = Logger.getLogger(TimerServlet.class);
-
-	/**
-	 * Inner {@link Timer} that might run as a daemon according to the init
-	 * parameter {@link TimerServlet#IS_DAEMON_INIT_PARAM_NAME} in the servlet
-	 * defintion (web.xml).
-	 */
-	private static Timer timer;
 
 	/**
 	 * List that holds all repeated task during run-time.
 	 */
 	private ArrayList<TaskElement> tasks;
 
-	@SuppressWarnings("unused")
 	private Properties props;
+
+	/**
+	 * 
+	 */
+	private static ScheduledThreadPoolExecutor executor;
 
 	/**
 	 * Default constructor.
@@ -109,11 +105,6 @@ public class TimerServlet extends GenericServlet {
 
 		ServletContext context = getServletContext();
 		context.setAttribute(NAME_IN_CONTEXT, this);
-
-		// create inner Timer
-		timer = new Timer(
-				getServletName(),
-				Boolean.parseBoolean(getInitParameter(IS_DAEMON_INIT_PARAM_NAME)));
 
 		// get configFile as Inputstream
 		InputStream configStream = context
@@ -131,30 +122,23 @@ public class TimerServlet extends GenericServlet {
 			throw new UnavailableException("Could not load properties file!");
 		}
 		
+		// init executor
+		int threadCount = Integer.parseInt(this.props
+				.getProperty(CHECK_THREAD_COUNT));
+		executor = new ScheduledThreadPoolExecutor(threadCount);
+
+
 		this.tasks = new ArrayList<TimerServlet.TaskElement>();
 
 		log.info(" ***** Timer initiated successfully! ***** ");
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();
 		log.info("Destroy " + this.toString());
-		timer.cancel();
-		timer = null;
+		executor = null;
 		this.tasks = null;
-	}
-
-	/**
-	 * 
-	 * @param task
-	 * @param date
-	 */
-	public void submit(TimerTask task, Date date) {
-		timer.schedule(task, date);
-		if (log.isDebugEnabled()) {
-			log.debug("Submitted: " + task + " to run at " + date);
-		}
 	}
 
 	/**
@@ -170,7 +154,8 @@ public class TimerServlet extends GenericServlet {
 	 */
 	public void submit(String identifier, TimerTask task, long delay,
 			long period) {
-		timer.scheduleAtFixedRate(task, delay, period);
+		// timer.scheduleAtFixedRate(task, delay, period);
+		executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
 		if (log.isDebugEnabled()) {
 			log.debug("Submitted: " + task + " with period = " + period
 					+ ", delay = " + delay);
@@ -203,8 +188,8 @@ public class TimerServlet extends GenericServlet {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("TimerServlet [timer =");
-		sb.append(timer.toString());
+		sb.append("TimerServlet [executor =");
+		sb.append(executor.toString());
 		sb.append(" -- ");
 		sb.append("tasks: ");
 		for (TaskElement te : this.tasks) {
