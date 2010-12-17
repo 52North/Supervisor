@@ -46,10 +46,10 @@ public class CheckResultImpl implements ICheckResult {
 
 	/**
 	 * 
-	 * @param time
-	 * @param service
-	 * @param result
-	 * @param type
+	 * @param timeP
+	 * @param serviceP
+	 * @param resultP
+	 * @param typeP
 	 */
 	public CheckResultImpl(Date timeP, String serviceP, String resultP,
 			ResultType typeP) {
@@ -57,6 +57,16 @@ public class CheckResultImpl implements ICheckResult {
 		this.serviceIdentifier = serviceP;
 		this.result = resultP;
 		this.type = typeP;
+	}
+
+	/**
+	 * 
+	 * @param serviceP
+	 * @param resultP
+	 * @param typeP
+	 */
+	public CheckResultImpl(String serviceP, String resultP, ResultType typeP) {
+		this(new Date(), serviceP, resultP, typeP);
 	}
 
 	/*

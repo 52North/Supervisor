@@ -60,6 +60,8 @@ public abstract class SWSL {
 
 	private static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
 
+	private static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
+
 	static {
 		// Debugging
 		HeapChecker hc = new HeapChecker(EVERY_HALF_HOUR);

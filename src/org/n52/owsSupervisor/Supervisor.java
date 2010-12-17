@@ -30,7 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletContext;
@@ -62,15 +63,11 @@ public class Supervisor extends GenericServlet {
 
 	private Collection<IServiceChecker> checkers;
 
-	private static List<ICheckResult> latestResults;
+	private static Queue<ICheckResult> latestResults;
 
-	private static List<FailureNotificationElement> notifications;
+	private static Queue<FailureNotificationElement> notifications;
 
 	private IJobScheduler scheduler;
-	
-	private static int gcCounter = 0;
-
-	private static int gcInterval = 100;
 
 	/**
 	 * 
@@ -94,8 +91,9 @@ public class Supervisor extends GenericServlet {
 
 		// initialize lists
 		this.checkers = new ArrayList<IServiceChecker>();
-		latestResults = new ArrayList<ICheckResult>();
-		notifications = new ArrayList<FailureNotificationElement>();
+		latestResults = new LinkedBlockingQueue<ICheckResult>(
+				SupervisorProperties.getInstance().getMaximumResults());
+		notifications = new LinkedBlockingQueue<FailureNotificationElement>();
 
 		// init timer servlet
 		TimerServlet timerServlet = (TimerServlet) context
@@ -105,9 +103,8 @@ public class Supervisor extends GenericServlet {
 
 		// initialize checkers
 		initCheckers();
-		gcInterval = this.checkers.size() * 2;
-		
-		// add task for email notifications
+
+		// add task for email notifications, with out without admin email
 		String adminEmail = sp.getAdminEmail();
 		if (adminEmail.contains("@ADMIN_EMAIL@")) {
 			timerServlet.submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(
@@ -146,10 +143,13 @@ public class Supervisor extends GenericServlet {
 	@Override
 	public void destroy() {
 		super.destroy();
+		log.info("Destroy " + this.toString());
+		this.checkers.clear();
 		this.checkers = null;
+		latestResults.clear();
 		latestResults = null;
+		notifications.clear();
 		notifications = null;
-		log.info("Destroyed " + this.toString());
 	}
 
 	/**
@@ -157,7 +157,7 @@ public class Supervisor extends GenericServlet {
 	 * @return
 	 */
 	public static Collection<ICheckResult> getLatestResults() {
-		return latestResults;
+		return new ArrayList<ICheckResult>(latestResults);
 	}
 
 	/**
@@ -172,18 +172,19 @@ public class Supervisor extends GenericServlet {
 			for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
 				// remove the first element so many times that the new results
 				// fit.
-				latestResults.remove(0);
-			}
-			
-			gcCounter++;
-			if(gcCounter > gcInterval) {
-				gcCounter = 0;
-				// had weird java heap space errors, try this... helps!
-				System.gc();
+				latestResults.remove();
 			}
 		}
 
 		latestResults.addAll(results);
+	}
+
+	/**
+	 * 
+	 * @param result
+	 */
+	public static void appendLatestResult(ICheckResult result) {
+		latestResults.add(result);
 	}
 
 	/**
