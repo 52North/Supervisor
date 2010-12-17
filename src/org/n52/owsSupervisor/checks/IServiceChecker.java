@@ -24,9 +24,10 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor;
+package org.n52.owsSupervisor.checks;
 
 import java.util.Collection;
+
 
 /**
  * @author Daniel Nüst

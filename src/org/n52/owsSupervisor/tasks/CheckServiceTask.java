@@ -24,15 +24,15 @@
  Created on: 08.01.2010
  *********************************************************************************/
 
-package org.n52.owsSupervisor.util;
+package org.n52.owsSupervisor.tasks;
 
 import java.util.Collection;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.ICheckResult;
-import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
+import org.n52.owsSupervisor.checks.ICheckResult;
+import org.n52.owsSupervisor.checks.IServiceChecker;
 
 /**
  * 

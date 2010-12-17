@@ -32,12 +32,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.IServiceChecker;
-import org.n52.owsSupervisor.checkImpl.SirCapabilitiesCheck;
-import org.n52.owsSupervisor.checkImpl.SorCapabilitiesCheck;
-import org.n52.owsSupervisor.checkImpl.SosCapabilitiesCheck;
-import org.n52.owsSupervisor.checkImpl.SosLatestObservationCheck;
-import org.n52.owsSupervisor.util.HeapChecker;
+import org.n52.owsSupervisor.checks.HeapChecker;
+import org.n52.owsSupervisor.checks.IServiceChecker;
+import org.n52.owsSupervisor.checks.SirCapabilitiesCheck;
+import org.n52.owsSupervisor.checks.SorCapabilitiesCheck;
+import org.n52.owsSupervisor.checks.SosCapabilitiesCheck;
+import org.n52.owsSupervisor.checks.SosLatestObservationCheck;
 
 /**
  * @author Daniel Nüst

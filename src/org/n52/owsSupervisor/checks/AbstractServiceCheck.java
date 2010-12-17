@@ -24,7 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+package org.n52.owsSupervisor.checks;
 
 import java.net.URL;
 import java.text.DateFormat;
@@ -34,11 +34,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.ICheckResult;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
-import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ui.EmailFailureNotification;
 import org.n52.owsSupervisor.util.Client;
 
 /**
@@ -60,7 +59,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
 	public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:SS.SSS");
-	
+
 	protected Client client = new Client();
 
 	/**
@@ -115,8 +114,8 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 		}
 
 		// append for email notification to queue
-		Supervisor.appendNotification(this.serviceUrl.toString(), this.email,
-				failures);
+		Supervisor.appendNotification(new EmailFailureNotification(
+				this.serviceUrl.toString(), this.email, failures));
 		log.debug("Sent email with " + failures.size() + " failures.");
 	}
 

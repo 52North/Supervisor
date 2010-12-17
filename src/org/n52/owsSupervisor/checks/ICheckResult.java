@@ -24,58 +24,26 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
+package org.n52.owsSupervisor.checks;
 
-package org.n52.owsSupervisor;
-
-import java.util.Collection;
-
-import org.apache.log4j.Logger;
+import java.util.Date;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class SupervisorBean {
+public interface ICheckResult {
 
-	private static Logger log = Logger.getLogger(SupervisorBean.class);
-
-	/**
-	 * 
-	 */
-	public SupervisorBean() {
-		log.info("NEW " + this.toString());
+	public static enum ResultType {
+		POSITIVE, NEGATIVE
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Collection<ICheckResult> getCheckResults() {
-		return Supervisor.getLatestResults();
-	}
+	public Date getTimeOfCheck();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getVersion() {
-		return SupervisorProperties.getInstance().getServiceVersion();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public int getMaximumNumberOfResults() {
-		return SupervisorProperties.getInstance().getMaximumResults();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public int getPageRefreshIntervalSecs() {
-		return SupervisorProperties.getInstance().getPageRefreshSecs();
-	}
+	public String getServiceIdentifier();
+
+	public String getResult();
+
+	public ResultType getType();
 
 }

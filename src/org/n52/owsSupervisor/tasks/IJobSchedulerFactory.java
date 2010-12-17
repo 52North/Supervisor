@@ -21,46 +21,24 @@
  59 Temple Place - Suite 330, Boston, MA 02111-1307, USA or visit the Free Software
  Foundation web page, http://www.fsf.org.
  
- Created on: 08.01.2010
+ Created on: 14.01.2010
  *********************************************************************************/
 
-package org.n52.owsSupervisor.util;
-
-import org.apache.log4j.Logger;
+package org.n52.owsSupervisor.tasks;
 
 /**
  * 
- * Factory for creating instances of {@link IJobScheduler} that work with the timer given in the constructor.
+ * Factory class for encapsulation of {@link IJobScheduler} instances.
  * 
- * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
+ * @author Daniel Nüst (daniel.neust@uni-muenster.de)
  * 
  */
-public class JobSchedulerFactoryImpl implements IJobSchedulerFactory {
-
-    private static Logger log = Logger.getLogger(JobSchedulerFactoryImpl.class);
-
-    private TimerServlet timerServlet;
+public interface IJobSchedulerFactory {
 
     /**
      * 
-     * @param timer
+     * @return An instance of an {@link IJobScheduler} to schedule new or cancel existing tasks.
      */
-    public JobSchedulerFactoryImpl(TimerServlet timer) {
-        this.timerServlet = timer;
-        log.info("NEW " + this);
-    }
+    public abstract IJobScheduler getJobScheduler();
 
-    @Override
-    public IJobScheduler getJobScheduler() {
-        return new JobSchedulerImpl(this.timerServlet);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("JobSchedulerFactory [timerServlet=");
-        sb.append(this.timerServlet);
-        sb.append("]");
-        return sb.toString();
-    }
 }

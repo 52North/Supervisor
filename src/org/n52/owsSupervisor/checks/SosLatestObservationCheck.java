@@ -24,7 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+package org.n52.owsSupervisor.checks;
 
 import java.io.IOException;
 import java.net.URL;
@@ -48,7 +48,7 @@ import net.opengis.swe.x101.TimeObjectPropertyType;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
+import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
 
 /**

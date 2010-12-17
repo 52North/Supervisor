@@ -24,27 +24,36 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+package org.n52.owsSupervisor.checks;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
-import org.n52.owsSupervisor.util.XmlTools;
+import net.opengis.ows.x11.CapabilitiesBaseType;
+import net.opengis.ows.x11.GetCapabilitiesDocument;
 
-import de.uniMuenster.swsl.sir.CapabilitiesDocument;
-import de.uniMuenster.swsl.sir.GetCapabilitiesDocument;
+import org.apache.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.util.XmlTools;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
+public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
-	private static Logger log = Logger.getLogger(SirCapabilitiesCheck.class);
+	private static Logger log = Logger.getLogger(OwsCapabilitiesCheck.class);
+
+	protected static final String DEFAULT_OWS_VERSION = "1.1";
+
+	protected static final String POSITIVE_TEXT = "Successfully requested capabilities document.";
+
+	protected static final String NEGATIVE_TEXT = "Request for capabilities document FAILED.";
+
+	protected String version;
 
 	/**
 	 * 
@@ -53,9 +62,11 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
-	public SirCapabilitiesCheck(String owsVersion, URL service,
+	public OwsCapabilitiesCheck(String owsVersion, URL service,
 			String notifyEmail, long checkIntervalMillis) {
-		super(owsVersion, service, notifyEmail, checkIntervalMillis);
+		super(notifyEmail, checkIntervalMillis);
+		this.version = owsVersion;
+		this.serviceUrl = service;
 	}
 
 	/**
@@ -64,9 +75,9 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
-	public SirCapabilitiesCheck(URL service, String notifyEmail,
+	public OwsCapabilitiesCheck(URL service, String notifyEmail,
 			long checkIntervalMillis) {
-		super(service, notifyEmail, checkIntervalMillis);
+		this(DEFAULT_OWS_VERSION, service, notifyEmail, checkIntervalMillis);
 	}
 
 	/**
@@ -74,14 +85,21 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param service
 	 * @param notifyEmail
 	 */
-	public SirCapabilitiesCheck(URL service, String notifyEmail) {
-		super(service, notifyEmail);
+	public OwsCapabilitiesCheck(URL service, String notifyEmail) {
+		super(notifyEmail);
+		this.version = DEFAULT_OWS_VERSION;
+		this.serviceUrl = service;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.n52.owsSupervisor.IServiceChecker#check()
+	 */
 	@Override
 	public boolean check() {
 		if (log.isDebugEnabled()) {
-			log.debug("Checking SOS Capabilities for " + this.serviceUrl);
+			log.debug("Checking Capabilities for " + this.serviceUrl);
 		}
 
 		if (this.version != "1.1") {
@@ -92,7 +110,7 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 							+ this.version, ResultType.NEGATIVE));
 			return false;
 		}
-
+		
 		clearResults();
 
 		// create get capabilities document
@@ -105,24 +123,11 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 			XmlObject response = this.client.xSendPostRequest(
 					this.serviceUrl.toString(), getCapDoc);
 			getCapDoc = null;
-			
-			// check it!
-			if (response instanceof CapabilitiesDocument) {
-				CapabilitiesDocument caps = (CapabilitiesDocument) response;
-				log.debug("Parsed caps, version: "
-						+ caps.getCapabilities().getVersion());
 
-				// save the result
-				addResult(new CheckResultImpl(new Date(),
-						this.serviceUrl.toString(), POSITIVE_TEXT,
-						ResultType.POSITIVE));
-				return true;
-			}
-			addResult(new CheckResultImpl(new Date(),
-					this.serviceUrl.toString(), NEGATIVE_TEXT
-							+ " ... Response was not a Capabilities document!",
-					ResultType.NEGATIVE));
-			return false;
+			// parse response - this is the test!
+			CapabilitiesBaseType caps = CapabilitiesBaseType.Factory
+					.parse(response.getDomNode());
+			log.debug("Parsed caps with version " + caps.getVersion());
 		} catch (IOException e) {
 			log.error("Could not send request", e);
 			addResult(new CheckResultImpl(new Date(),
@@ -130,12 +135,27 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 							+ " ... Could not send request!",
 					ResultType.NEGATIVE));
 			return false;
+		} catch (XmlException e) {
+			log.error("Could not send request", e);
+			addResult(new CheckResultImpl(
+					new Date(),
+					this.serviceUrl.toString(),
+					NEGATIVE_TEXT
+							+ " ... Could not parse response to CapabilitiesBaseType!",
+					ResultType.NEGATIVE));
+			return false;
 		}
+
+		// save the good result
+		addResult(new CheckResultImpl(new Date(), this.serviceUrl.toString(),
+				POSITIVE_TEXT, ResultType.POSITIVE));
+
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "SirCapabilitiesCheck [" + getService() + ", check interval="
+		return "OwsCapabilitiesCheck [" + getService() + ", check interval="
 				+ getCheckIntervalMillis() + "]";
 	}
 

@@ -24,29 +24,27 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+package org.n52.owsSupervisor.checks;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
-import net.opengis.sos.x10.CapabilitiesDocument;
-import net.opengis.sos.x10.GetCapabilitiesDocument;
-
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
+import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
+
+import de.uniMuenster.swsl.sir.CapabilitiesDocument;
+import de.uniMuenster.swsl.sir.GetCapabilitiesDocument;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
+public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-	private static final String SOS_SERVICE = "SOS";
-
-	private static Logger log = Logger.getLogger(SosCapabilitiesCheck.class);
+	private static Logger log = Logger.getLogger(SirCapabilitiesCheck.class);
 
 	/**
 	 * 
@@ -55,7 +53,7 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
-	public SosCapabilitiesCheck(String owsVersion, URL service,
+	public SirCapabilitiesCheck(String owsVersion, URL service,
 			String notifyEmail, long checkIntervalMillis) {
 		super(owsVersion, service, notifyEmail, checkIntervalMillis);
 	}
@@ -66,7 +64,7 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
-	public SosCapabilitiesCheck(URL service, String notifyEmail,
+	public SirCapabilitiesCheck(URL service, String notifyEmail,
 			long checkIntervalMillis) {
 		super(service, notifyEmail, checkIntervalMillis);
 	}
@@ -76,7 +74,7 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param service
 	 * @param notifyEmail
 	 */
-	public SosCapabilitiesCheck(URL service, String notifyEmail) {
+	public SirCapabilitiesCheck(URL service, String notifyEmail) {
 		super(service, notifyEmail);
 	}
 
@@ -88,10 +86,10 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
 		if (this.version != "1.1") {
 			log.error("OWS Version not supported: " + this.version);
-			addResult(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... OWS Version not supported: " + this.version,
-					ResultType.NEGATIVE));
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(),
+					NEGATIVE_TEXT + " ... OWS Version not supported: "
+							+ this.version, ResultType.NEGATIVE));
 			return false;
 		}
 
@@ -100,7 +98,7 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 		// create get capabilities document
 		GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory
 				.newInstance(XmlTools.DEFAULT_OPTIONS);
-		getCapDoc.addNewGetCapabilities().setService(SOS_SERVICE);
+		getCapDoc.addNewGetCapabilities();
 
 		// send the document
 		try {
@@ -120,16 +118,16 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 						ResultType.POSITIVE));
 				return true;
 			}
-			addResult(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... Response was not a Capabilities document!",
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(), NEGATIVE_TEXT
+							+ " ... Response was not a Capabilities document!",
 					ResultType.NEGATIVE));
 			return false;
 		} catch (IOException e) {
 			log.error("Could not send request", e);
-			addResult(new CheckResultImpl(new Date(), this.serviceUrl
-					.toString(),
-					NEGATIVE_TEXT + " ... Could not send request!",
+			addResult(new CheckResultImpl(new Date(),
+					this.serviceUrl.toString(), NEGATIVE_TEXT
+							+ " ... Could not send request!",
 					ResultType.NEGATIVE));
 			return false;
 		}

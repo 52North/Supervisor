@@ -40,12 +40,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.log4j.Logger;
+import org.n52.owsSupervisor.checks.ICheckResult;
+import org.n52.owsSupervisor.checks.IServiceChecker;
 import org.n52.owsSupervisor.data.SWSL;
-import org.n52.owsSupervisor.util.FailureNotificationElement;
-import org.n52.owsSupervisor.util.IJobScheduler;
-import org.n52.owsSupervisor.util.JobSchedulerFactoryImpl;
-import org.n52.owsSupervisor.util.SendEmailTask;
-import org.n52.owsSupervisor.util.TimerServlet;
+import org.n52.owsSupervisor.tasks.IJobScheduler;
+import org.n52.owsSupervisor.tasks.SendEmailTask;
+import org.n52.owsSupervisor.tasks.TaskServlet;
+import org.n52.owsSupervisor.ui.IFailureNotification;
 
 /**
  * @author Daniel Nüst
@@ -65,7 +66,7 @@ public class Supervisor extends GenericServlet {
 
 	private static Queue<ICheckResult> latestResults;
 
-	private static Queue<FailureNotificationElement> notifications;
+	private static Queue<IFailureNotification> notifications;
 
 	private IJobScheduler scheduler;
 
@@ -93,13 +94,12 @@ public class Supervisor extends GenericServlet {
 		this.checkers = new ArrayList<IServiceChecker>();
 		latestResults = new LinkedBlockingQueue<ICheckResult>(
 				SupervisorProperties.getInstance().getMaximumResults());
-		notifications = new LinkedBlockingQueue<FailureNotificationElement>();
+		notifications = new LinkedBlockingQueue<IFailureNotification>();
 
 		// init timer servlet
-		TimerServlet timerServlet = (TimerServlet) context
-				.getAttribute(TimerServlet.NAME_IN_CONTEXT);
-		this.scheduler = new JobSchedulerFactoryImpl(timerServlet)
-				.getJobScheduler();
+		TaskServlet timerServlet = (TaskServlet) context
+				.getAttribute(TaskServlet.NAME_IN_CONTEXT);
+		this.scheduler = sp.getScheduler(timerServlet);
 
 		// initialize checkers
 		initCheckers();
@@ -191,10 +191,8 @@ public class Supervisor extends GenericServlet {
 	 * 
 	 * @param results
 	 */
-	public static void appendNotification(String serviceUrlP,
-			String recipientEmailP, Collection<ICheckResult> failuresP) {
-		notifications.add(new FailureNotificationElement(serviceUrlP,
-				recipientEmailP, failuresP));
+	public static void appendNotification(IFailureNotification notification) {
+		notifications.add(notification);
 	}
 
 	/**
