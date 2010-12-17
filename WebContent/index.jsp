@@ -37,8 +37,9 @@
 
 
 
-<p class="infotext">The following list shows a maximum of <%=supervisor.getMaximumNumberOfResults()%>
-of the latest check results (automatic refresh every <%=supervisor.getPageRefreshIntervalSecs()%> seconds).</p>
+<p class="infotext">The latest check results (maximum of <%=supervisor.getMaximumNumberOfResults()%>,
+automatic refresh every <%=supervisor.getPageRefreshIntervalSecs()%>
+seconds):</p>
 
 <ul>
 	<%

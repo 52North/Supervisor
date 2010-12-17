@@ -63,8 +63,18 @@ public abstract class SWSL {
 	private static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
 
 	static {
+		// TODO create data structure for test outside of java, e.g. XML config
+		// files, or a directory with simple properties files named "xyz.test"
+		// that can be loaded at startup/loaded every day. The config file
+		// content would then be something like:
+		// test.operation=GetCapabilities
+		// test.intervalSecs=3600
+		// test.notificationEmail=mail@provider.org
+		// service.type=SOS
+		// service.url=http://xzy.org/sos
+
 		// Debugging
-		HeapChecker hc = new HeapChecker(EVERY_HALF_HOUR);
+		HeapChecker hc = new HeapChecker(EVERY_HOUR);
 		checkers.add(hc);
 
 		// WeatherSOS
@@ -75,6 +85,23 @@ public abstract class SWSL {
 					EMAIL_DN, EVERY_12_HOURS);
 			checkers.add(capsChecker);
 
+			// TODO create checks for latest observation autmatically from
+			// capabilities document. Config file settings (for not all
+			// offerings):
+			// test.operation=GetObservation
+			// test.intervalSecs=3600
+			// test.allOfferings=FALSE
+			// observation.time=latest
+			// # ordered list of offering, property and procedure to be
+			// # checked:
+			// observation.offering=RAIN_GAUGE,LUMINANCE,LUMINANCE
+			// observation.allProcedures=FALSE
+			// observation.procedure=urn:ogc:object:feature:OSIRIS-HWS:3d3b239f-7696-4864-9d07-15447eae2b93,urn:ogc:object:feature:OSIRIS-HWS:3d3b239f-7696-4864-9d07-15447eae2b93,urn:ogc:object:feature:OSIRIS-HWS:3d3b239f-7696-4864-9d07-15447eae2b93
+			// observation.allObservedProperties=FALSE
+			// observation.observedProperties=urn:ogc:def:property:OGC::Precipitation1Hour,urn:ogc:def:property:OGC::Luminance,urn:ogc:def:property:OGC::Luminance
+			// test.notificationEmail=mail@provider.org
+			// service.type=SOS
+			// service.url=http://xzy.org/sos
 			String[] offerings = new String[] { "RAIN_GAUGE", "LUMINANCE",
 					"HUMIDITY", "ATMOSPHERIC_PRESSURE",
 					"ATMOSPHERIC_TEMPERATURE", "WIND_SPEED", "WIND_DIRECTION" };
@@ -120,6 +147,7 @@ public abstract class SWSL {
 		} catch (MalformedURLException e) {
 			log.error("Could not create URL for checker.", e);
 		}
-
+		
+		// TODO check of RESTful SOR interface
 	}
 }

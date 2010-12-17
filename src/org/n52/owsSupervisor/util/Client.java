@@ -147,7 +147,7 @@ public class Client {
 			response = XmlObject.Factory
 					.parse(method.getResponseBodyAsStream());
 		} catch (XmlException e) {
-			log.error("Error parsing response.", e);
+			log.error("Error parsing response: " + e.getMessage());
 		}
 		return response;
 	}

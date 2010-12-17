@@ -167,17 +167,24 @@ public class SendEmailTask extends TimerTask {
 
 				overallEmailCounter++;
 				overallFailureCounter += failureCount;
+
+				ICheckResult result = new CheckResultImpl("Send Email Task",
+						"Sent " + overallEmailCounter + " email(s) with "
+								+ overallFailureCounter + " failure(s).",
+						ResultType.NEGATIVE);
+				Supervisor.appendLatestResult(result);
+
+				// all went ok, clear notifications
+				Supervisor.clearNotifications();
 			} catch (MessagingException e) {
 				log.error("Could not send email to " + email.getKey(), e);
+
+				ICheckResult result = new CheckResultImpl("Send Email Task",
+						"FAILED to send email to " + email.getKey() + ": "
+								+ e.getMessage(), ResultType.NEGATIVE);
+				Supervisor.appendLatestResult(result);
 			}
 		}
-
-		ICheckResult result = new CheckResultImpl("Send Email Task", "Sent "
-				+ overallEmailCounter + " emails with " + overallFailureCounter
-				+ " failures.", ResultType.NEGATIVE);
-		Supervisor.appendLatestResult(result);
-
-		Supervisor.clearNotifications();
 	}
 
 	/**
@@ -200,10 +207,10 @@ public class SendEmailTask extends TimerTask {
 
 			MimeMessage message = new MimeMessage(mailSession);
 			if (failureCount > 1)
-				message.setSubject("[OwsSupervisor]" + failureCount
+				message.setSubject("[OwsSupervisor] " + failureCount
 						+ " checks failed");
 			else
-				message.setSubject("[OwsSupervisor]" + failureCount
+				message.setSubject("[OwsSupervisor] " + failureCount
 						+ " check failed");
 			message.setContent(messageText, EMAIL_CONTENT_ENCODING);
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(
@@ -216,7 +223,7 @@ public class SendEmailTask extends TimerTask {
 			transport.close();
 
 			log.debug("Sent email to " + recipient + " with " + failureCount
-					+ " failures.");
+					+ " failure(s).");
 		} else {
 			log.warn("Not sending Email (disabled in properties!)");
 			log.debug("Email Content: " + messageText);
@@ -237,9 +244,11 @@ public class SendEmailTask extends TimerTask {
 
 		@Override
 		protected PasswordAuthentication getPasswordAuthentication() {
-			return new PasswordAuthentication(
-					this.p.getProperty(SupervisorProperties.MAIL_USER_PROPERTY),
-					this.p.getProperty(SupervisorProperties.MAIL_PASSWORD_PROPERTY));
+			String userName = this.p
+					.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
+			String password = this.p
+					.getProperty(SupervisorProperties.MAIL_PASSWORD_PROPERTY);
+			return new PasswordAuthentication(userName, password);
 		}
 	}
 
