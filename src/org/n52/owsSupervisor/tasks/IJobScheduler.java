@@ -24,9 +24,9 @@
  Created on: 13.7.2009
  *********************************************************************************/
 
-package org.n52.owsSupervisor.util;
+package org.n52.owsSupervisor.tasks;
 
-import org.n52.owsSupervisor.IServiceChecker;
+import org.n52.owsSupervisor.checks.IServiceChecker;
 
 /**
  * 

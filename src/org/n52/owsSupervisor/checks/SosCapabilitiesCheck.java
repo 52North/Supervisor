@@ -24,27 +24,29 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+package org.n52.owsSupervisor.checks;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
+import net.opengis.sos.x10.CapabilitiesDocument;
+import net.opengis.sos.x10.GetCapabilitiesDocument;
+
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
+import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
-
-import de.uniMuenster.swsl.sor.CapabilitiesDocument;
-import de.uniMuenster.swsl.sor.GetCapabilitiesDocument;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
+public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-	private static Logger log = Logger.getLogger(SorCapabilitiesCheck.class);
+	private static final String SOS_SERVICE = "SOS";
+
+	private static Logger log = Logger.getLogger(SosCapabilitiesCheck.class);
 
 	/**
 	 * 
@@ -53,7 +55,7 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
-	public SorCapabilitiesCheck(String owsVersion, URL service,
+	public SosCapabilitiesCheck(String owsVersion, URL service,
 			String notifyEmail, long checkIntervalMillis) {
 		super(owsVersion, service, notifyEmail, checkIntervalMillis);
 	}
@@ -64,7 +66,7 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
-	public SorCapabilitiesCheck(URL service, String notifyEmail,
+	public SosCapabilitiesCheck(URL service, String notifyEmail,
 			long checkIntervalMillis) {
 		super(service, notifyEmail, checkIntervalMillis);
 	}
@@ -74,7 +76,7 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * @param service
 	 * @param notifyEmail
 	 */
-	public SorCapabilitiesCheck(URL service, String notifyEmail) {
+	public SosCapabilitiesCheck(URL service, String notifyEmail) {
 		super(service, notifyEmail);
 	}
 
@@ -98,7 +100,7 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 		// create get capabilities document
 		GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory
 				.newInstance(XmlTools.DEFAULT_OPTIONS);
-		getCapDoc.addNewGetCapabilities();
+		getCapDoc.addNewGetCapabilities().setService(SOS_SERVICE);
 
 		// send the document
 		try {
@@ -135,7 +137,7 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 
 	@Override
 	public String toString() {
-		return "SorCapabilitiesCheck [" + getService() + ", check interval="
+		return "SirCapabilitiesCheck [" + getService() + ", check interval="
 				+ getCheckIntervalMillis() + "]";
 	}
 

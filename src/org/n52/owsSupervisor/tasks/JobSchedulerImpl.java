@@ -24,17 +24,17 @@
  Created on: 12.01.2010
  *********************************************************************************/
 
-package org.n52.owsSupervisor.util;
+package org.n52.owsSupervisor.tasks;
 
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.n52.owsSupervisor.checks.IServiceChecker;
 
 /**
  * 
- * Class encapsulates a {@link TimerServlet} where tasks are forwared to.
+ * Class encapsulates a {@link TaskServlet} where tasks are forwared to.
  * 
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
@@ -45,13 +45,13 @@ public class JobSchedulerImpl implements IJobScheduler {
 
 	private static final long DEFAULT_DELAY_MILLISECS = 10;
 
-	private TimerServlet timerServlet;
+	private TaskServlet timerServlet;
 
 	/**
 	 * 
 	 * @param timer
 	 */
-	protected JobSchedulerImpl(TimerServlet timer) {
+	protected JobSchedulerImpl(TaskServlet timer) {
 		this.timerServlet = timer;
 		log.info("NEW " + this);
 	}

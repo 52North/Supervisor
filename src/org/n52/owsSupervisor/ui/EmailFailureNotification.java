@@ -24,17 +24,17 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.util;
+package org.n52.owsSupervisor.ui;
 
 import java.util.Collection;
 
-import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.checks.ICheckResult;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class FailureNotificationElement {
+public class EmailFailureNotification implements IFailureNotification {
 
 	private Collection<ICheckResult> checkResults;
 
@@ -48,7 +48,7 @@ public class FailureNotificationElement {
 	 * @param recipientEmail
 	 * @param serviceUrl
 	 */
-	public FailureNotificationElement(String serviceUrlP,
+	public EmailFailureNotification(String serviceUrlP,
 			String recipientEmailP, Collection<ICheckResult> failuresP) {
 		this.checkResults = failuresP;
 		this.recipientEmail = recipientEmailP;
@@ -59,6 +59,7 @@ public class FailureNotificationElement {
 	 * 
 	 * @return
 	 */
+	@Override
 	public Collection<ICheckResult> getCheckResults() {
 		return this.checkResults;
 	}
@@ -75,6 +76,7 @@ public class FailureNotificationElement {
 	 * 
 	 * @return
 	 */
+	@Override
 	public String getServiceUrl() {
 		return this.serviceUrl;
 	}

@@ -24,11 +24,10 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checkImpl;
+package org.n52.owsSupervisor.checks;
 
 import java.util.Date;
 
-import org.n52.owsSupervisor.ICheckResult;
 
 /**
  * @author Daniel Nüst

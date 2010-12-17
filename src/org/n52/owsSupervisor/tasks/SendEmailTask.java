@@ -24,7 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.util;
+package org.n52.owsSupervisor.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,11 +44,13 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.ICheckResult;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
-import org.n52.owsSupervisor.checkImpl.CheckResultImpl;
+import org.n52.owsSupervisor.checks.CheckResultImpl;
+import org.n52.owsSupervisor.checks.ICheckResult;
+import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ui.EmailFailureNotification;
+import org.n52.owsSupervisor.ui.IFailureNotification;
 
 /**
  * @author Daniel Nüst
@@ -58,7 +60,7 @@ public class SendEmailTask extends TimerTask {
 
 	private static final String EMAIL_CONTENT_ENCODING = "text/plain";
 
-	private Collection<FailureNotificationElement> notifications;
+	private Collection<IFailureNotification> notifications;
 
 	private static Logger log = Logger.getLogger(SendEmailTask.class);
 
@@ -66,9 +68,9 @@ public class SendEmailTask extends TimerTask {
 
 	/**
 	 * 
-	 * @param notificationsP
+	 * @param notifications2
 	 */
-	public SendEmailTask(Collection<FailureNotificationElement> notificationsP) {
+	public SendEmailTask(Collection<IFailureNotification> notificationsP) {
 		this.notifications = notificationsP;
 		log.info("NEW " + this.toString());
 	}
@@ -79,7 +81,7 @@ public class SendEmailTask extends TimerTask {
 	 * @param notificationsP
 	 */
 	public SendEmailTask(String adminEmailP,
-			Collection<FailureNotificationElement> notificationsP) {
+			Collection<IFailureNotification> notificationsP) {
 		this.notifications = notificationsP;
 		this.adminEmail = adminEmailP;
 		log.info("NEW " + this.toString());
@@ -125,33 +127,37 @@ public class SendEmailTask extends TimerTask {
 				+ " notifications.");
 
 		// collect all notifications for one email address
-		Map<String, Collection<FailureNotificationElement>> emails = new HashMap<String, Collection<FailureNotificationElement>>();
+		Map<String, Collection<EmailFailureNotification>> emails = new HashMap<String, Collection<EmailFailureNotification>>();
 
-		for (FailureNotificationElement msg : this.notifications) {
-			if (emails.containsKey(msg.getRecipientEmail())) {
-				// add to failure list
-				Collection<FailureNotificationElement> failures = emails
-						.get(msg.getRecipientEmail());
-				failures.add(msg);
-			} else {
-				// create new email
-				ArrayList<FailureNotificationElement> failures = new ArrayList<FailureNotificationElement>();
-				failures.add(msg);
-				emails.put(msg.getRecipientEmail(), failures);
+		for (IFailureNotification iMsg : this.notifications) {
+			if (iMsg instanceof EmailFailureNotification) {
+				EmailFailureNotification msg = (EmailFailureNotification) iMsg;
+				if (emails.containsKey(msg.getRecipientEmail())) {
+					// add to failure list
+					Collection<EmailFailureNotification> failures = emails
+							.get(msg.getRecipientEmail());
+					failures.add(msg);
+				} else {
+					// create new email
+					ArrayList<EmailFailureNotification> failures = new ArrayList<EmailFailureNotification>();
+					failures.add(msg);
+					emails.put(msg.getRecipientEmail(), failures);
+				}
 			}
+			// not an email notification
 		}
 
 		// send emails
 		int overallFailureCounter = 0;
 		int overallEmailCounter = 0;
-		for (Entry<String, Collection<FailureNotificationElement>> email : emails
+		for (Entry<String, Collection<EmailFailureNotification>> email : emails
 				.entrySet()) {
 			// create message
 			StringBuilder sb = new StringBuilder();
 			sb.append("Attention on deck!\n\nFailed check(s) occured while testing.\n\n");
 
 			int failureCount = 0;
-			for (FailureNotificationElement failure : email.getValue()) {
+			for (EmailFailureNotification failure : email.getValue()) {
 				for (ICheckResult f : failure.getCheckResults()) {
 					sb.append("\n");
 					sb.append(f.toString());

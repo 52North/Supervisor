@@ -24,7 +24,7 @@
  Created on: 13.7.2009
  *********************************************************************************/
 
-package org.n52.owsSupervisor.util;
+package org.n52.owsSupervisor.tasks;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +57,7 @@ import org.apache.log4j.Logger;
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public class TimerServlet extends GenericServlet {
+public class TaskServlet extends GenericServlet {
 
 	/**
 	 * 
@@ -77,7 +77,7 @@ public class TimerServlet extends GenericServlet {
 
 	private static final String CHECK_THREAD_COUNT = "CHECK_THREAD_COUNT";
 
-	private static Logger log = Logger.getLogger(TimerServlet.class);
+	private static Logger log = Logger.getLogger(TaskServlet.class);
 
 	/**
 	 * List that holds all repeated task during run-time.
@@ -94,7 +94,7 @@ public class TimerServlet extends GenericServlet {
 	/**
 	 * Default constructor.
 	 */
-	public TimerServlet() {
+	public TaskServlet() {
 		super();
 	}
 
@@ -128,7 +128,7 @@ public class TimerServlet extends GenericServlet {
 		executor = new ScheduledThreadPoolExecutor(threadCount);
 
 
-		this.tasks = new ArrayList<TimerServlet.TaskElement>();
+		this.tasks = new ArrayList<TaskServlet.TaskElement>();
 
 		log.info(" ***** Timer initiated successfully! ***** ");
 	}

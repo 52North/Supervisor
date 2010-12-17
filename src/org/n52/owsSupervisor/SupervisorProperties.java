@@ -37,6 +37,9 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.apache.log4j.Logger;
+import org.n52.owsSupervisor.tasks.IJobScheduler;
+import org.n52.owsSupervisor.tasks.JobSchedulerFactoryImpl;
+import org.n52.owsSupervisor.tasks.TaskServlet;
 
 /**
  * This singleton class handles service wide properties.
@@ -81,11 +84,11 @@ public class SupervisorProperties {
 	private static final String MAX_CHECK_LIST_SIZE = "MAX_CHECK_LIST_SIZE";
 
 	private static final String SEND_EMAIL_INTERVAL_MINS = "SEND_EMAIL_INTERVAL_MINS";
-	
+
 	private static final String HTML_PAGE_REFRESH_SECS = "HTML_PAGE_REFRESH_SECS";
 
 	private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
-	
+
 	private static SupervisorProperties instance;
 
 	private String serviceVersion;
@@ -159,7 +162,8 @@ public class SupervisorProperties {
 
 		this.maximumResults = Integer.parseInt(props
 				.getProperty(MAX_CHECK_LIST_SIZE));
-		this.pageRefreshSecs = Integer.parseInt(props.getProperty(HTML_PAGE_REFRESH_SECS));
+		this.pageRefreshSecs = Integer.parseInt(props
+				.getProperty(HTML_PAGE_REFRESH_SECS));
 		this.adminEmail = props.getProperty(ADMIN_EMAIL);
 
 		log.info("NEW " + this.toString());
@@ -280,6 +284,15 @@ public class SupervisorProperties {
 
 	public String getAdminEmail() {
 		return this.adminEmail;
+	}
+
+	/**
+	 * 
+	 * @param timerServlet
+	 * @return
+	 */
+	public IJobScheduler getScheduler(TaskServlet timerServlet) {
+		return new JobSchedulerFactoryImpl(timerServlet).getJobScheduler();
 	}
 
 }
