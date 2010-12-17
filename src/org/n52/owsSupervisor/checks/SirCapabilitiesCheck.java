@@ -86,7 +86,7 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 
 		if (this.version != "1.1") {
 			log.error("OWS Version not supported: " + this.version);
-			addResult(new CheckResultImpl(new Date(),
+			addResult(new ServiceCheckResult(new Date(),
 					this.serviceUrl.toString(),
 					NEGATIVE_TEXT + " ... OWS Version not supported: "
 							+ this.version, ResultType.NEGATIVE));
@@ -113,19 +113,19 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 						+ caps.getCapabilities().getVersion());
 
 				// save the result
-				addResult(new CheckResultImpl(new Date(),
+				addResult(new ServiceCheckResult(new Date(),
 						this.serviceUrl.toString(), POSITIVE_TEXT,
 						ResultType.POSITIVE));
 				return true;
 			}
-			addResult(new CheckResultImpl(new Date(),
+			addResult(new ServiceCheckResult(new Date(),
 					this.serviceUrl.toString(), NEGATIVE_TEXT
 							+ " ... Response was not a Capabilities document!",
 					ResultType.NEGATIVE));
 			return false;
 		} catch (IOException e) {
 			log.error("Could not send request", e);
-			addResult(new CheckResultImpl(new Date(),
+			addResult(new ServiceCheckResult(new Date(),
 					this.serviceUrl.toString(), NEGATIVE_TEXT
 							+ " ... Could not send request!",
 					ResultType.NEGATIVE));

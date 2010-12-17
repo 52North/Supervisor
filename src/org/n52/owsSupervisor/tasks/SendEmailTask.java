@@ -46,7 +46,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
-import org.n52.owsSupervisor.checks.CheckResultImpl;
+import org.n52.owsSupervisor.checks.CheckResult;
 import org.n52.owsSupervisor.checks.ICheckResult;
 import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
 import org.n52.owsSupervisor.ui.EmailFailureNotification;
@@ -59,6 +59,8 @@ import org.n52.owsSupervisor.ui.IFailureNotification;
 public class SendEmailTask extends TimerTask {
 
 	private static final String EMAIL_CONTENT_ENCODING = "text/plain";
+
+	private static final String RESULT_IDENTIFIER = "Send Email Task";
 
 	private Collection<IFailureNotification> notifications;
 
@@ -174,10 +176,10 @@ public class SendEmailTask extends TimerTask {
 				overallEmailCounter++;
 				overallFailureCounter += failureCount;
 
-				ICheckResult result = new CheckResultImpl("Send Email Task",
+				ICheckResult result = new CheckResult(RESULT_IDENTIFIER,
 						"Sent " + overallEmailCounter + " email(s) with "
 								+ overallFailureCounter + " failure(s).",
-						ResultType.NEGATIVE);
+						ResultType.NEUTRAL);
 				Supervisor.appendLatestResult(result);
 
 				// all went ok, clear notifications
@@ -185,7 +187,7 @@ public class SendEmailTask extends TimerTask {
 			} catch (MessagingException e) {
 				log.error("Could not send email to " + email.getKey(), e);
 
-				ICheckResult result = new CheckResultImpl("Send Email Task",
+				ICheckResult result = new CheckResult(RESULT_IDENTIFIER,
 						"FAILED to send email to " + email.getKey() + ": "
 								+ e.getMessage(), ResultType.NEGATIVE);
 				Supervisor.appendLatestResult(result);

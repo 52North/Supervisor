@@ -104,7 +104,7 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
 		if (this.version != "1.1") {
 			log.error("OWS Version not supported: " + this.version);
-			addResult(new CheckResultImpl(new Date(),
+			addResult(new ServiceCheckResult(new Date(),
 					this.serviceUrl.toString(),
 					NEGATIVE_TEXT + " ... OWS Version not supported: "
 							+ this.version, ResultType.NEGATIVE));
@@ -130,14 +130,14 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 			log.debug("Parsed caps with version " + caps.getVersion());
 		} catch (IOException e) {
 			log.error("Could not send request", e);
-			addResult(new CheckResultImpl(new Date(),
+			addResult(new ServiceCheckResult(new Date(),
 					this.serviceUrl.toString(), NEGATIVE_TEXT
 							+ " ... Could not send request!",
 					ResultType.NEGATIVE));
 			return false;
 		} catch (XmlException e) {
 			log.error("Could not send request", e);
-			addResult(new CheckResultImpl(
+			addResult(new ServiceCheckResult(
 					new Date(),
 					this.serviceUrl.toString(),
 					NEGATIVE_TEXT
@@ -147,7 +147,7 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 		}
 
 		// save the good result
-		addResult(new CheckResultImpl(new Date(), this.serviceUrl.toString(),
+		addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(),
 				POSITIVE_TEXT, ResultType.POSITIVE));
 
 		return true;

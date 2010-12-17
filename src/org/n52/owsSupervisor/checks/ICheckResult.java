@@ -35,12 +35,12 @@ import java.util.Date;
 public interface ICheckResult {
 
 	public static enum ResultType {
-		POSITIVE, NEGATIVE
+		POSITIVE, NEGATIVE, NEUTRAL
 	}
 
 	public Date getTimeOfCheck();
 
-	public String getServiceIdentifier();
+	public String getCheckIdentifier();
 
 	public String getResult();
 

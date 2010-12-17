@@ -29,7 +29,6 @@ package org.n52.owsSupervisor.checks;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
@@ -43,7 +42,7 @@ public class HeapChecker implements IServiceChecker {
 
 	private long interval;
 
-	private CheckResultImpl result;
+	private ICheckResult result;
 
 	private static Logger log = Logger.getLogger(SendEmailTask.class);
 
@@ -80,7 +79,7 @@ public class HeapChecker implements IServiceChecker {
 		String s = "Size (Mb) is " + heapSize / L1024_2 + " of " + heapMaxSize
 				/ L1024_2 + " leaving " + heapFreeSize / L1024_2 + ".";
 		log.debug(s);
-		this.result = new CheckResultImpl(new Date(), "Internal Heap Checker", s,
+		this.result = new CheckResult("Internal Heap Checker", s,
 				ResultType.POSITIVE);
 		return true;
 	}

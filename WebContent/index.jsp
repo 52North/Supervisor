@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<%@page import="org.n52.owsSupervisor.ICheckResult"%>
+<%@page import="org.n52.owsSupervisor.checks.ICheckResult"%>
 <%@page import="java.util.Collection"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <jsp:useBean id="supervisor"
-	class="org.n52.owsSupervisor.SupervisorBean" scope="application" />
+	class="org.n52.owsSupervisor.ui.SupervisorBean" scope="application" />
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -52,6 +52,9 @@ seconds):</p>
 				break;
 			case NEGATIVE:
 				style = "checkNegative";
+				break;
+			case NEUTRAL:
+				style = "checkNeutral";
 				break;
 			}
 	%>

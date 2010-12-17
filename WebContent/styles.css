@@ -191,3 +191,7 @@ h3 {
 .checkNegative {
 	color: #FF0000;
 }
+
+.checkNeutral {
+	color: #000000;
+}

@@ -28,12 +28,11 @@ package org.n52.owsSupervisor.checks;
 
 import java.util.Date;
 
-
 /**
  * @author Daniel Nüst
  * 
  */
-public class CheckResultImpl implements ICheckResult {
+public class ServiceCheckResult implements ICheckResult {
 
 	private Date time;
 
@@ -50,7 +49,7 @@ public class CheckResultImpl implements ICheckResult {
 	 * @param resultP
 	 * @param typeP
 	 */
-	public CheckResultImpl(Date timeP, String serviceP, String resultP,
+	public ServiceCheckResult(Date timeP, String serviceP, String resultP,
 			ResultType typeP) {
 		this.time = timeP;
 		this.serviceIdentifier = serviceP;
@@ -64,7 +63,7 @@ public class CheckResultImpl implements ICheckResult {
 	 * @param resultP
 	 * @param typeP
 	 */
-	public CheckResultImpl(String serviceP, String resultP, ResultType typeP) {
+	public ServiceCheckResult(String serviceP, String resultP, ResultType typeP) {
 		this(new Date(), serviceP, resultP, typeP);
 	}
 
@@ -83,7 +82,6 @@ public class CheckResultImpl implements ICheckResult {
 	 * 
 	 * @see org.n52.owsSupervisor.ICheckResult#getServiceIdentifier()
 	 */
-	@Override
 	public String getServiceIdentifier() {
 		return this.serviceIdentifier;
 	}
@@ -112,6 +110,11 @@ public class CheckResultImpl implements ICheckResult {
 	public String toString() {
 		return "[" + getType().name() + "] " + this.time + ": "
 				+ this.serviceIdentifier + " - " + this.result;
+	}
+
+	@Override
+	public String getCheckIdentifier() {
+		return getServiceIdentifier();
 	}
 
 }
