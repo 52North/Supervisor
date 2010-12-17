@@ -157,7 +157,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 	}
 
 	private boolean saveAndReturnNegativeResult(String text) {
-		addResult(new CheckResultImpl(new Date(), this.serviceUrl.toString(),
+		addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(),
 				text, ResultType.NEGATIVE));
 		return false;
 	}
@@ -181,7 +181,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 				Date timeToCheck = ISO8601LocalFormat.parse(timeString);
 				if (timeToCheck.after(maxAge)) {
 					// ALL OKAY - save the result
-					addResult(new CheckResultImpl(new Date(),
+					addResult(new ServiceCheckResult(new Date(),
 							this.serviceUrl.toString(), POSITIVE_TEXT
 									+ getObservationString(),
 							ResultType.POSITIVE));
