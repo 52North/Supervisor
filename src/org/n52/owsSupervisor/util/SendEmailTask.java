@@ -45,8 +45,10 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.n52.owsSupervisor.checkImpl.CheckResultImpl;
 
 /**
  * @author Daniel Nüst
@@ -92,10 +94,14 @@ public class SendEmailTask extends TimerTask {
 	public void run() {
 		if (this.notifications.size() < 1) {
 			log.debug("No notifications. Yay!");
-//			long heapSize = Runtime.getRuntime().totalMemory();
-//			long heapMaxSize = Runtime.getRuntime().maxMemory();
-//			long heapFreeSize = Runtime.getRuntime().freeMemory();
-//			System.out.println("Size is " + heapSize/1024 + " of " + heapMaxSize/1024 + " leaving " + heapFreeSize/1024 + ".");
+			// long heapSize = Runtime.getRuntime().totalMemory();
+			// long heapMaxSize = Runtime.getRuntime().maxMemory();
+			// long heapFreeSize = Runtime.getRuntime().freeMemory();
+			// System.out.println("Size is " + heapSize/1024 + " of " +
+			// heapMaxSize/1024 + " leaving " + heapFreeSize/1024 + ".");
+			// ICheckResult result = new CheckResultImpl("Send Email Task",
+			// "No notifactions.", ResultType.POSITIVE);
+			// Supervisor.appendLatestResult(result);
 			return;
 		}
 
@@ -136,6 +142,8 @@ public class SendEmailTask extends TimerTask {
 		}
 
 		// send emails
+		int overallFailureCounter = 0;
+		int overallEmailCounter = 0;
 		for (Entry<String, Collection<FailureNotificationElement>> email : emails
 				.entrySet()) {
 			// create message
@@ -156,10 +164,18 @@ public class SendEmailTask extends TimerTask {
 
 			try {
 				sendEmail(email.getKey(), sb.toString(), failureCount);
+
+				overallEmailCounter++;
+				overallFailureCounter += failureCount;
 			} catch (MessagingException e) {
 				log.error("Could not send email to " + email.getKey(), e);
 			}
 		}
+
+		ICheckResult result = new CheckResultImpl("Send Email Task", "Sent "
+				+ overallEmailCounter + " emails with " + overallFailureCounter
+				+ " failures.", ResultType.NEGATIVE);
+		Supervisor.appendLatestResult(result);
 
 		Supervisor.clearNotifications();
 	}
@@ -183,7 +199,12 @@ public class SendEmailTask extends TimerTask {
 			Transport transport = mailSession.getTransport();
 
 			MimeMessage message = new MimeMessage(mailSession);
-			message.setSubject("[OwsSupervisor] Checks failed");
+			if (failureCount > 1)
+				message.setSubject("[OwsSupervisor]" + failureCount
+						+ " checks failed");
+			else
+				message.setSubject("[OwsSupervisor]" + failureCount
+						+ " check failed");
 			message.setContent(messageText, EMAIL_CONTENT_ENCODING);
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(
 					recipient));

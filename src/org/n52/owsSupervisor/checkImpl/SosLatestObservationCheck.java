@@ -68,11 +68,11 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
 	private long checkInterval;
 
-	private long maximumAgeOfObservation;
+	private long maximumAgeOfObservationMillis;
 
 	private String proc;
 
-	protected static final String POSITIVE_TEXT = "Successfully requested latest observation.";
+	protected static final String POSITIVE_TEXT = "Successfully requested latest observation within time limits.";
 
 	protected static final String NEGATIVE_TEXT = "Request for latest observation FAILED.";
 
@@ -94,19 +94,19 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 	 * @param offering
 	 * @param observedProperty
 	 * @param procedure
-	 * @param maximumAge
+	 * @param maximumAgeMillis
 	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
 	public SosLatestObservationCheck(URL service, String offering,
-			String observedProperty, String procedure, long maximumAge,
+			String observedProperty, String procedure, long maximumAgeMillis,
 			String notifyEmail, long checkIntervalMillis) {
 		super(notifyEmail);
 		this.off = offering;
 		this.observedProp = observedProperty;
 		this.checkInterval = checkIntervalMillis;
 		this.serviceUrl = service;
-		this.maximumAgeOfObservation = maximumAge;
+		this.maximumAgeOfObservationMillis = maximumAgeMillis;
 		this.proc = procedure;
 	}
 
@@ -119,7 +119,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 	public boolean check() {
 		// max age
 		Date maxAge = new Date(System.currentTimeMillis()
-				- this.maximumAgeOfObservation);
+				- this.maximumAgeOfObservationMillis);
 
 		log.debug("Checking for latest observation " + this.off + "/"
 				+ this.observedProp + " which must be after " + maxAge);
@@ -289,6 +289,6 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 				+ ", check interval=" + getCheckIntervalMillis()
 				+ ", offering/bserved property/procedure=" + this.observedProp
 				+ "/" + this.off + "/" + this.proc + ", maximum age="
-				+ this.maximumAgeOfObservation + "]";
+				+ this.maximumAgeOfObservationMillis + "]";
 	}
 }

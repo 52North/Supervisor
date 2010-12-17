@@ -190,7 +190,7 @@ public class TimerServlet extends GenericServlet {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("TimerServlet [executor =");
+		sb.append("TimerServlet [executor: ");
 		sb.append(executor.toString());
 		sb.append(" -- ");
 		sb.append("tasks: ");
