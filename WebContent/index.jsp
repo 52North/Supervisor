@@ -17,6 +17,7 @@
 	content="<%=supervisor.getPageRefreshIntervalSecs()%>" />
 
 <link href="styles.css" rel="stylesheet" type="text/css" />
+<link href="<%=request.getContextPath()%>/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 
 </head>
 
@@ -59,7 +60,7 @@ seconds):</p>
 			}
 	%>
 	<li><span class="checkTime"><%=current.getTimeOfCheck()%></span>:
-	<span class="checkService"><%=current.getServiceIdentifier()%></span> -
+	<span class="checkService"><%=current.getCheckIdentifier()%></span> -
 	<span class="<%=style%>"><%=current.getResult()%></span></li>
 	<%
 		}
