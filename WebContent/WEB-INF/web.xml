@@ -10,7 +10,7 @@
 
 	<servlet>
 		<servlet-name>Timer</servlet-name>
-		<servlet-class>org.n52.owsSupervisor.util.TimerServlet</servlet-class>
+		<servlet-class>org.n52.owsSupervisor.tasks.TaskServlet</servlet-class>
 		<init-param>
 			<param-name>configFile</param-name>
 			<param-value>/WEB-INF/conf/supervisor.config</param-value>
