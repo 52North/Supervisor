@@ -9,7 +9,7 @@
  info@52north.org
 
  This program is free software; you can redistribute and/or modify it under the
- terms of the GNU General Public License version 2 as published by the Free
+ terms of the GNU General Public License serviceVersion 2 as published by the Free
  Software Foundation.
 
  This program is distributed WITHOUT ANY WARRANTY; even without the implied

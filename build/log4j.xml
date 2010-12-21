@@ -5,11 +5,11 @@
 
 	<appender name="SupervisorConsoleAppender" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
-		<!-- %d{ABSOLUTE} %-5p %-40.40c:%3L - %m %n -->
+			<!-- %d{ABSOLUTE} %-5p %-40.40c:%3L - %m %n -->
 			<param name="ConversionPattern" value="%d %-5p (%c{1}.java:%L) - %m %n" />
 		</layout>
 	</appender>
-	
+
 	<appender name="SupervisorRoFiAppender" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="datePattern" value="'.'yyyy-MM-dd" />
 		<param name="file" value="${catalina.home}/logs/OwsSupervisor.log" />
@@ -27,7 +27,7 @@
 	<logger name="httpclient.wire">
 		<level value="ERROR" />
 	</logger>
-	
+
 	<root>
 		<priority value="WARN" />
 		<!-- <appender-ref ref="SorConsoleAppender" /> -->

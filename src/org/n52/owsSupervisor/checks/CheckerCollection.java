@@ -9,7 +9,7 @@ Martin-Luther-King-Weg 24
 info@52north.org
 
 This program is free software; you can redistribute and/or modify it under 
-the terms of the GNU General Public License version 2 as published by the 
+the terms of the GNU General Public License serviceVersion 2 as published by the 
 Free Software Foundation.
 
 This program is distributed WITHOUT ANY WARRANTY; even without the implied
@@ -24,6 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
+
 package org.n52.owsSupervisor.checks;
 
 import java.util.ArrayList;
@@ -37,96 +38,105 @@ import org.apache.log4j.Logger;
  */
 public class CheckerCollection implements IServiceChecker {
 
-	private static Logger log = Logger.getLogger(CheckerCollection.class);
+    private static Logger log = Logger.getLogger(CheckerCollection.class);
 
-	private Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+    private Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
 
-	/**
-	 * 
-	 * @param checkers
-	 */
-	public CheckerCollection(Collection<IServiceChecker> checkersP) {
-		this.checkers = checkersP;
-	}
+    /**
+     * 
+     * @param checkers
+     */
+    public CheckerCollection(Collection<IServiceChecker> checkersP) {
+        this.checkers = checkersP;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#check()
-	 */
-	@Override
-	public boolean check() {
-		log.debug("Checking collection of " + this.checkers.size());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#check()
+     */
+    @Override
+    public boolean check() {
+        log.debug("Checking collection of " + this.checkers.size());
 
-		boolean b = true;
-		int success = 0;
-		int failure = 0;
-		for (IServiceChecker c : this.checkers) {
-			if (!c.check()) {
-				b = false;
-				failure++;
-			} else {
-				success++;
-			}
-		}
+        boolean b = true;
+        int success = 0;
+        int failure = 0;
+        for (IServiceChecker c : this.checkers) {
+            if ( !c.check()) {
+                b = false;
+                failure++;
+            }
+            else {
+                success++;
+            }
+        }
 
-		log.debug("Checked collection: " + success + " successful and "
-				+ failure + " failed checks.");
+        log.debug("Checked collection: " + success + " successful and " + failure + " failed checks.");
 
-		return b;
-	}
+        return b;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#getResults()
-	 */
-	@Override
-	public Collection<ICheckResult> getResults() {
-		ArrayList<ICheckResult> results = new ArrayList<ICheckResult>();
-		for (IServiceChecker c : this.checkers) {
-			results.addAll(c.getResults());
-		}
-		return results;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getResults()
+     */
+    @Override
+    public Collection<ICheckResult> getResults() {
+        ArrayList<ICheckResult> results = new ArrayList<ICheckResult>();
+        for (IServiceChecker c : this.checkers) {
+            results.addAll(c.getResults());
+        }
+        return results;
+    }
 
-	@Override
-	public void addResult(ICheckResult r) {
-		throw new UnsupportedOperationException(
-				"Collection of checkers, which can contain different intervals!");
-	}
+    @Override
+    public void addResult(ICheckResult r) {
+        throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#notifyFailure()
-	 */
-	@Override
-	public void notifyFailure() {
-		for (IServiceChecker c : this.checkers) {
-			c.notifyFailure();
-		}
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#notifyFailure()
+     */
+    @Override
+    public void notifyFailure() {
+        for (IServiceChecker c : this.checkers) {
+            c.notifyFailure();
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-	 */
-	@Override
-	public long getCheckIntervalMillis() {
-		throw new UnsupportedOperationException(
-				"Collection of checkers, which can contain different intervals!");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifySuccess()
+     */
+    @Override
+    public void notifySuccess() {
+        for (IServiceChecker c : this.checkers) {
+            c.notifySuccess();
+        }
+    }
 
-	@Override
-	public String getService() {
-		throw new UnsupportedOperationException(
-				"Collection of checkers, which can multiple services!");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
+     */
+    @Override
+    public long getCheckIntervalMillis() {
+        throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
+    }
 
-	public Collection<IServiceChecker> getCheckers() {
-		return this.checkers;
-	}
+    @Override
+    public String getService() {
+        throw new UnsupportedOperationException("Collection of checkers, which can multiple services!");
+    }
+
+    public Collection<IServiceChecker> getCheckers() {
+        return this.checkers;
+    }
 
 }
