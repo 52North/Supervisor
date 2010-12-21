@@ -9,7 +9,7 @@ Martin-Luther-King-Weg 24
 info@52north.org
 
 This program is free software; you can redistribute and/or modify it under 
-the terms of the GNU General Public License version 2 as published by the 
+the terms of the GNU General Public License serviceVersion 2 as published by the 
 Free Software Foundation.
 
 This program is distributed WITHOUT ANY WARRANTY; even without the implied
@@ -24,6 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
+
 package org.n52.owsSupervisor.checks;
 
 import java.net.URL;
@@ -46,92 +47,103 @@ import org.n52.owsSupervisor.util.Client;
  */
 public abstract class AbstractServiceCheck implements IServiceChecker {
 
-	private static Logger log = Logger.getLogger(AbstractServiceCheck.class);
+    private static Logger log = Logger.getLogger(AbstractServiceCheck.class);
 
-	private List<ICheckResult> results = new ArrayList<ICheckResult>();
+    private List<ICheckResult> results = new ArrayList<ICheckResult>();
 
-	protected URL serviceUrl;
+    protected URL serviceUrl;
 
-	private String email = null;
+    private String email = null;
 
-	private long checkIntervalMillis = SupervisorProperties.getInstance()
-			.getDefaultCheckIntervalMillis();
+    private long checkIntervalMillis = SupervisorProperties.getInstance().getDefaultCheckIntervalMillis();
 
-	public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:SS.SSS");
+    public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SS.SSS");
 
-	protected Client client = new Client();
+    protected Client client = new Client();
 
-	/**
+    /**
+     * 
+     * @param notifyEmail
+     */
+    public AbstractServiceCheck(String notifyEmail) {
+        this.email = notifyEmail;
+    }
+
+    /**
+     * 
+     * @param notifyEmail
+     * @param checkInterval
+     */
+    public AbstractServiceCheck(String notifyEmail, long checkInterval) {
+        this.email = notifyEmail;
+        this.checkIntervalMillis = checkInterval;
+    }
+
+    @Override
+    public String getService() {
+        return this.serviceUrl.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getResults()
+     */
+    @Override
+    public Collection<ICheckResult> getResults() {
+        return this.results;
+    }
+
+    @Override
+    public void addResult(ICheckResult r) {
+        this.results.add(r);
+    }
+
+    @Override
+    public void notifyFailure() {
+        log.debug("Check FAILED: " + this);
+        
+        if (this.email == null) {
+            log.error("Can not notify via email, is null!");
+            return;
+        }
+
+        Collection<ICheckResult> failures = new ArrayList<ICheckResult>();
+        for (ICheckResult r : this.results) {
+            if (r.getType().equals(ResultType.NEGATIVE))
+                failures.add(r);
+        }
+
+        // append for email notification to queue
+        Supervisor.appendNotification(new EmailFailureNotification(this.serviceUrl.toString(), this.email, failures));
+        log.debug("Sent email with " + failures.size() + " failures.");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifySuccess()
+     */
+    @Override
+    public void notifySuccess() {
+        if (log.isDebugEnabled()) {
+            log.debug("Check SUCCESSFUL:" + this);
+        }
+    }
+
+    @Override
+    public long getCheckIntervalMillis() {
+        return this.checkIntervalMillis;
+    }
+
+    /**
 	 * 
-	 * @param notifyEmail
 	 */
-	public AbstractServiceCheck(String notifyEmail) {
-		this.email = notifyEmail;
-	}
-
-	/**
-	 * 
-	 * @param notifyEmail
-	 * @param checkInterval
-	 */
-	public AbstractServiceCheck(String notifyEmail, long checkInterval) {
-		this.email = notifyEmail;
-		this.checkIntervalMillis = checkInterval;
-	}
-
-	@Override
-	public String getService() {
-		return this.serviceUrl.toString();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#getResults()
-	 */
-	@Override
-	public Collection<ICheckResult> getResults() {
-		return this.results;
-	}
-
-	@Override
-	public void addResult(ICheckResult r) {
-		this.results.add(r);
-	}
-
-	@Override
-	public void notifyFailure() {
-		if (this.email == null) {
-			log.error("Can not notify via email, is null!");
-			return;
-		}
-
-		Collection<ICheckResult> failures = new ArrayList<ICheckResult>();
-		for (ICheckResult r : this.results) {
-			if (r.getType().equals(ResultType.NEGATIVE))
-				failures.add(r);
-		}
-
-		// append for email notification to queue
-		Supervisor.appendNotification(new EmailFailureNotification(
-				this.serviceUrl.toString(), this.email, failures));
-		log.debug("Sent email with " + failures.size() + " failures.");
-	}
-
-	@Override
-	public long getCheckIntervalMillis() {
-		return this.checkIntervalMillis;
-	}
-
-	/**
-	 * 
-	 */
-	public void clearResults() {
-		if (log.isDebugEnabled()) {
-			log.debug("Clearing " + this.results.size() + " results");
-		}
-		this.results.clear();
-	}
+    public void clearResults() {
+        if (log.isDebugEnabled()) {
+            log.debug("Clearing " + this.results.size() + " results");
+        }
+        this.results.clear();
+    }
 
 }

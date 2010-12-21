@@ -9,7 +9,7 @@ Martin-Luther-King-Weg 24
 info@52north.org
 
 This program is free software; you can redistribute and/or modify it under 
-the terms of the GNU General Public License version 2 as published by the 
+the terms of the GNU General Public License serviceVersion 2 as published by the 
 Free Software Foundation.
 
 This program is distributed WITHOUT ANY WARRANTY; even without the implied
@@ -86,11 +86,11 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 			log.debug("Checking SOS Capabilities for " + this.serviceUrl);
 		}
 
-		if (this.version != "1.1") {
-			log.error("OWS Version not supported: " + this.version);
+		if (this.serviceVersion != "1.1") {
+			log.error("OWS Version not supported: " + this.serviceVersion);
 			addResult(new ServiceCheckResult(new Date(), this.serviceUrl
 					.toString(), NEGATIVE_TEXT
-					+ " ... OWS Version not supported: " + this.version,
+					+ " ... OWS Version not supported: " + this.serviceVersion,
 					ResultType.NEGATIVE));
 			return false;
 		}
@@ -111,7 +111,7 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 			// check it!
 			if (response instanceof CapabilitiesDocument) {
 				CapabilitiesDocument caps = (CapabilitiesDocument) response;
-				log.debug("Parsed caps, version: "
+				log.debug("Parsed caps, serviceVersion: "
 						+ caps.getCapabilities().getVersion());
 
 				// save the result

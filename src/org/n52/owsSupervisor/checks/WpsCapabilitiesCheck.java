@@ -31,97 +31,65 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
-import net.opengis.ows.x11.CapabilitiesBaseType;
-import net.opengis.ows.x11.GetCapabilitiesDocument;
+import net.opengis.wps.x100.CapabilitiesDocument;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
-import org.n52.owsSupervisor.util.XmlTools;
 
 /**
- * @author Daniel Nüst
+ * 
+ * Uses GET only
+ * 
+ * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public class OwsCapabilitiesCheck extends AbstractServiceCheck {
+public class WpsCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-    private static Logger log = Logger.getLogger(OwsCapabilitiesCheck.class);
+    private static Logger log = Logger.getLogger(WpsCapabilitiesCheck.class);
 
-    protected static final String DEFAULT_OWS_VERSION = "1.1";
-
-    protected static final String POSITIVE_TEXT = "Successfully requested capabilities document.";
-
-    protected static final String NEGATIVE_TEXT = "Request for capabilities document FAILED.";
-
-    protected String serviceVersion;
+    private String getRequest;
 
     /**
-     * 
      * @param owsVersion
      * @param service
      * @param notifyEmail
      * @param checkIntervalMillis
      */
-    public OwsCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
-        super(notifyEmail, checkIntervalMillis);
-        this.serviceVersion = owsVersion;
-        this.serviceUrl = service;
+    public WpsCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
+        super(owsVersion, service, notifyEmail, checkIntervalMillis);
+
+        this.getRequest = buildGetRequest();
     }
 
     /**
-     * 
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
+     * @return
      */
-    public OwsCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
-        this(DEFAULT_OWS_VERSION, service, notifyEmail, checkIntervalMillis);
-    }
-
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     */
-    public OwsCapabilitiesCheck(URL service, String notifyEmail) {
-        super(notifyEmail);
-        this.serviceVersion = DEFAULT_OWS_VERSION;
-        this.serviceUrl = service;
+    private String buildGetRequest() {
+        return "Request=GetCapabilities&Service=WPS&serviceVersion=" + this.serviceVersion;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.n52.owsSupervisor.IServiceChecker#check()
+     * @see org.n52.owsSupervisor.checks.OwsCapabilitiesCheck#check()
      */
     @Override
     public boolean check() {
         if (log.isDebugEnabled()) {
-            log.debug("Checking Capabilities for " + this.serviceUrl);
-        }
-
-        if (this.serviceVersion != "1.1") {
-            log.error("OWS Version not supported: " + this.serviceVersion);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
-                    + " ... OWS Version not supported: " + this.serviceVersion, ResultType.NEGATIVE));
-            return false;
+            log.debug("Checking WPS Capabilities via GET " + this.serviceUrl);
         }
 
         clearResults();
 
-        // create get capabilities document
-        GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory.newInstance(XmlTools.DEFAULT_OPTIONS);
-        getCapDoc.addNewGetCapabilities();
-
-        // send the document
+        // send the request
         try {
-            XmlObject response = this.client.xSendPostRequest(this.serviceUrl.toString(), getCapDoc);
-            getCapDoc = null;
+            XmlObject response = this.client.xSendGetRequest(this.serviceUrl.toString(), this.getRequest);
 
             // parse response - this is the test!
-            CapabilitiesBaseType caps = CapabilitiesBaseType.Factory.parse(response.getDomNode());
-            log.debug("Parsed caps with serviceVersion " + caps.getVersion());
+            CapabilitiesDocument caps = CapabilitiesDocument.Factory.parse(response.getDomNode());
+            log.debug("Parsed caps with serviceVersion " + caps.getCapabilities().getVersion());
         }
         catch (IOException e) {
             log.error("Could not send request", e);
@@ -140,11 +108,6 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
         addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
 
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "OwsCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
     }
 
 }

@@ -9,7 +9,7 @@ Martin-Luther-King-Weg 24
 info@52north.org
 
 This program is free software; you can redistribute and/or modify it under 
-the terms of the GNU General Public License version 2 as published by the 
+the terms of the GNU General Public License serviceVersion 2 as published by the 
 Free Software Foundation.
 
 This program is distributed WITHOUT ANY WARRANTY; even without the implied
@@ -40,92 +40,106 @@ import org.n52.owsSupervisor.tasks.SendEmailTask;
  */
 public class HeapChecker implements IServiceChecker {
 
-	private long interval;
+    private long interval;
 
-	private ICheckResult result;
+    private ICheckResult result;
 
-	private static Logger log = Logger.getLogger(SendEmailTask.class);
+    private String lastCheckString = "";
 
-	private static final long L1024_2 = 1024 * 1024;
+    private static Logger log = Logger.getLogger(SendEmailTask.class);
 
-	/**
-	 * @param l
-	 * 
-	 */
-	public HeapChecker(long intervalMillis) {
-		this.interval = intervalMillis;
-	}
+    private static final long L1024_2 = 1024 * 1024;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#getService()
-	 */
-	@Override
-	public String getService() {
-		return null;
-	}
+    /**
+     * @param l
+     * 
+     */
+    public HeapChecker(long intervalMillis) {
+        this.interval = intervalMillis;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#check()
-	 */
-	@Override
-	public boolean check() {
-		long heapSize = Runtime.getRuntime().totalMemory();
-		long heapMaxSize = Runtime.getRuntime().maxMemory();
-		long heapFreeSize = Runtime.getRuntime().freeMemory();
-		String s = "Size (Mb) is " + heapSize / L1024_2 + " of " + heapMaxSize
-				/ L1024_2 + " leaving " + heapFreeSize / L1024_2 + ".";
-		log.debug(s);
-		this.result = new CheckResult("Internal Heap Checker", s,
-				ResultType.POSITIVE);
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getService()
+     */
+    @Override
+    public String getService() {
+        return null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#getResults()
-	 */
-	@Override
-	public Collection<ICheckResult> getResults() {
-		ArrayList<ICheckResult> l = new ArrayList<ICheckResult>();
-		l.add(this.result);
-		return l;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#check()
+     */
+    @Override
+    public boolean check() {
+        long heapSize = Runtime.getRuntime().totalMemory();
+        long heapMaxSize = Runtime.getRuntime().maxMemory();
+        long heapFreeSize = Runtime.getRuntime().freeMemory();
+        this.lastCheckString = "Size (Mb) is " + heapSize / L1024_2 + " of " + heapMaxSize / L1024_2 + " leaving "
+                + heapFreeSize / L1024_2 + ".";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.n52.owsSupervisor.IServiceChecker#addResult(org.n52.owsSupervisor
-	 * .ICheckResult)
-	 */
-	@Override
-	public void addResult(ICheckResult r) {
-		//
-	}
+        notifySuccess();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#notifyFailure()
-	 */
-	@Override
-	public void notifyFailure() {
-		//
-	}
+        return true;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-	 */
-	@Override
-	public long getCheckIntervalMillis() {
-		return this.interval;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getResults()
+     */
+    @Override
+    public Collection<ICheckResult> getResults() {
+        ArrayList<ICheckResult> l = new ArrayList<ICheckResult>();
+        l.add(this.result);
+        return l;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#addResult(org.n52.owsSupervisor .ICheckResult)
+     */
+    @Override
+    public void addResult(ICheckResult r) {
+        //
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#notifyFailure()
+     */
+    @Override
+    public void notifyFailure() {
+        //
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
+     */
+    @Override
+    public long getCheckIntervalMillis() {
+        return this.interval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifySuccess()
+     */
+    @Override
+    public void notifySuccess() {
+        if (log.isDebugEnabled()) {
+            log.debug(this.lastCheckString);
+        }
+
+        this.result = new CheckResult("Internal Heap Checker", this.lastCheckString, ResultType.POSITIVE);
+    }
 
 }
