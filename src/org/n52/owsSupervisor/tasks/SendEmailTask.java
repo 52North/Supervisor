@@ -24,6 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
+
 package org.n52.owsSupervisor.tasks;
 
 import java.util.ArrayList;
@@ -58,206 +59,195 @@ import org.n52.owsSupervisor.ui.IFailureNotification;
  */
 public class SendEmailTask extends TimerTask {
 
-	private static final String EMAIL_CONTENT_ENCODING = "text/plain";
+    private static final String EMAIL_CONTENT_ENCODING = "text/plain";
 
-	private static final String RESULT_IDENTIFIER = "Send Email Task";
+    private static final String RESULT_IDENTIFIER = "Send Email Task";
 
-	private Collection<IFailureNotification> notifications;
+    private static final Object EMAIL_HELLO_TEXT = "Attention on deck!\n\nFailed check(s) occured while testing.\n\n";
 
-	private static Logger log = Logger.getLogger(SendEmailTask.class);
+    private static final Object EMAIL_GOODBYE_TEXT = "\n\n\nGood Luck fixing it!";
 
-	private String adminEmail = null;
+    private static final Object EMAIL_FAILURE_DELIMITER_TEXT = "\n";
 
-	/**
-	 * 
-	 * @param notifications2
-	 */
-	public SendEmailTask(Collection<IFailureNotification> notificationsP) {
-		this.notifications = notificationsP;
-		log.info("NEW " + this.toString());
-	}
+    private static Logger log = Logger.getLogger(SendEmailTask.class);
 
-	/**
-	 * 
-	 * @param adminEmail
-	 * @param notificationsP
-	 */
-	public SendEmailTask(String adminEmailP,
-			Collection<IFailureNotification> notificationsP) {
-		this.notifications = notificationsP;
-		this.adminEmail = adminEmailP;
-		log.info("NEW " + this.toString());
-	}
+    private String adminEmail = null;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.util.TimerTask#run()
-	 */
-	@Override
-	public void run() {
-		if (this.notifications.size() < 1) {
-			log.debug("No notifications. Yay!");
-			// long heapSize = Runtime.getRuntime().totalMemory();
-			// long heapMaxSize = Runtime.getRuntime().maxMemory();
-			// long heapFreeSize = Runtime.getRuntime().freeMemory();
-			// System.out.println("Size is " + heapSize/1024 + " of " +
-			// heapMaxSize/1024 + " leaving " + heapFreeSize/1024 + ".");
-			// ICheckResult result = new CheckResultImpl("Send Email Task",
-			// "No notifactions.", ResultType.POSITIVE);
-			// Supervisor.appendLatestResult(result);
-			return;
-		}
+    /**
+     * 
+     * @param notifications2
+     */
+    public SendEmailTask() {
+        log.info("NEW " + this.toString());
+    }
 
-		try {
-			doTask();
-		} catch (Error e) {
-			log.error("Error fulfilling task");
-			if (this.adminEmail != null) {
-				try {
-					sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 0);
-				} catch (MessagingException e1) {
-					log.error("Could not send email on error!");
-				}
-			}
-			throw e;
-		}
-	}
+    /**
+     * 
+     * @param adminEmail
+     * @param notificationsP
+     */
+    public SendEmailTask(String adminEmailP) {
+        this.adminEmail = adminEmailP;
+        log.info("NEW " + this.toString());
+    }
 
-	private void doTask() {
-		log.info("*** Sending emails based on " + this.notifications.size()
-				+ " notifications.");
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.util.TimerTask#run()
+     */
+    @Override
+    public void run() {
+        Collection<IFailureNotification> notifications = Supervisor.getCurrentNotificationsCopy();
 
-		// collect all notifications for one email address
-		Map<String, Collection<EmailFailureNotification>> emails = new HashMap<String, Collection<EmailFailureNotification>>();
+        if (notifications.size() < 1) {
+            log.debug("No notifications. Yay!");
+            return;
+        }
 
-		for (IFailureNotification iMsg : this.notifications) {
-			if (iMsg instanceof EmailFailureNotification) {
-				EmailFailureNotification msg = (EmailFailureNotification) iMsg;
-				if (emails.containsKey(msg.getRecipientEmail())) {
-					// add to failure list
-					Collection<EmailFailureNotification> failures = emails
-							.get(msg.getRecipientEmail());
-					failures.add(msg);
-				} else {
-					// create new email
-					ArrayList<EmailFailureNotification> failures = new ArrayList<EmailFailureNotification>();
-					failures.add(msg);
-					emails.put(msg.getRecipientEmail(), failures);
-				}
-			}
-			// not an email notification
-		}
+        try {
+            boolean noError = doTask(notifications);
 
-		// send emails
-		int overallFailureCounter = 0;
-		int overallEmailCounter = 0;
-		for (Entry<String, Collection<EmailFailureNotification>> email : emails
-				.entrySet()) {
-			// create message
-			StringBuilder sb = new StringBuilder();
-			sb.append("Attention on deck!\n\nFailed check(s) occured while testing.\n\n");
+            // all went ok, clear notifications
+            if (noError)
+                Supervisor.removeAllNotifications(notifications);
+        }
+        catch (Error e) {
+            log.error("Error fulfilling task");
+            if (this.adminEmail != null) {
+                try {
+                    sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 0);
+                }
+                catch (MessagingException e1) {
+                    log.error("Could not send email on error!");
+                }
+            }
+            throw e;
+        }
+    }
 
-			int failureCount = 0;
-			for (EmailFailureNotification failure : email.getValue()) {
-				for (ICheckResult f : failure.getCheckResults()) {
-					sb.append("\n");
-					sb.append(f.toString());
-				}
+    private boolean doTask(Collection<IFailureNotification> notifications) {
+        log.info("*** Sending emails based on " + notifications.size() + " notifications.");
 
-				failureCount += failure.getCheckResults().size();
-			}
+        // collect all notifications for one email address
+        Map<String, Collection<EmailFailureNotification>> emails = new HashMap<String, Collection<EmailFailureNotification>>();
 
-			sb.append("\n\n\nGood Luck fixing it!");
+        for (IFailureNotification iMsg : notifications) {
+            if (iMsg instanceof EmailFailureNotification) {
+                EmailFailureNotification msg = (EmailFailureNotification) iMsg;
+                if (emails.containsKey(msg.getRecipientEmail())) {
+                    // add to failure list
+                    Collection<EmailFailureNotification> failures = emails.get(msg.getRecipientEmail());
+                    failures.add(msg);
+                }
+                else {
+                    // create new email
+                    ArrayList<EmailFailureNotification> failures = new ArrayList<EmailFailureNotification>();
+                    failures.add(msg);
+                    emails.put(msg.getRecipientEmail(), failures);
+                }
+            }
+            // not an email notification
+        }
 
-			try {
-				sendEmail(email.getKey(), sb.toString(), failureCount);
+        // send emails
+        int overallFailureCounter = 0;
+        int overallEmailCounter = 0;
+        boolean noError = true;
+        for (Entry<String, Collection<EmailFailureNotification>> email : emails.entrySet()) {
+            // create message
+            StringBuilder sb = new StringBuilder();
+            sb.append(EMAIL_HELLO_TEXT);
 
-				overallEmailCounter++;
-				overallFailureCounter += failureCount;
+            int failureCount = 0;
+            for (EmailFailureNotification failure : email.getValue()) {
+                for (ICheckResult f : failure.getCheckResults()) {
+                    sb.append(EMAIL_FAILURE_DELIMITER_TEXT);
+                    sb.append(f.toString());
+                }
 
-				ICheckResult result = new CheckResult(RESULT_IDENTIFIER,
-						"Sent " + overallEmailCounter + " email(s) with "
-								+ overallFailureCounter + " failure(s).",
-						ResultType.NEUTRAL);
-				Supervisor.appendLatestResult(result);
+                failureCount += failure.getCheckResults().size();
+            }
 
-				// all went ok, clear notifications
-				Supervisor.clearNotifications();
-			} catch (MessagingException e) {
-				log.error("Could not send email to " + email.getKey(), e);
+            sb.append(EMAIL_GOODBYE_TEXT);
 
-				ICheckResult result = new CheckResult(RESULT_IDENTIFIER,
-						"FAILED to send email to " + email.getKey() + ": "
-								+ e.getMessage(), ResultType.NEGATIVE);
-				Supervisor.appendLatestResult(result);
-			}
-		}
-	}
+            try {
+                sendEmail(email.getKey(), sb.toString(), failureCount);
 
-	/**
-	 * 
-	 * @param recipient
-	 * @param failures
-	 * @throws MessagingException
-	 */
-	protected void sendEmail(String recipient, String messageText,
-			int failureCount) throws MessagingException {
-		SupervisorProperties sp = SupervisorProperties.getInstance();
+                overallEmailCounter++;
+                overallFailureCounter += failureCount;
 
-		// send it
-		if (sp.getSendEmails()) {
-			Properties mailProps = SupervisorProperties.getInstance()
-					.getMailSessionProperties();
-			Session mailSession = Session.getDefaultInstance(mailProps,
-					new PropertyAuthenticator(mailProps));
-			Transport transport = mailSession.getTransport();
+                ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "Sent " + overallEmailCounter
+                        + " email(s) with " + overallFailureCounter + " failure(s).", ResultType.NEUTRAL);
+                Supervisor.appendLatestResult(result);
+            }
+            catch (MessagingException e) {
+                log.error("Could not send email to " + email.getKey(), e);
 
-			MimeMessage message = new MimeMessage(mailSession);
-			if (failureCount > 1)
-				message.setSubject("[OwsSupervisor] " + failureCount
-						+ " checks failed");
-			else
-				message.setSubject("[OwsSupervisor] " + failureCount
-						+ " check failed");
-			message.setContent(messageText, EMAIL_CONTENT_ENCODING);
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(
-					recipient));
-			message.setSender(sp.getEmailSender());
+                ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "FAILED to send email to " + email.getKey()
+                        + ": " + e.getMessage(), ResultType.NEGATIVE);
+                Supervisor.appendLatestResult(result);
+                noError = false;
+            }
+        }
+        
+        return noError;
+    }
 
-			transport.connect();
-			transport.sendMessage(message,
-					message.getRecipients(Message.RecipientType.TO));
-			transport.close();
+    /**
+     * 
+     * @param recipient
+     * @param failures
+     * @throws MessagingException
+     */
+    protected void sendEmail(String recipient, String messageText, int failureCount) throws MessagingException {
+        SupervisorProperties sp = SupervisorProperties.getInstance();
 
-			log.debug("Sent email to " + recipient + " with " + failureCount
-					+ " failure(s).");
-		} else {
-			log.warn("Not sending Email (disabled in properties!)");
-			log.debug("Email Content: " + messageText);
-		}
-	}
+        // send it
+        if (sp.getSendEmails()) {
+            Properties mailProps = SupervisorProperties.getInstance().getMailSessionProperties();
+            Session mailSession = Session.getDefaultInstance(mailProps, new PropertyAuthenticator(mailProps));
+            Transport transport = mailSession.getTransport();
 
-	/**
-	 * 
-	 * @author Daniel Nüst
-	 * 
-	 */
-	private class PropertyAuthenticator extends Authenticator {
-		private Properties p;
+            MimeMessage message = new MimeMessage(mailSession);
+            if (failureCount > 1)
+                message.setSubject("[OwsSupervisor] " + failureCount + " checks failed");
+            else
+                message.setSubject("[OwsSupervisor] " + failureCount + " check failed");
+            message.setContent(messageText, EMAIL_CONTENT_ENCODING);
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+            message.setSender(sp.getEmailSender());
 
-		public PropertyAuthenticator(Properties sp) {
-			this.p = sp;
-		}
+            transport.connect();
+            transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
+            transport.close();
 
-		@Override
-		protected PasswordAuthentication getPasswordAuthentication() {
-			String userName = this.p
-					.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
-			String password = this.p
-					.getProperty(SupervisorProperties.MAIL_PASSWORD_PROPERTY);
-			return new PasswordAuthentication(userName, password);
-		}
-	}
+            log.debug("Sent email to " + recipient + " with " + failureCount + " failure(s).");
+        }
+        else {
+            log.warn("Not sending Email (disabled in properties!)");
+            log.debug("Email Content: " + messageText);
+        }
+    }
+
+    /**
+     * 
+     * @author Daniel Nüst
+     * 
+     */
+    private class PropertyAuthenticator extends Authenticator {
+        private Properties p;
+
+        public PropertyAuthenticator(Properties sp) {
+            this.p = sp;
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            String userName = this.p.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
+            String password = this.p.getProperty(SupervisorProperties.MAIL_PASSWORD_PROPERTY);
+            return new PasswordAuthentication(userName, password);
+        }
+    }
 
 }

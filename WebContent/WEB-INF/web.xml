@@ -15,7 +15,7 @@
 			<param-name>configFile</param-name>
 			<param-value>/WEB-INF/conf/supervisor.config</param-value>
 		</init-param>
-		<load-on-startup>10</load-on-startup>
+		<load-on-startup>100</load-on-startup>
 	</servlet>
 
 	<servlet>
@@ -25,7 +25,7 @@
 			<param-name>configFile</param-name>
 			<param-value>/WEB-INF/conf/supervisor.config</param-value>
 		</init-param>
-		<load-on-startup>20</load-on-startup>
+		<load-on-startup>200</load-on-startup>
 	</servlet>
 
 	<!-- <servlet-mapping> <servlet-name>SOR</servlet-name> <url-pattern>/sor</url-pattern> 

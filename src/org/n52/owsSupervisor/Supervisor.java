@@ -24,6 +24,7 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
+
 package org.n52.owsSupervisor;
 
 import java.io.IOException;
@@ -47,6 +48,7 @@ import org.n52.owsSupervisor.tasks.IJobScheduler;
 import org.n52.owsSupervisor.tasks.SendEmailTask;
 import org.n52.owsSupervisor.tasks.TaskServlet;
 import org.n52.owsSupervisor.ui.IFailureNotification;
+import org.n52.owsSupervisor.util.SubmitCheckersTask;
 
 /**
  * @author Daniel Nüst
@@ -54,153 +56,160 @@ import org.n52.owsSupervisor.ui.IFailureNotification;
  */
 public class Supervisor extends GenericServlet {
 
-	private static final long serialVersionUID = -4629591718212281703L;
+    private static final long serialVersionUID = -4629591718212281703L;
 
-	private static final String CONFIG_FILE_INIT_PARAMETER = "configFile";
+    private static final String CONFIG_FILE_INIT_PARAMETER = "configFile";
 
-	private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
+    private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
 
-	private static Logger log = Logger.getLogger(Supervisor.class);
+    private static final String SUBMIT_CHECKERS_TASK_ID = "SubmitCheckersTask";
 
-	private Collection<IServiceChecker> checkers;
+    private static Logger log = Logger.getLogger(Supervisor.class);
 
-	private static Queue<ICheckResult> latestResults;
+    private Collection<IServiceChecker> checkers;
 
-	private static Queue<IFailureNotification> notifications;
+    private static Queue<ICheckResult> latestResults;
 
-	private IJobScheduler scheduler;
+    private static Queue<IFailureNotification> notifications;
 
-	/**
+    private IJobScheduler scheduler;
+
+    /**
 	 * 
 	 */
-	public Supervisor() {
-		log.info("*** NEW " + this + " ***");
-	}
+    public Supervisor() {
+        log.info("*** NEW " + this + " ***");
+    }
 
-	@Override
-	public void init() throws ServletException {
-		// get ServletContext
-		ServletContext context = getServletContext();
+    @Override
+    public void init() throws ServletException {
+        // get ServletContext
+        ServletContext context = getServletContext();
 
-		String basepath = context.getRealPath("/");
-		InputStream configStream = context
-				.getResourceAsStream(getInitParameter(CONFIG_FILE_INIT_PARAMETER));
+        String basepath = context.getRealPath("/");
+        InputStream configStream = context.getResourceAsStream(getInitParameter(CONFIG_FILE_INIT_PARAMETER));
 
-		// initialize property manager
-		SupervisorProperties sp = SupervisorProperties.getInstance(
-				configStream, basepath);
+        // initialize property manager
+        SupervisorProperties sp = SupervisorProperties.getInstance(configStream, basepath);
 
-		// initialize lists
-		this.checkers = new ArrayList<IServiceChecker>();
-		latestResults = new LinkedBlockingQueue<ICheckResult>(
-				SupervisorProperties.getInstance().getMaximumResults());
-		notifications = new LinkedBlockingQueue<IFailureNotification>();
+        // initialize lists
+        this.checkers = new ArrayList<IServiceChecker>();
+        latestResults = new LinkedBlockingQueue<ICheckResult>(SupervisorProperties.getInstance().getMaximumResults());
+        notifications = new LinkedBlockingQueue<IFailureNotification>();
 
-		// init timer servlet
-		TaskServlet timerServlet = (TaskServlet) context
-				.getAttribute(TaskServlet.NAME_IN_CONTEXT);
-		this.scheduler = sp.getScheduler(timerServlet);
+        // init timer servlet
+        TaskServlet timerServlet = (TaskServlet) context.getAttribute(TaskServlet.NAME_IN_CONTEXT);
+        this.scheduler = sp.getScheduler(timerServlet);
 
-		// initialize checkers
-		initCheckers();
+        // add task for email notifications, with out without admin email
+        String adminEmail = sp.getAdminEmail();
+        if (adminEmail.contains("@ADMIN_EMAIL@")) {
+            timerServlet.submit(EMAIL_SENDER_TASK_ID,
+                                new SendEmailTask(),
+                                sp.getEmailSendPeriodMins(),
+                                sp.getEmailSendPeriodMins());
+        }
+        else {
+            log.info("Found admin email address for send email task.");
+            timerServlet.submit(EMAIL_SENDER_TASK_ID,
+                                new SendEmailTask(adminEmail),
+                                sp.getEmailSendPeriodMins(),
+                                sp.getEmailSendPeriodMins());
+        }
 
-		// add task for email notifications, with out without admin email
-		String adminEmail = sp.getAdminEmail();
-		if (adminEmail.contains("@ADMIN_EMAIL@")) {
-			timerServlet.submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(
-					notifications), sp.getEmailSendPeriodMins(), sp
-					.getEmailSendPeriodMins());
-		} else {
-			log.info("Found admin email address for send email task.");
-			timerServlet.submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(
-					adminEmail, notifications), sp.getEmailSendPeriodMins(), sp
-					.getEmailSendPeriodMins());
-		}
+        // initialize checkers
+        this.checkers = SWSL.checkers;
+        SubmitCheckersTask sct = new SubmitCheckersTask(this.scheduler, this.checkers);
+        timerServlet.submit(SUBMIT_CHECKERS_TASK_ID,
+                            sct,
+                            SupervisorProperties.getInstance().getCheckSubmitDelaySecs() * 1000);
 
-		log.info("*** INITIALIZED SUPERVISOR ***");
-	}
+        log.info("*** INITIALIZED SUPERVISOR ***");
+    }
 
-	private void initCheckers() {
-		this.checkers = SWSL.checkers;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.servlet.GenericServlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
+     */
+    @Override
+    public void service(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException {
+        log.fatal("'service' method is not supported. ServletRequest: " + arg0);
+    }
 
-		for (IServiceChecker c : this.checkers) {
-			this.scheduler.submit(c);
-		}
-	}
+    @Override
+    public void destroy() {
+        super.destroy();
+        log.info("Destroy " + this.toString());
+        this.checkers.clear();
+        this.checkers = null;
+        latestResults.clear();
+        latestResults = null;
+        notifications.clear();
+        notifications = null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.servlet.GenericServlet#service(javax.servlet.ServletRequest,
-	 * javax.servlet.ServletResponse)
-	 */
-	@Override
-	public void service(ServletRequest arg0, ServletResponse arg1)
-			throws ServletException, IOException {
-		log.fatal("'service' method is not supported. ServletRequest: " + arg0);
-	}
+    /**
+     * 
+     * @return
+     */
+    public static Collection<ICheckResult> getLatestResults() {
+        return new ArrayList<ICheckResult>(latestResults);
+    }
 
-	@Override
-	public void destroy() {
-		super.destroy();
-		log.info("Destroy " + this.toString());
-		this.checkers.clear();
-		this.checkers = null;
-		latestResults.clear();
-		latestResults = null;
-		notifications.clear();
-		notifications = null;
-	}
+    /**
+     * 
+     * @param results
+     */
+    public static void appendLatestResults(Collection<ICheckResult> results) {
+        if (latestResults.size() >= SupervisorProperties.getInstance().getMaximumResults()) {
+            log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() + " existing.");
+            for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
+                // remove the first element so many times that the new results
+                // fit.
+                latestResults.remove();
+            }
+        }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public static Collection<ICheckResult> getLatestResults() {
-		return new ArrayList<ICheckResult>(latestResults);
-	}
+        latestResults.addAll(results);
+    }
 
-	/**
-	 * 
-	 * @param results
-	 */
-	public static void appendLatestResults(Collection<ICheckResult> results) {
-		if (latestResults.size() >= SupervisorProperties.getInstance()
-				.getMaximumResults()) {
-			log.debug("Too many results. Got " + results.size() + " new and "
-					+ latestResults.size() + " existing.");
-			for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
-				// remove the first element so many times that the new results
-				// fit.
-				latestResults.remove();
-			}
-		}
+    /**
+     * 
+     * @param result
+     */
+    public static void appendLatestResult(ICheckResult result) {
+        latestResults.add(result);
+    }
 
-		latestResults.addAll(results);
-	}
+    /**
+     * 
+     * @param results
+     */
+    public static void appendNotification(IFailureNotification notification) {
+        notifications.add(notification);
+    }
 
-	/**
-	 * 
-	 * @param result
-	 */
-	public static void appendLatestResult(ICheckResult result) {
-		latestResults.add(result);
-	}
-
-	/**
-	 * 
-	 * @param results
-	 */
-	public static void appendNotification(IFailureNotification notification) {
-		notifications.add(notification);
-	}
-
-	/**
+    /**
 	 * 
 	 */
-	public static void clearNotifications() {
-		log.info("Clearing notifications!");
-		notifications.clear();
-	}
+    public static void clearNotifications() {
+        log.info("Clearing notifications!");
+        notifications.clear();
+    }
+
+    /**
+     * @return
+     */
+    public static Collection<IFailureNotification> getCurrentNotificationsCopy() {
+        return new ArrayList<IFailureNotification>(notifications);
+    }
+
+    /**
+     * @return
+     */
+    public static synchronized boolean removeAllNotifications(Collection<IFailureNotification> c) {
+        return notifications.removeAll(c);
+    }
 
 }
