@@ -53,6 +53,8 @@ public abstract class SWSL {
     public static Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
 
     private static final String EMAIL_DN = "daniel.nuest@uni-muenster.de";
+    
+    private static final String EMAIL_BB = "benjamin.boecker@uni-muenster.de";
 
     private static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
 
@@ -80,7 +82,11 @@ public abstract class SWSL {
         checkers.add(hc);
 
         initBS();
-        initDN();
+        
+        initWeatherSOS(EMAIL_BB);
+//        initWeatherSOS(EMAIL_DN);
+        
+        initGenesis(EMAIL_DN);
     }
 
     /**
@@ -103,12 +109,13 @@ public abstract class SWSL {
 
     /**
      * 
+     * @param notificationEmail
      */
-    private static void initDN() {
+    private static void initWeatherSOS(String notificationEmail) {
         // WeatherSOS
         try {
             URL weathersos = new URL("http://v-swe.uni-muenster.de:8080/WeatherSOS/sos");
-            IServiceChecker capsChecker = new SosCapabilitiesCheck(weathersos, EMAIL_DN, EVERY_12_HOURS);
+            IServiceChecker capsChecker = new SosCapabilitiesCheck(weathersos, notificationEmail, EVERY_12_HOURS);
             checkers.add(capsChecker);
 
             // TODO create checks for latest observation autmatically from
@@ -160,11 +167,17 @@ public abstract class SWSL {
         catch (MalformedURLException e) {
             log.error("Could not create URL for checker.", e);
         }
-
+    }
+    
+    /**
+     * 
+     * @param notificationEmail
+     */
+    private static void initGenesis(String notificationEmail) {
         // SIR @ giv-genesis
         try {
             URL sir = new URL("http://giv-genesis.uni-muenster.de:8080/SIR2/sir");
-            IServiceChecker capsChecker = new SirCapabilitiesCheck(sir, EMAIL_DN, EVERY_12_HOURS);
+            IServiceChecker capsChecker = new SirCapabilitiesCheck(sir, notificationEmail, EVERY_12_HOURS);
             checkers.add(capsChecker);
         }
         catch (MalformedURLException e) {
@@ -174,7 +187,7 @@ public abstract class SWSL {
         // SOR @ giv-genesis
         try {
             URL sor = new URL("http://giv-genesis.uni-muenster.de:8080/SOR/sor");
-            IServiceChecker capsChecker = new SorCapabilitiesCheck(sor, EMAIL_DN, EVERY_12_HOURS);
+            IServiceChecker capsChecker = new SorCapabilitiesCheck(sor, notificationEmail, EVERY_12_HOURS);
             checkers.add(capsChecker);
         }
         catch (MalformedURLException e) {
