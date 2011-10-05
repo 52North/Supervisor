@@ -132,7 +132,7 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
         catch (IOException e) {
             log.error("Could not send request", e);
             addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
-                    + " ... Could not send request!", ResultType.NEGATIVE));
+                    + " ... Could not send request: " + e.getMessage(), ResultType.NEGATIVE));
             return false;
         }
     }
