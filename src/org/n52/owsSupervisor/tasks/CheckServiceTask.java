@@ -46,13 +46,56 @@ public class CheckServiceTask extends TimerTask {
 
 	private static Logger log = Logger.getLogger(CheckServiceTask.class);
 
-	private String connectionID;
-
 	private IServiceChecker checker;
 
+	private String connectionID;
+
+	/**
+	 * 
+	 * @param connectionIDP
+	 * @param checkerP
+	 */
 	public CheckServiceTask(String connectionIDP, IServiceChecker checkerP) {
 		this.connectionID = connectionIDP;
 		this.checker = checkerP;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.util.TimerTask#cancel()
+	 */
+	@Override
+	public boolean cancel() {
+		log.info("Cancelling " + this);
+		return super.cancel();
+	}
+
+	/**
+	 * 
+	 * @param c
+	 * @return
+	 */
+	private Collection<ICheckResult> checkIt(IServiceChecker c) {
+		boolean b = c.check();
+		if (!b) {
+			c.notifyFailure();
+		}
+		else {
+		    c.notifySuccess();
+		}
+
+		return c.getResults();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#finalize()
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		if (log.isDebugEnabled())
+			log.debug("Finalizing " + this);
+		super.finalize();
 	}
 
 	/*
@@ -70,18 +113,10 @@ public class CheckServiceTask extends TimerTask {
 		log.info("*** Ran check, got " + currentResults.size() + " results.");
 	}
 
-	private Collection<ICheckResult> checkIt(IServiceChecker c) {
-		boolean b = c.check();
-		if (!b) {
-			c.notifyFailure();
-		}
-		else {
-		    c.notifySuccess();
-		}
-
-		return c.getResults();
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -91,19 +126,6 @@ public class CheckServiceTask extends TimerTask {
 		sb.append(this.checker);
 		sb.append("]");
 		return sb.toString();
-	}
-
-	@Override
-	public boolean cancel() {
-		log.info("Cancelling " + this);
-		return super.cancel();
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		if (log.isDebugEnabled())
-			log.debug("Finalizing " + this);
-		super.finalize();
 	}
 
 }

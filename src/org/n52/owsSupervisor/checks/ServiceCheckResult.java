@@ -34,11 +34,11 @@ import java.util.Date;
  */
 public class ServiceCheckResult implements ICheckResult {
 
-	private Date time;
+	private String result;
 
 	private String serviceIdentifier;
 
-	private String result;
+	private Date time;
 
 	private ResultType type;
 
@@ -67,14 +67,19 @@ public class ServiceCheckResult implements ICheckResult {
 		this(new Date(), serviceP, resultP, typeP);
 	}
 
+	@Override
+	public String getCheckIdentifier() {
+		return getServiceIdentifier();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.n52.owsSupervisor.ICheckResult#getTimeOfCheck()
+	 * @see org.n52.owsSupervisor.ICheckResult#getResult()
 	 */
 	@Override
-	public Date getTimeOfCheck() {
-		return this.time;
+	public String getResult() {
+		return this.result;
 	}
 
 	/*
@@ -89,11 +94,11 @@ public class ServiceCheckResult implements ICheckResult {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.n52.owsSupervisor.ICheckResult#getResult()
+	 * @see org.n52.owsSupervisor.ICheckResult#getTimeOfCheck()
 	 */
 	@Override
-	public String getResult() {
-		return this.result;
+	public Date getTimeOfCheck() {
+		return this.time;
 	}
 
 	/*
@@ -110,11 +115,6 @@ public class ServiceCheckResult implements ICheckResult {
 	public String toString() {
 		return "[" + getType().name() + "] " + this.time + ": "
 				+ this.serviceIdentifier + " - " + this.result;
-	}
-
-	@Override
-	public String getCheckIdentifier() {
-		return getServiceIdentifier();
 	}
 
 }

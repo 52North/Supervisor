@@ -41,9 +41,9 @@ import org.n52.owsSupervisor.checks.IServiceChecker;
  */
 public class JobSchedulerImpl implements IJobScheduler {
 
-	private static Logger log = Logger.getLogger(JobSchedulerImpl.class);
-
 	private static final long DEFAULT_DELAY_MILLISECS = 10;
+
+	private static Logger log = Logger.getLogger(JobSchedulerImpl.class);
 
 	private TaskServlet timerServlet;
 
@@ -56,6 +56,22 @@ public class JobSchedulerImpl implements IJobScheduler {
 		log.info("NEW " + this);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.n52.owsSupervisor.tasks.IJobScheduler#cancel(java.lang.String)
+	 */
+	@Override
+	public void cancel(String identifier) {
+		if (log.isDebugEnabled()) {
+			log.debug("Cancelling Task: " + identifier + ".");
+		}
+		this.timerServlet.cancel(identifier);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.n52.owsSupervisor.tasks.IJobScheduler#submit(org.n52.owsSupervisor.checks.IServiceChecker)
+	 */
 	@Override
 	public String submit(IServiceChecker checker) {
 		return submit(checker, DEFAULT_DELAY_MILLISECS);
@@ -78,14 +94,13 @@ public class JobSchedulerImpl implements IJobScheduler {
 		return id;
 	}
 
-	@Override
-	public void cancel(String identifier) {
-		if (log.isDebugEnabled()) {
-			log.debug("Cancelling Task: " + identifier + ".");
-		}
-		this.timerServlet.cancel(identifier);
-	}
-
+	/**
+	 * 
+	 * @param identifier
+	 * @param task
+	 * @param delay
+	 * @param period
+	 */
 	private void submitRepeating(String identifier, TimerTask task, long delay,
 			long period) {
 		if (log.isDebugEnabled()) {
@@ -96,6 +111,10 @@ public class JobSchedulerImpl implements IJobScheduler {
 		this.timerServlet.submit(identifier, task, delay, period);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

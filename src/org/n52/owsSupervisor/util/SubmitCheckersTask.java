@@ -43,6 +43,7 @@ public class SubmitCheckersTask extends TimerTask {
     private static Logger log = Logger.getLogger(SubmitCheckersTask.class);
 
     private Collection<IServiceChecker> checkers;
+    
     private IJobScheduler scheduler;
 
     /**

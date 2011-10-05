@@ -59,17 +59,37 @@ import org.n52.owsSupervisor.ui.IFailureNotification;
  */
 public class SendEmailTask extends TimerTask {
 
+    /**
+     * 
+     * @author Daniel Nüst
+     * 
+     */
+    private class PropertyAuthenticator extends Authenticator {
+        private Properties p;
+
+        public PropertyAuthenticator(Properties sp) {
+            this.p = sp;
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            String userName = this.p.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
+            String password = this.p.getProperty(SupervisorProperties.MAIL_PASSWORD_PROPERTY);
+            return new PasswordAuthentication(userName, password);
+        }
+    }
+
     private static final String EMAIL_CONTENT_ENCODING = "text/plain";
-
-    private static final String RESULT_IDENTIFIER = "Send Email Task";
-
-    private static final Object EMAIL_HELLO_TEXT = "Attention on deck!\n\nFailed check(s) occured while testing.\n\n";
-
-    private static final Object EMAIL_GOODBYE_TEXT = "\n\n\nGood Luck fixing it!";
 
     private static final Object EMAIL_FAILURE_DELIMITER_TEXT = "\n";
 
+    private static final Object EMAIL_GOODBYE_TEXT = "\n\n\nGood Luck fixing it!";
+
+    private static final Object EMAIL_HELLO_TEXT = "Attention on deck!\n\nFailed check(s) occured while testing.\n\n";
+
     private static Logger log = Logger.getLogger(SendEmailTask.class);
+
+    private static final String RESULT_IDENTIFIER = "Send Email Task";
 
     private String adminEmail = null;
 
@@ -89,41 +109,6 @@ public class SendEmailTask extends TimerTask {
     public SendEmailTask(String adminEmailP) {
         this.adminEmail = adminEmailP;
         log.info("NEW " + this.toString());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.TimerTask#run()
-     */
-    @Override
-    public void run() {
-        Collection<IFailureNotification> notifications = Supervisor.getCurrentNotificationsCopy();
-
-        if (notifications.size() < 1) {
-            log.debug("No notifications. Yay!");
-            return;
-        }
-
-        try {
-            boolean noError = doTask(notifications);
-
-            // all went ok, clear notifications
-            if (noError)
-                Supervisor.removeAllNotifications(notifications);
-        }
-        catch (Error e) {
-            log.error("Error fulfilling task");
-            if (this.adminEmail != null) {
-                try {
-                    sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 0);
-                }
-                catch (MessagingException e1) {
-                    log.error("Could not send email on error!");
-                }
-            }
-            throw e;
-        }
     }
 
     private boolean doTask(Collection<IFailureNotification> notifications) {
@@ -194,6 +179,41 @@ public class SendEmailTask extends TimerTask {
         return noError;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.util.TimerTask#run()
+     */
+    @Override
+    public void run() {
+        Collection<IFailureNotification> notifications = Supervisor.getCurrentNotificationsCopy();
+
+        if (notifications.size() < 1) {
+            log.debug("No notifications. Yay!");
+            return;
+        }
+
+        try {
+            boolean noError = doTask(notifications);
+
+            // all went ok, clear notifications
+            if (noError)
+                Supervisor.removeAllNotifications(notifications);
+        }
+        catch (Error e) {
+            log.error("Error fulfilling task");
+            if (this.adminEmail != null) {
+                try {
+                    sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 0);
+                }
+                catch (MessagingException e1) {
+                    log.error("Could not send email on error!");
+                }
+            }
+            throw e;
+        }
+    }
+
     /**
      * 
      * @param recipient
@@ -227,26 +247,6 @@ public class SendEmailTask extends TimerTask {
         else {
             log.warn("Not sending Email (disabled in properties!)");
             log.debug("Email Content: " + messageText);
-        }
-    }
-
-    /**
-     * 
-     * @author Daniel Nüst
-     * 
-     */
-    private class PropertyAuthenticator extends Authenticator {
-        private Properties p;
-
-        public PropertyAuthenticator(Properties sp) {
-            this.p = sp;
-        }
-
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            String userName = this.p.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
-            String password = this.p.getProperty(SupervisorProperties.MAIL_PASSWORD_PROPERTY);
-            return new PasswordAuthentication(userName, password);
         }
     }
 

@@ -45,42 +45,42 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class XmlTools {
 
-    public static final String SWE_1_0_1_NAMESPACE_URI = "http://www.opengis.net/swe/1.0.1";
-
-    public static final String SWE_NAMESPACE_PREFIX = "swe";
-
-    public static final String GML_NAMESPACE_URI = "http://www.opengis.net/gml/3.2";
-
-    public static final String GML_NAMESPACE_PREFIX = "gml";
-
-    public static final String XSI_NAMESPACE_PREFIX = "xsi";
-
-    public static final String SOR_NAMESPACE_URI = "http://swsl.uni-muenster.de/sor";
-
-    public static final String SOR_NAMESPACE_PREFIX = "sor";
-
-    public static final String OWS_NAMESPACE_PREFIX = "ows";
-
-    public static final String OWS_1_1_NAMESPACE_URI = "http://www.opengis.net/ows/1.1";
-    
-    public static final String OGC_NAMESPACE_URI = "http://www.opengis.net/ogc";
-
-    public static final String OGC_NAMESPACE_PREFIX = "ogc";
-    
-    public static final String OM_NAMESPACE_URI = "http://www.opengis.net/om/1.0";
-    
-    public static final String OM_NAMESPACE_PREFIX = "om";
-
-    public static final HashMap<String, String> SUGGESTED_PREFIXES;
+    private static final int DEFAULT_INDENT = 4;
 
     public static final XmlOptions DEFAULT_OPTIONS = new XmlOptions();
 
-    private static final int DEFAULT_INDENT = 4;
+    public static final String GML_NAMESPACE_PREFIX = "gml";
+
+    public static final String GML_NAMESPACE_URI = "http://www.opengis.net/gml/3.2";
+
+    public static final String OGC_NAMESPACE_PREFIX = "ogc";
+
+    public static final String OGC_NAMESPACE_URI = "http://www.opengis.net/ogc";
+
+    public static final String OM_NAMESPACE_PREFIX = "om";
+
+    public static final String OM_NAMESPACE_URI = "http://www.opengis.net/om/1.0";
+
+    public static final String OWS_1_1_NAMESPACE_URI = "http://www.opengis.net/ows/1.1";
+    
+    public static final String OWS_NAMESPACE_PREFIX = "ows";
+
+    public static final String SOR_NAMESPACE_PREFIX = "sor";
+    
+    public static final String SOR_NAMESPACE_URI = "http://swsl.uni-muenster.de/sor";
+    
+    public static final String SOR_SCHEMA_LOCATION = SOR_NAMESPACE_URI
+            + " http://giv-genesis.uni-muenster.de/schemas/sor/sorAll.xsd";
+
+    public static final HashMap<String, String> SUGGESTED_PREFIXES;
+
+    public static final String SWE_1_0_1_NAMESPACE_URI = "http://www.opengis.net/swe/1.0.1";
 
     public static final String SWE_GML_SCHEMA_LOCATION = "http://www.opengis.net/swe/1.0/gml32 http://giv-genesis.uni-muenster.de/schemas/sweCommon/1.0.1_gml32/phenomenon.xsd";
 
-    public static final String SOR_SCHEMA_LOCATION = SOR_NAMESPACE_URI
-            + " http://giv-genesis.uni-muenster.de/schemas/sor/sorAll.xsd";
+    public static final String SWE_NAMESPACE_PREFIX = "swe";
+
+    public static final String XSI_NAMESPACE_PREFIX = "xsi";
 
     static {
         SUGGESTED_PREFIXES = new HashMap<String, String>();
@@ -97,6 +97,32 @@ public class XmlTools {
         DEFAULT_OPTIONS.setSaveSuggestedPrefixes(SUGGESTED_PREFIXES);
         DEFAULT_OPTIONS.setSaveAggressiveNamespaces();
         DEFAULT_OPTIONS.setSavePrettyPrintIndent(DEFAULT_INDENT);
+    }
+
+    /**
+     * 
+     * @param cursor
+     */
+    public static void insertAttributesForValidationSOR(XmlObject obj) {
+        XmlCursor cursor = obj.newCursor();
+        cursor.setAttributeText(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation"),
+                                SOR_SCHEMA_LOCATION);
+        cursor.toNextToken();
+        cursor.insertNamespace("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        cursor.dispose();
+    }
+
+    /**
+     * 
+     * @param cursor
+     */
+    public static void insertAttributesForValidationSweGml(XmlObject obj) {
+        XmlCursor cursor = obj.newCursor();
+        cursor.setAttributeText(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation"),
+                                SWE_GML_SCHEMA_LOCATION);
+        cursor.toNextToken();
+        cursor.insertNamespace("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        cursor.dispose();
     }
 
     /**
@@ -135,31 +161,5 @@ public class XmlTools {
         }
 
         return sb.toString();
-    }
-
-    /**
-     * 
-     * @param cursor
-     */
-    public static void insertAttributesForValidationSOR(XmlObject obj) {
-        XmlCursor cursor = obj.newCursor();
-        cursor.setAttributeText(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation"),
-                                SOR_SCHEMA_LOCATION);
-        cursor.toNextToken();
-        cursor.insertNamespace("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        cursor.dispose();
-    }
-
-    /**
-     * 
-     * @param cursor
-     */
-    public static void insertAttributesForValidationSweGml(XmlObject obj) {
-        XmlCursor cursor = obj.newCursor();
-        cursor.setAttributeText(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation"),
-                                SWE_GML_SCHEMA_LOCATION);
-        cursor.toNextToken();
-        cursor.insertNamespace("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        cursor.dispose();
     }
 }

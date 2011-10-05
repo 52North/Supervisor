@@ -44,9 +44,9 @@ import org.n52.owsSupervisor.util.XmlTools;
  */
 public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-	private static final String SOS_SERVICE = "SOS";
-
 	private static Logger log = Logger.getLogger(SosCapabilitiesCheck.class);
+
+	private static final String SOS_SERVICE = "SOS";
 
 	/**
 	 * 
@@ -64,6 +64,15 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 	 * 
 	 * @param service
 	 * @param notifyEmail
+	 */
+	public SosCapabilitiesCheck(URL service, String notifyEmail) {
+		super(service, notifyEmail);
+	}
+
+	/**
+	 * 
+	 * @param service
+	 * @param notifyEmail
 	 * @param checkIntervalMillis
 	 */
 	public SosCapabilitiesCheck(URL service, String notifyEmail,
@@ -71,15 +80,10 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 		super(service, notifyEmail, checkIntervalMillis);
 	}
 
-	/**
-	 * 
-	 * @param service
-	 * @param notifyEmail
+	/*
+	 * (non-Javadoc)
+	 * @see org.n52.owsSupervisor.checks.OwsCapabilitiesCheck#check()
 	 */
-	public SosCapabilitiesCheck(URL service, String notifyEmail) {
-		super(service, notifyEmail);
-	}
-
 	@Override
 	public boolean check() {
 		if (log.isDebugEnabled()) {
@@ -135,9 +139,13 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.n52.owsSupervisor.checks.OwsCapabilitiesCheck#toString()
+	 */
 	@Override
 	public String toString() {
-		return "SirCapabilitiesCheck [" + getService() + ", check interval="
+		return "SosCapabilitiesCheck [" + getService() + ", check interval="
 				+ getCheckIntervalMillis() + "]";
 	}
 

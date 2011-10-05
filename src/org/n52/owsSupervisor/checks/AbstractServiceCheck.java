@@ -47,19 +47,19 @@ import org.n52.owsSupervisor.util.Client;
  */
 public abstract class AbstractServiceCheck implements IServiceChecker {
 
+    public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SS.SSS");
+
     private static Logger log = Logger.getLogger(AbstractServiceCheck.class);
+
+    private long checkIntervalMillis = SupervisorProperties.getInstance().getDefaultCheckIntervalMillis();
+
+    protected Client client = new Client();
+
+    private String email = null;
 
     private List<ICheckResult> results = new ArrayList<ICheckResult>();
 
     protected URL serviceUrl;
-
-    private String email = null;
-
-    private long checkIntervalMillis = SupervisorProperties.getInstance().getDefaultCheckIntervalMillis();
-
-    public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SS.SSS");
-
-    protected Client client = new Client();
 
     /**
      * 
@@ -79,9 +79,32 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         this.checkIntervalMillis = checkInterval;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#addResult(org.n52.owsSupervisor.checks.ICheckResult)
+     */
     @Override
-    public String getService() {
-        return this.serviceUrl.toString();
+    public void addResult(ICheckResult r) {
+        this.results.add(r);
+    }
+
+    /**
+	 * 
+	 */
+    public void clearResults() {
+        if (log.isDebugEnabled()) {
+            log.debug("Clearing " + this.results.size() + " results");
+        }
+        this.results.clear();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#getCheckIntervalMillis()
+     */
+    @Override
+    public long getCheckIntervalMillis() {
+        return this.checkIntervalMillis;
     }
 
     /*
@@ -94,11 +117,19 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         return this.results;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#getService()
+     */
     @Override
-    public void addResult(ICheckResult r) {
-        this.results.add(r);
+    public String getService() {
+        return this.serviceUrl.toString();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifyFailure()
+     */
     @Override
     public void notifyFailure() {
         log.debug("Check FAILED: " + this);
@@ -129,21 +160,6 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         if (log.isDebugEnabled()) {
             log.debug("Check SUCCESSFUL:" + this);
         }
-    }
-
-    @Override
-    public long getCheckIntervalMillis() {
-        return this.checkIntervalMillis;
-    }
-
-    /**
-	 * 
-	 */
-    public void clearResults() {
-        if (log.isDebugEnabled()) {
-            log.debug("Clearing " + this.results.size() + " results");
-        }
-        this.results.clear();
     }
 
 }
