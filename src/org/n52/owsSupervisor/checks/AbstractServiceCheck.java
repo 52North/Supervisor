@@ -147,7 +147,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
         // append for email notification to queue
         Supervisor.appendNotification(new EmailFailureNotification(this.serviceUrl.toString(), this.email, failures));
-        log.debug("Sent email with " + failures.size() + " failures.");
+        log.debug("Submitted email with " + failures.size() + " failures.");
     }
 
     /*

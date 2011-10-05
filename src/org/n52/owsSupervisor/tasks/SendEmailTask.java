@@ -111,10 +111,15 @@ public class SendEmailTask extends TimerTask {
         log.info("NEW " + this.toString());
     }
 
+    /**
+     * 
+     * @param notifications
+     * @return
+     */
     private boolean doTask(Collection<IFailureNotification> notifications) {
         log.info("*** Sending emails based on " + notifications.size() + " notifications.");
 
-        // collect all notifications for one email address
+        // collect all notifications for each email address
         Map<String, Collection<EmailFailureNotification>> emails = new HashMap<String, Collection<EmailFailureNotification>>();
 
         for (IFailureNotification iMsg : notifications) {
@@ -224,7 +229,7 @@ public class SendEmailTask extends TimerTask {
         SupervisorProperties sp = SupervisorProperties.getInstance();
 
         // send it
-        if (sp.getSendEmails()) {
+        if (sp.isSendEmails()) {
             Properties mailProps = SupervisorProperties.getInstance().getMailSessionProperties();
             Session mailSession = Session.getDefaultInstance(mailProps, new PropertyAuthenticator(mailProps));
             Transport transport = mailSession.getTransport();

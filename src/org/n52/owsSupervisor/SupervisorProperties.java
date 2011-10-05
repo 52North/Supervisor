@@ -329,7 +329,7 @@ public class SupervisorProperties {
      * 
      * @return
      */
-    public boolean getSendEmails() {
+    public boolean isSendEmails() {
         return this.sendEmails;
     }
 
