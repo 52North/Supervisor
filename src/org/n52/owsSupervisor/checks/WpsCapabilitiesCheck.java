@@ -28,6 +28,7 @@ Author: Daniel Nüst
 package org.n52.owsSupervisor.checks;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
@@ -50,6 +51,20 @@ public class WpsCapabilitiesCheck extends OwsCapabilitiesCheck {
     private static Logger log = Logger.getLogger(WpsCapabilitiesCheck.class);
 
     private String getRequest;
+
+    /**
+     * 
+     * @param owsVersion
+     * @param serviceUrl
+     * @param notifyEmail
+     * @param checkIntervalMillis
+     * @throws NumberFormatException
+     * @throws MalformedURLException
+     */
+    public WpsCapabilitiesCheck(String owsVersion, String serviceUrl, String notifyEmail, String checkIntervalMillis) throws NumberFormatException,
+            MalformedURLException {
+        this(owsVersion, new URL(serviceUrl), notifyEmail, Long.valueOf(checkIntervalMillis).longValue());
+    }
 
     /**
      * @param owsVersion
