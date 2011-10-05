@@ -6,10 +6,8 @@
 
 	<property file="build/build.properties" />
 
-	<propertyfile file="build/buildinfo.properties"
-		comment="Build Information File - DO NOT CHANGE">
-		<entry key="build.num" type="int" default="0000" operation="+"
-			pattern="0000" />
+	<propertyfile file="build/buildinfo.properties" comment="Build Information File - DO NOT CHANGE">
+		<entry key="build.num" type="int" default="0000" operation="+" pattern="0000" />
 		<entry key="build.date" type="date" value="now" pattern="dd.MM.yyyy HH:mm" />
 	</propertyfile>
 	<property file="build/buildinfo.properties" />
@@ -29,23 +27,17 @@
 		<copy todir='tmp'>
 			<fileset dir="WebContent" />
 		</copy>
-		<copy file="build/log4j.xml" tofile="tmp/WEB-INF/classes/log4j.xml"
-			overwrite="true" />
+		<copy file="build/log4j.xml" tofile="tmp/WEB-INF/classes/log4j.xml" overwrite="true" />
 		<delete dir="tmp/WEB-INF/unused_lib" />
 
-		<replace file="tmp/WEB-INF/web.xml" token="@BUILDINFO@"
-			value="Version ${service.version}: Build no. ${build.num} @ ${build.date}" />
-		<replace file="tmp/WEB-INF/conf/supervisor.config" token="@SERVICE_VERSION@"
-			value="${service.version}" />
-		<replace file="tmp/WEB-INF/conf/supervisor.config" token="@ADMIN_EMAIL@"
-			value="${admin.email}" />
-		<replace file="tmp/WEB-INF/conf/supervisor.config" token="@EMAIL_PASSWORD@"
-			value="${email.password}" />
+		<replace file="tmp/WEB-INF/web.xml" token="@BUILDINFO@" value="Version ${service.version}: Build no. ${build.num} @ ${build.date}" />
+		<replace file="tmp/WEB-INF/conf/supervisor.properties" token="@SERVICE_VERSION@" value="${service.version}" />
+		<replace file="tmp/WEB-INF/conf/supervisor.properties" token="@ADMIN_EMAIL@" value="${admin.email}" />
+		<replace file="tmp/WEB-INF/conf/supervisor.properties" token="@EMAIL_PASSWORD@" value="${email.password}" />
 	</target>
 
 	<target name="javac" depends="copy" description="Compile java source">
-		<javac srcdir="src" includes="**" encoding="utf-8" destdir="tmp/WEB-INF/classes"
-			source="1.6" target="1.6" nowarn="true" debug="true" debuglevel="lines,vars,source">
+		<javac srcdir="src" includes="**" encoding="utf-8" destdir="tmp/WEB-INF/classes" source="1.6" target="1.6" nowarn="true" debug="true" debuglevel="lines,vars,source" includeantruntime="false">
 			<classpath refid="project.class.path" />
 		</javac>
 		<!-- copy all other classes, i.e. log4j config and source files -->
