@@ -13,7 +13,7 @@
 		<servlet-class>org.n52.owsSupervisor.tasks.TaskServlet</servlet-class>
 		<init-param>
 			<param-name>configFile</param-name>
-			<param-value>/WEB-INF/conf/supervisor.config</param-value>
+			<param-value>/WEB-INF/conf/supervisor.properties</param-value>
 		</init-param>
 		<load-on-startup>100</load-on-startup>
 	</servlet>
@@ -23,7 +23,7 @@
 		<servlet-class>org.n52.owsSupervisor.Supervisor</servlet-class>
 		<init-param>
 			<param-name>configFile</param-name>
-			<param-value>/WEB-INF/conf/supervisor.config</param-value>
+			<param-value>/WEB-INF/conf/supervisor.properties</param-value>
 		</init-param>
 		<load-on-startup>200</load-on-startup>
 	</servlet>

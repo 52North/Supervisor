@@ -57,36 +57,36 @@ import org.n52.owsSupervisor.util.XmlTools;
  */
 public class SosLatestObservationCheck extends AbstractServiceCheck {
 
-	private static final String SOS_SERVICE = "SOS";
+	private static final String GET_OBS_RESPONSE_FORMAT = "text/xml;subtype=\"om/1.0.0\""; // text/xml;subtype="om/1.0.0
+
+	private static final QName GET_OBS_RESULT_MODEL = new QName(
+			XmlTools.OM_NAMESPACE_URI, "Measurement",
+			XmlTools.OM_NAMESPACE_PREFIX);
+
+	private static final String LATEST_OBSERVATION_VALUE = "latest";
 
 	private static Logger log = Logger
 			.getLogger(SosLatestObservationCheck.class);
 
-	private String observedProp;
+	protected static final String NEGATIVE_TEXT = "Request for latest observation FAILED.";
 
-	private String off;
+	protected static final String POSITIVE_TEXT = "Successfully requested latest observation within time limits.";
+
+	private static final String SOS_SERVICE = "SOS";
+
+	private static final String SOS_VERSION = "1.0.0";
+
+	private static final String TEMP_OP_PROPERTY_NAME = "om:samplingTime";
 
 	private long checkInterval;
 
 	private long maximumAgeOfObservationMillis;
 
+	private String observedProp;
+
+	private String off;
+
 	private String proc;
-
-	protected static final String POSITIVE_TEXT = "Successfully requested latest observation within time limits.";
-
-	protected static final String NEGATIVE_TEXT = "Request for latest observation FAILED.";
-
-	private static final String LATEST_OBSERVATION_VALUE = "latest";
-
-	private static final String TEMP_OP_PROPERTY_NAME = "om:samplingTime";
-
-	private static final String GET_OBS_RESPONSE_FORMAT = "text/xml;subtype=\"om/1.0.0\""; // text/xml;subtype="om/1.0.0
-
-	private static final String SOS_VERSION = "1.0.0";
-
-	private static final QName GET_OBS_RESULT_MODEL = new QName(
-			XmlTools.OM_NAMESPACE_URI, "Measurement",
-			XmlTools.OM_NAMESPACE_PREFIX);
 
 	/**
 	 * 
@@ -108,108 +108,6 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 		this.serviceUrl = service;
 		this.maximumAgeOfObservationMillis = maximumAgeMillis;
 		this.proc = procedure;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.IServiceChecker#check()
-	 */
-	@Override
-	public boolean check() {
-		// max age
-		Date maxAge = new Date(System.currentTimeMillis()
-				- this.maximumAgeOfObservationMillis);
-
-		log.debug("Checking for latest observation " + this.off + "/"
-				+ this.observedProp + " which must be after " + maxAge);
-
-		clearResults();
-
-		// build the request
-		GetObservationDocument getObsDoc = buildRequest();
-
-		// send the document and check response
-		try {
-			XmlObject response = this.client.xSendPostRequest(
-					this.serviceUrl.toString(), getObsDoc);
-			getObsDoc = null;
-
-			// check it!
-			if (response instanceof ObservationCollectionDocument) {
-				ObservationCollectionDocument obsColl = (ObservationCollectionDocument) response;
-				return checkObservationCollection(maxAge, obsColl);
-			}
-
-			boolean b = saveAndReturnNegativeResult(NEGATIVE_TEXT
-					+ getObservationString()
-					+ " ... Response was not the correct document: "
-					+ new String(response.xmlText().substring(0,
-							Math.max(200, response.xmlText().length()))));
-			response = null;
-
-			return b;
-		} catch (IOException e) {
-			log.error("Could not send request", e);
-			return saveAndReturnNegativeResult(NEGATIVE_TEXT
-					+ getObservationString() + " ... Could not send request!");
-		}
-	}
-
-	private boolean saveAndReturnNegativeResult(String text) {
-		addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(),
-				text, ResultType.NEGATIVE));
-		return false;
-	}
-
-	private boolean checkObservationCollection(Date maxAge,
-			ObservationCollectionDocument obsColl) {
-		ObservationPropertyType observation = obsColl
-				.getObservationCollection().getMemberArray(0);
-
-		TimeObjectPropertyType samplingTime = observation.getObservation()
-				.getSamplingTime();
-		AbstractTimeObjectType timeObj = samplingTime.getTimeObject();
-
-		if (timeObj instanceof TimeInstantType) {
-			TimeInstantType timeInstant = (TimeInstantType) timeObj;
-			String timeString = timeInstant.getTimePosition().getStringValue();
-			log.debug("Parsed response, latest observation was at "
-					+ timeString);
-
-			try {
-				Date timeToCheck = ISO8601LocalFormat.parse(timeString);
-				if (timeToCheck.after(maxAge)) {
-					// ALL OKAY - save the result
-					addResult(new ServiceCheckResult(new Date(),
-							this.serviceUrl.toString(), POSITIVE_TEXT
-									+ getObservationString(),
-							ResultType.POSITIVE));
-					return true;
-				}
-
-				// to old!
-				return saveAndReturnNegativeResult(NEGATIVE_TEXT + " "
-						+ this.observedProp + " " + this.proc
-						+ " -- latest observation is too old (" + timeString
-						+ ")!");
-			} catch (ParseException e) {
-				log.error("Could not parse sampling time " + timeString, e);
-				return saveAndReturnNegativeResult(NEGATIVE_TEXT
-						+ getObservationString()
-						+ " -- Could not parse the given time " + timeString
-						+ ".");
-			}
-		}
-		log.warn("Response does not contain time instant, not handling this!");
-		return saveAndReturnNegativeResult(NEGATIVE_TEXT
-				+ getObservationString()
-				+ " -- Response did not contain TimeInstant as samplingTime!");
-	}
-
-	private String getObservationString() {
-		return " Offering: " + this.off + "; Observed property: "
-				+ this.observedProp + "; Procedure: " + this.proc + ".";
 	}
 
 	private GetObservationDocument buildRequest() {
@@ -271,6 +169,97 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see org.n52.owsSupervisor.IServiceChecker#check()
+	 */
+	@Override
+	public boolean check() {
+		// max age
+		Date maxAge = new Date(System.currentTimeMillis()
+				- this.maximumAgeOfObservationMillis);
+
+		log.debug("Checking for latest observation " + this.off + "/"
+				+ this.observedProp + " which must be after " + maxAge);
+
+		clearResults();
+
+		// build the request
+		GetObservationDocument getObsDoc = buildRequest();
+
+		// send the document and check response
+		try {
+			XmlObject response = this.client.xSendPostRequest(
+					this.serviceUrl.toString(), getObsDoc);
+			getObsDoc = null;
+
+			// check it!
+			if (response instanceof ObservationCollectionDocument) {
+				ObservationCollectionDocument obsColl = (ObservationCollectionDocument) response;
+				return checkObservationCollection(maxAge, obsColl);
+			}
+
+			boolean b = saveAndReturnNegativeResult(NEGATIVE_TEXT
+					+ getObservationString()
+					+ " ... Response was not the correct document: "
+					+ new String(response.xmlText().substring(0,
+							Math.max(200, response.xmlText().length()))));
+			response = null;
+
+			return b;
+		} catch (IOException e) {
+			log.error("Could not send request", e);
+			return saveAndReturnNegativeResult(NEGATIVE_TEXT
+					+ getObservationString() + " ... Could not send request!");
+		}
+	}
+
+	private boolean checkObservationCollection(Date maxAge,
+			ObservationCollectionDocument obsColl) {
+		ObservationPropertyType observation = obsColl
+				.getObservationCollection().getMemberArray(0);
+
+		TimeObjectPropertyType samplingTime = observation.getObservation()
+				.getSamplingTime();
+		AbstractTimeObjectType timeObj = samplingTime.getTimeObject();
+
+		if (timeObj instanceof TimeInstantType) {
+			TimeInstantType timeInstant = (TimeInstantType) timeObj;
+			String timeString = timeInstant.getTimePosition().getStringValue();
+			log.debug("Parsed response, latest observation was at "
+					+ timeString);
+
+			try {
+				Date timeToCheck = ISO8601LocalFormat.parse(timeString);
+				if (timeToCheck.after(maxAge)) {
+					// ALL OKAY - save the result
+					addResult(new ServiceCheckResult(new Date(),
+							this.serviceUrl.toString(), POSITIVE_TEXT
+									+ getObservationString(),
+							ResultType.POSITIVE));
+					return true;
+				}
+
+				// to old!
+				return saveAndReturnNegativeResult(NEGATIVE_TEXT + " "
+						+ this.observedProp + " " + this.proc
+						+ " -- latest observation is too old (" + timeString
+						+ ")!");
+			} catch (ParseException e) {
+				log.error("Could not parse sampling time " + timeString, e);
+				return saveAndReturnNegativeResult(NEGATIVE_TEXT
+						+ getObservationString()
+						+ " -- Could not parse the given time " + timeString
+						+ ".");
+			}
+		}
+		log.warn("Response does not contain time instant, not handling this!");
+		return saveAndReturnNegativeResult(NEGATIVE_TEXT
+				+ getObservationString()
+				+ " -- Response did not contain TimeInstant as samplingTime!");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
 	 */
 	@Override
@@ -278,11 +267,30 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 		return this.checkInterval;
 	}
 
+	private String getObservationString() {
+		return " Offering: " + this.off + "; Observed property: "
+				+ this.observedProp + "; Procedure: " + this.proc + ".";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.n52.owsSupervisor.checks.AbstractServiceCheck#getService()
+	 */
 	@Override
 	public String getService() {
 		return this.serviceUrl.toString();
 	}
 
+	private boolean saveAndReturnNegativeResult(String text) {
+		addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(),
+				text, ResultType.NEGATIVE));
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "SosLatestObservationCheck [" + getService()

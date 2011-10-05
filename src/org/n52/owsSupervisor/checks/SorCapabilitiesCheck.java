@@ -24,9 +24,11 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
+
 package org.n52.owsSupervisor.checks;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
@@ -44,99 +46,100 @@ import de.uniMuenster.swsl.sor.GetCapabilitiesDocument;
  */
 public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-	private static Logger log = Logger.getLogger(SorCapabilitiesCheck.class);
+    private static Logger log = Logger.getLogger(SorCapabilitiesCheck.class);
 
-	/**
-	 * 
-	 * @param owsVersion
-	 * @param service
-	 * @param notifyEmail
-	 * @param checkIntervalMillis
-	 */
-	public SorCapabilitiesCheck(String owsVersion, URL service,
-			String notifyEmail, long checkIntervalMillis) {
-		super(owsVersion, service, notifyEmail, checkIntervalMillis);
-	}
+    /**
+     * 
+     * @param serviceUrl
+     * @param notifyEmail
+     * @param checkIntervalMillis
+     * @throws MalformedURLException
+     */
+    public SorCapabilitiesCheck(String serviceUrl, String notifyEmail, String checkIntervalMillis) throws MalformedURLException {
+        this(new URL(serviceUrl), notifyEmail, Long.valueOf(checkIntervalMillis).longValue());
+    }
 
-	/**
-	 * 
-	 * @param service
-	 * @param notifyEmail
-	 * @param checkIntervalMillis
-	 */
-	public SorCapabilitiesCheck(URL service, String notifyEmail,
-			long checkIntervalMillis) {
-		super(service, notifyEmail, checkIntervalMillis);
-	}
+    /**
+     * 
+     * @param owsVersion
+     * @param service
+     * @param notifyEmail
+     * @param checkIntervalMillis
+     */
+    public SorCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
+        super(owsVersion, service, notifyEmail, checkIntervalMillis);
+    }
 
-	/**
-	 * 
-	 * @param service
-	 * @param notifyEmail
-	 */
-	public SorCapabilitiesCheck(URL service, String notifyEmail) {
-		super(service, notifyEmail);
-	}
+    /**
+     * 
+     * @param service
+     * @param notifyEmail
+     */
+    public SorCapabilitiesCheck(URL service, String notifyEmail) {
+        super(service, notifyEmail);
+    }
 
-	@Override
-	public boolean check() {
-		if (log.isDebugEnabled()) {
-			log.debug("Checking SOS Capabilities for " + this.serviceUrl);
-		}
+    /**
+     * 
+     * @param service
+     * @param notifyEmail
+     * @param checkIntervalMillis
+     */
+    public SorCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
+        super(service, notifyEmail, checkIntervalMillis);
+    }
 
-		if (this.serviceVersion != "1.1") {
-			log.error("OWS Version not supported: " + this.serviceVersion);
-			addResult(new ServiceCheckResult(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... OWS Version not supported: " + this.serviceVersion,
-					ResultType.NEGATIVE));
-			return false;
-		}
+    @Override
+    public boolean check() {
+        if (log.isDebugEnabled()) {
+            log.debug("Checking SOS Capabilities for " + this.serviceUrl);
+        }
 
-		clearResults();
+        if (this.serviceVersion != "1.1") {
+            log.error("OWS Version not supported: " + this.serviceVersion);
+            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+                    + " ... OWS Version not supported: " + this.serviceVersion, ResultType.NEGATIVE));
+            return false;
+        }
 
-		// create get capabilities document
-		GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory
-				.newInstance(XmlTools.DEFAULT_OPTIONS);
-		getCapDoc.addNewGetCapabilities();
+        clearResults();
 
-		// send the document
-		try {
-			XmlObject response = this.client.xSendPostRequest(
-					this.serviceUrl.toString(), getCapDoc);
-			getCapDoc = null;
-			
-			// check it!
-			if (response instanceof CapabilitiesDocument) {
-				CapabilitiesDocument caps = (CapabilitiesDocument) response;
-				log.debug("Parsed caps, serviceVersion: "
-						+ caps.getCapabilities().getVersion());
+        // create get capabilities document
+        GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory.newInstance(XmlTools.DEFAULT_OPTIONS);
+        getCapDoc.addNewGetCapabilities();
 
-				// save the result
-				addResult(new ServiceCheckResult(new Date(),
-						this.serviceUrl.toString(), POSITIVE_TEXT,
-						ResultType.POSITIVE));
-				return true;
-			}
-			addResult(new ServiceCheckResult(new Date(), this.serviceUrl
-					.toString(), NEGATIVE_TEXT
-					+ " ... Response was not a Capabilities document!",
-					ResultType.NEGATIVE));
-			return false;
-		} catch (IOException e) {
-			log.error("Could not send request", e);
-			addResult(new ServiceCheckResult(new Date(), this.serviceUrl
-					.toString(),
-					NEGATIVE_TEXT + " ... Could not send request!",
-					ResultType.NEGATIVE));
-			return false;
-		}
-	}
+        // send the document
+        try {
+            XmlObject response = this.client.xSendPostRequest(this.serviceUrl.toString(), getCapDoc);
+            getCapDoc = null;
 
-	@Override
-	public String toString() {
-		return "SorCapabilitiesCheck [" + getService() + ", check interval="
-				+ getCheckIntervalMillis() + "]";
-	}
+            // check it!
+            if (response instanceof CapabilitiesDocument) {
+                CapabilitiesDocument caps = (CapabilitiesDocument) response;
+                log.debug("Parsed caps, serviceVersion: " + caps.getCapabilities().getVersion());
+
+                // save the result
+                addResult(new ServiceCheckResult(new Date(),
+                                                 this.serviceUrl.toString(),
+                                                 POSITIVE_TEXT,
+                                                 ResultType.POSITIVE));
+                return true;
+            }
+            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+                    + " ... Response was not a Capabilities document!", ResultType.NEGATIVE));
+            return false;
+        }
+        catch (IOException e) {
+            log.error("Could not send request", e);
+            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+                    + " ... Could not send request!", ResultType.NEGATIVE));
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "SorCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
+    }
 
 }

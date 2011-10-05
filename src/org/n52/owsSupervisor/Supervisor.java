@@ -29,6 +29,8 @@ package org.n52.owsSupervisor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Queue;
@@ -43,7 +45,6 @@ import javax.servlet.ServletResponse;
 import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.checks.ICheckResult;
 import org.n52.owsSupervisor.checks.IServiceChecker;
-import org.n52.owsSupervisor.data.SWSL;
 import org.n52.owsSupervisor.tasks.IJobScheduler;
 import org.n52.owsSupervisor.tasks.SendEmailTask;
 import org.n52.owsSupervisor.tasks.TaskServlet;
@@ -51,26 +52,92 @@ import org.n52.owsSupervisor.ui.IFailureNotification;
 import org.n52.owsSupervisor.util.SubmitCheckersTask;
 
 /**
+ * 
+ * Main class of OwsSupervisor.
+ * 
  * @author Daniel Nüst
  * 
  */
 public class Supervisor extends GenericServlet {
 
-    private static final long serialVersionUID = -4629591718212281703L;
-
     private static final String CONFIG_FILE_INIT_PARAMETER = "configFile";
 
     private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
 
-    private static final String SUBMIT_CHECKERS_TASK_ID = "SubmitCheckersTask";
+    private static Queue<ICheckResult> latestResults;
 
     private static Logger log = Logger.getLogger(Supervisor.class);
 
-    private Collection<IServiceChecker> checkers;
-
-    private static Queue<ICheckResult> latestResults;
-
     private static Queue<IFailureNotification> notifications;
+
+    private static final long serialVersionUID = -4629591718212281703L;
+
+    private static final String SUBMIT_CHECKERS_TASK_ID = "SubmitCheckersTask";
+
+    /**
+     * 
+     * @param result
+     */
+    public static void appendLatestResult(ICheckResult result) {
+        latestResults.add(result);
+    }
+
+    /**
+     * 
+     * @param results
+     */
+    public static void appendLatestResults(Collection<ICheckResult> results) {
+        if (latestResults.size() >= SupervisorProperties.getInstance().getMaximumResults()) {
+            log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() + " existing.");
+            for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
+                // remove the first element so many times that the new results
+                // fit.
+                latestResults.remove();
+            }
+        }
+
+        latestResults.addAll(results);
+    }
+
+    /**
+     * 
+     * @param results
+     */
+    public static void appendNotification(IFailureNotification notification) {
+        notifications.add(notification);
+    }
+
+    /**
+	 * 
+	 */
+    public static void clearNotifications() {
+        log.info("Clearing notifications!");
+        notifications.clear();
+    }
+
+    /**
+     * @return
+     */
+    public static Collection<IFailureNotification> getCurrentNotificationsCopy() {
+        return new ArrayList<IFailureNotification>(notifications);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static Collection<ICheckResult> getLatestResults() {
+        return new ArrayList<ICheckResult>(latestResults);
+    }
+
+    /**
+     * @return
+     */
+    public static synchronized boolean removeAllNotifications(Collection<IFailureNotification> c) {
+        return notifications.removeAll(c);
+    }
+
+    private Collection<IServiceChecker> checkers;
 
     private IJobScheduler scheduler;
 
@@ -79,6 +146,18 @@ public class Supervisor extends GenericServlet {
 	 */
     public Supervisor() {
         log.info("*** NEW " + this + " ***");
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        log.info("Destroy " + this.toString());
+        this.checkers.clear();
+        this.checkers = null;
+        latestResults.clear();
+        latestResults = null;
+        notifications.clear();
+        notifications = null;
     }
 
     @Override
@@ -118,13 +197,167 @@ public class Supervisor extends GenericServlet {
         }
 
         // initialize checkers
-        this.checkers = SWSL.checkers;
+        this.checkers = loadCheckers(sp);// SWSL.checkers;
+
+        // submit checkers
         SubmitCheckersTask sct = new SubmitCheckersTask(this.scheduler, this.checkers);
         timerServlet.submit(SUBMIT_CHECKERS_TASK_ID,
                             sct,
                             SupervisorProperties.getInstance().getCheckSubmitDelaySecs() * 1000);
 
         log.info("*** INITIALIZED SUPERVISOR ***");
+    }
+
+    /**
+     * class loading inspired by SPFRegistry.java
+     * 
+     * @param sp
+     * @return
+     */
+    private Collection<IServiceChecker> loadCheckers(SupervisorProperties sp) {
+        Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
+
+        if (sp.isUseConfigCheckers()) {
+            Collection<IServiceChecker> configFileCheckers = loadConfigFileCheckers(sp.getCheckConfigurations());
+            chkrs.addAll(configFileCheckers);
+        }
+
+        if (sp.isUseCompiledCheckers()) {
+            Collection<IServiceChecker> compiledCheckers = loadCompiledCheckers(sp.getCheckClasses());
+            chkrs.addAll(compiledCheckers);
+        }
+
+        return chkrs;
+    }
+
+    private Collection<IServiceChecker> loadCompiledCheckers(Collection<String> checkClasses) {
+        Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
+
+        for (String check : checkClasses) {
+            Class< ? > clazz;
+            try {
+                clazz = Class.forName(check);
+            }
+            catch (ClassNotFoundException e) {
+                log.error("Checker class not found!", e);
+                continue;
+            }
+
+            ICheckerFactory factory;
+            try {
+                factory = ((ICheckerFactory) clazz.newInstance());
+            }
+            catch (InstantiationException e) {
+                log.error("Could not instantiate checker factory.", e);
+                continue;
+            }
+            catch (IllegalAccessException e) {
+                log.error("Could not instantiate checker factory.", e);
+                continue;
+            }
+            
+            Collection<IServiceChecker> factoryCheckers = factory.getCheckers();
+            chkrs.addAll(factoryCheckers);
+        }
+        
+        return chkrs;
+    }
+
+    /**
+     * 
+     * @param checkConfigurations
+     * @return
+     */
+    private Collection<IServiceChecker> loadConfigFileCheckers(Collection<String> checkConfigurations) {
+        Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
+
+        for (String configuration : checkConfigurations) {
+            String[] params = null;
+            String classString = null;
+            Class< ? >[] paramsClassArray = null;
+
+            if (configuration.isEmpty())
+                continue;
+
+            /* do we have any parameters? */
+            int pos = configuration.indexOf("(");
+            if (pos > 0) {
+                params = configuration.substring(pos + 1, configuration.length() - 1).split(",");
+                paramsClassArray = new Class[params.length];
+
+                /* load all parameters as strings */
+                if (params.length > 0) {
+                    for (int i = 0; i < params.length; i++) {
+                        paramsClassArray[i] = String.class;
+                        params[i] = params[i].trim();
+                    }
+                    classString = configuration.substring(0, pos);
+                }
+            }
+
+            Class< ? > clazz;
+            try {
+                clazz = Class.forName(classString);
+            }
+            catch (ClassNotFoundException e) {
+                log.error("Checker class not found!", e);
+                continue;
+            }
+
+            try {
+                IServiceChecker chckr = null;
+
+                if (params != null && params.length > 0) {
+                    Constructor< ? > constructor = clazz.getConstructor(paramsClassArray);
+                    chckr = (IServiceChecker) constructor.newInstance((Object[]) params);
+                    // params = null;
+                    // paramsClassArray = null;
+                }
+                else {
+                    try {
+                        chckr = ((IServiceChecker) clazz.newInstance());
+                    }
+                    catch (InstantiationException e) {
+                        log.error("Could not instantiate checker without parameters.", e);
+                        continue;
+                    }
+                }
+
+                if (chckr != null) {
+                    chkrs.add(chckr);
+                    log.info("Loaded checker: " + chckr);
+                }
+            }
+            catch (IllegalAccessException e) {
+                log.error("Could not access class with name '" + classString + "'.", e);
+            }
+            catch (InstantiationException e) {
+                log.error("Could not instantiate class with name '" + classString + "'.", e);
+            }
+            catch (SecurityException e) {
+                log.error(null, e);
+            }
+            catch (NoSuchMethodException e) {
+                log.error("A constructor with "
+                                  + ( (paramsClassArray == null) ? "NULL" : Integer.valueOf(paramsClassArray.length))
+                                  + " String arguments for Class " + clazz.getName() + " could not be found.",
+                          e);
+            }
+            catch (IllegalArgumentException e) {
+                log.error(null, e);
+            }
+            catch (InvocationTargetException e) {
+                log.error(null, e);
+            }
+            catch (ClassCastException e) {
+                log.error(clazz.getName() + " is not an instance of IOutputPlugin! Could not instantiate.", e);
+            }
+            catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        return chkrs;
     }
 
     /*
@@ -135,81 +368,6 @@ public class Supervisor extends GenericServlet {
     @Override
     public void service(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException {
         log.fatal("'service' method is not supported. ServletRequest: " + arg0);
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        log.info("Destroy " + this.toString());
-        this.checkers.clear();
-        this.checkers = null;
-        latestResults.clear();
-        latestResults = null;
-        notifications.clear();
-        notifications = null;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public static Collection<ICheckResult> getLatestResults() {
-        return new ArrayList<ICheckResult>(latestResults);
-    }
-
-    /**
-     * 
-     * @param results
-     */
-    public static void appendLatestResults(Collection<ICheckResult> results) {
-        if (latestResults.size() >= SupervisorProperties.getInstance().getMaximumResults()) {
-            log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() + " existing.");
-            for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
-                // remove the first element so many times that the new results
-                // fit.
-                latestResults.remove();
-            }
-        }
-
-        latestResults.addAll(results);
-    }
-
-    /**
-     * 
-     * @param result
-     */
-    public static void appendLatestResult(ICheckResult result) {
-        latestResults.add(result);
-    }
-
-    /**
-     * 
-     * @param results
-     */
-    public static void appendNotification(IFailureNotification notification) {
-        notifications.add(notification);
-    }
-
-    /**
-	 * 
-	 */
-    public static void clearNotifications() {
-        log.info("Clearing notifications!");
-        notifications.clear();
-    }
-
-    /**
-     * @return
-     */
-    public static Collection<IFailureNotification> getCurrentNotificationsCopy() {
-        return new ArrayList<IFailureNotification>(notifications);
-    }
-
-    /**
-     * @return
-     */
-    public static synchronized boolean removeAllNotifications(Collection<IFailureNotification> c) {
-        return notifications.removeAll(c);
     }
 
 }

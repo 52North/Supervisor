@@ -36,12 +36,13 @@ import java.util.Collection;
 public interface IServiceChecker {
 
 	/**
-	 * 
-	 * @return
+	 * add a result to the result list
 	 */
-	public String getService();
+	public void addResult(ICheckResult r);
 
 	/**
+	 * 
+	 * run the checks and 
 	 * 
 	 * @return
 	 */
@@ -51,27 +52,28 @@ public interface IServiceChecker {
 	 * 
 	 * @return
 	 */
-	public Collection<ICheckResult> getResults();
-
-	/**
-	 * 
-	 */
-	public void addResult(ICheckResult r);
-
-	/**
-	 * 
-	 */
-	public void notifyFailure();
-	
-	/**
-	 * 
-	 */
-	public void notifySuccess();
+	public long getCheckIntervalMillis();
 
 	/**
 	 * 
 	 * @return
 	 */
-	public long getCheckIntervalMillis();
+	public Collection<ICheckResult> getResults();
+
+	/**
+	 * 
+	 * @return the identifier of the checked service
+	 */
+	public String getService();
+	
+	/**
+	 * notify about failure of (one ore more) of the contained checks
+	 */
+	public void notifyFailure();
+
+	/**
+	 * notify about successful completition of the check/all checks
+	 */
+	public void notifySuccess();
 
 }

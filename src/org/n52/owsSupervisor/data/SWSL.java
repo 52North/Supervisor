@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.checks.HeapChecker;
+import org.n52.owsSupervisor.ICheckerFactory;
 import org.n52.owsSupervisor.checks.IServiceChecker;
 import org.n52.owsSupervisor.checks.SirCapabilitiesCheck;
 import org.n52.owsSupervisor.checks.SorCapabilitiesCheck;
@@ -46,53 +46,40 @@ import org.n52.owsSupervisor.checks.WpsCapabilitiesCheck;
  * 
  */
 @SuppressWarnings("unused")
-public abstract class SWSL {
+public class SWSL implements ICheckerFactory {
+
+    private static final String EMAIL_DN = "d.nuest@52north.org";
 
     private static Logger log = Logger.getLogger(SWSL.class);
-
-    public static Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
-
-    private static final String EMAIL_DN = "daniel.nuest@uni-muenster.de";
-    
-    private static final String EMAIL_BB = "benjamin.boecker@uni-muenster.de";
-
-    private static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
-
-    private static final long EVERY_HOUR = 1000 * 60 * 60;
-
-    private static final long EVERY_12_HOURS = 1000 * 60 * 60 * 12;
-
-    private static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
-
-    private static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
-
-    static {
-        // TODO create data structure for test outside of java, e.g. XML config
-        // files, or a directory with simple properties files named "xyz.test"
-        // that can be loaded at startup/loaded every day. The config file
-        // content would then be something like:
-        // test.operation=GetCapabilities
-        // test.intervalSecs=3600
-        // test.notificationEmail=mail@provider.org
-        // service.type=SOS
-        // service.url=http://xzy.org/sos
-
-        // Debugging
-        HeapChecker hc = new HeapChecker(EVERY_HOUR);
-        checkers.add(hc);
-
-        initBS();
-        
-        initWeatherSOS(EMAIL_BB);
-//        initWeatherSOS(EMAIL_DN);
-        
-        initGenesis(EMAIL_DN);
-    }
 
     /**
      * 
      */
-    private static void initBS() {
+    public SWSL() {
+        //
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.n52.owsSupervisor.data.ICheckerFactory#getCheckers()
+     */
+    @Override
+    public Collection<IServiceChecker> getCheckers() {
+        Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+
+        Collection<IServiceChecker> weathersos = initWeatherSOS(EMAIL_DN);
+        checkers.addAll(weathersos);
+        
+        return checkers;
+    }
+
+    /**
+     * @return 
+     * 
+     */
+    private Collection<IServiceChecker> initBS() {
+        Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+        
         // WPS @ giv-wps
         try {
             URL wps = new URL("http://giv-wps.uni-muenster.de:8080/wps/WebProcessingService");
@@ -105,13 +92,51 @@ public abstract class SWSL {
         catch (MalformedURLException e) {
             log.error("Could not create URL for checker.", e);
         }
+        
+        return checkers;
     }
 
     /**
      * 
      * @param notificationEmail
+     * @return 
      */
-    private static void initWeatherSOS(String notificationEmail) {
+    private Collection<IServiceChecker> initGenesis(String notificationEmail) {
+        Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+        
+        // SIR @ giv-genesis
+        try {
+            URL sir = new URL("http://giv-genesis.uni-muenster.de:8080/SIR/sir");
+            IServiceChecker capsChecker = new SirCapabilitiesCheck(sir, notificationEmail, EVERY_12_HOURS);
+            checkers.add(capsChecker);
+        }
+        catch (MalformedURLException e) {
+            log.error("Could not create URL for checker.", e);
+        }
+
+        // SOR @ giv-genesis
+        try {
+            URL sor = new URL("http://giv-genesis.uni-muenster.de:8080/SOR/sor");
+            IServiceChecker capsChecker = new SorCapabilitiesCheck(sor, notificationEmail, EVERY_12_HOURS);
+            checkers.add(capsChecker);
+        }
+        catch (MalformedURLException e) {
+            log.error("Could not create URL for checker.", e);
+        }
+
+        // TODO check of RESTful SOR interface
+        
+        return checkers;
+    }
+
+    /**
+     * 
+     * @param notificationEmail
+     * @return 
+     */
+    private Collection<IServiceChecker> initWeatherSOS(String notificationEmail) {
+        Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+        
         // WeatherSOS
         try {
             URL weathersos = new URL("http://v-swe.uni-muenster.de:8080/WeatherSOS/sos");
@@ -158,7 +183,7 @@ public abstract class SWSL {
                                                                         obsProps[i],
                                                                         proc,
                                                                         maximumAge,
-                                                                        EMAIL_DN,
+                                                                        notificationEmail,
                                                                         EVERY_HALF_HOUR);
 
                 checkers.add(checker);
@@ -167,32 +192,7 @@ public abstract class SWSL {
         catch (MalformedURLException e) {
             log.error("Could not create URL for checker.", e);
         }
-    }
-    
-    /**
-     * 
-     * @param notificationEmail
-     */
-    private static void initGenesis(String notificationEmail) {
-        // SIR @ giv-genesis
-        try {
-            URL sir = new URL("http://giv-genesis.uni-muenster.de:8080/SIR2/sir");
-            IServiceChecker capsChecker = new SirCapabilitiesCheck(sir, notificationEmail, EVERY_12_HOURS);
-            checkers.add(capsChecker);
-        }
-        catch (MalformedURLException e) {
-            log.error("Could not create URL for checker.", e);
-        }
-
-        // SOR @ giv-genesis
-        try {
-            URL sor = new URL("http://giv-genesis.uni-muenster.de:8080/SOR/sor");
-            IServiceChecker capsChecker = new SorCapabilitiesCheck(sor, notificationEmail, EVERY_12_HOURS);
-            checkers.add(capsChecker);
-        }
-        catch (MalformedURLException e) {
-            log.error("Could not create URL for checker.", e);
-        }
-        // TODO check of RESTful SOR interface
+        
+        return checkers;
     }
 }

@@ -51,42 +51,15 @@ import org.n52.owsSupervisor.SupervisorProperties;
  */
 public class Client {
 
-    private static final String SYSTEM_PROPERTY_PROXY_HOST = "http.proxyHost";
-
-    private static final String SYSTEM_PROPERTY_PROXY_PORT = "http.proxyPort";
+    private static final String GET_METHOD = "GET";
 
     private static Logger log = Logger.getLogger(Client.class);
 
-    private static final String GET_METHOD = "GET";
-
     private static final String POST_METHOD = "POST";
 
-    /**
-     * 
-     * @param requestUrl
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    public String sendPostRequest(String requestUrl, String request) throws IOException {
-        if (request.isEmpty()) {
-            return "The request is empty!";
-        }
-        XmlObject response = doSend(requestUrl, request, POST_METHOD);
-        return response.toString();
-    }
+    private static final String SYSTEM_PROPERTY_PROXY_HOST = "http.proxyHost";
 
-    /**
-     * 
-     * @param requestUrl
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    public XmlObject xSendPostRequest(String requestUrl, XmlObject request) throws IOException {
-        XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
-        return response;
-    }
+    private static final String SYSTEM_PROPERTY_PROXY_PORT = "http.proxyPort";
 
     /**
      * @param request
@@ -167,6 +140,21 @@ public class Client {
 
     /**
      * 
+     * @param requestUrl
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public String sendPostRequest(String requestUrl, String request) throws IOException {
+        if (request.isEmpty()) {
+            return "The request is empty!";
+        }
+        XmlObject response = doSend(requestUrl, request, POST_METHOD);
+        return response.toString();
+    }
+
+    /**
+     * 
      * @param request
      * @param requestUrl
      * @return
@@ -178,6 +166,18 @@ public class Client {
             HttpException,
             IOException {
         XmlObject response = doSend(requestUrl, request, GET_METHOD);
+        return response;
+    }
+
+    /**
+     * 
+     * @param requestUrl
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public XmlObject xSendPostRequest(String requestUrl, XmlObject request) throws IOException {
+        XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
         return response;
     }
 

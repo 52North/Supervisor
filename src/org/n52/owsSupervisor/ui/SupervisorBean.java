@@ -61,14 +61,6 @@ public class SupervisorBean {
 	 * 
 	 * @return
 	 */
-	public String getVersion() {
-		return SupervisorProperties.getInstance().getServiceVersion();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
 	public int getMaximumNumberOfResults() {
 		return SupervisorProperties.getInstance().getMaximumResults();
 	}
@@ -79,6 +71,14 @@ public class SupervisorBean {
 	 */
 	public int getPageRefreshIntervalSecs() {
 		return SupervisorProperties.getInstance().getPageRefreshSecs();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getVersion() {
+		return SupervisorProperties.getInstance().getServiceVersion();
 	}
 
 }

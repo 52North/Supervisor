@@ -46,13 +46,13 @@ import org.n52.owsSupervisor.util.XmlTools;
  */
 public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
-    private static Logger log = Logger.getLogger(OwsCapabilitiesCheck.class);
-
     protected static final String DEFAULT_OWS_VERSION = "1.1";
 
-    protected static final String POSITIVE_TEXT = "Successfully requested capabilities document.";
+    private static Logger log = Logger.getLogger(OwsCapabilitiesCheck.class);
 
     protected static final String NEGATIVE_TEXT = "Request for capabilities document FAILED.";
+
+    protected static final String POSITIVE_TEXT = "Successfully requested capabilities document.";
 
     protected String serviceVersion;
 
@@ -73,21 +73,21 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
      * 
      * @param service
      * @param notifyEmail
-     * @param checkIntervalMillis
      */
-    public OwsCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
-        this(DEFAULT_OWS_VERSION, service, notifyEmail, checkIntervalMillis);
+    public OwsCapabilitiesCheck(URL service, String notifyEmail) {
+        super(notifyEmail);
+        this.serviceVersion = DEFAULT_OWS_VERSION;
+        this.serviceUrl = service;
     }
 
     /**
      * 
      * @param service
      * @param notifyEmail
+     * @param checkIntervalMillis
      */
-    public OwsCapabilitiesCheck(URL service, String notifyEmail) {
-        super(notifyEmail);
-        this.serviceVersion = DEFAULT_OWS_VERSION;
-        this.serviceUrl = service;
+    public OwsCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
+        this(DEFAULT_OWS_VERSION, service, notifyEmail, checkIntervalMillis);
     }
 
     /*

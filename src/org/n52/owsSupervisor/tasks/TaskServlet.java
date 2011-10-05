@@ -58,30 +58,47 @@ import org.apache.log4j.Logger;
 public class TaskServlet extends GenericServlet {
 
     /**
-	 * 
-	 */
-    private static final long serialVersionUID = -7342914044857243635L;
-
-    /**
-     * The init parameter of the configFile
+     * Inner class to handle storage and cancelling of tasks at runtime.
      */
-    private static final String INIT_PARAM_CONFIG_FILE = "configFile";
+    private class TaskElement {
+        protected Date date;
+        protected long delay;
+        protected String id;
+        protected long period;
+        protected TimerTask task;
 
-    /**
-     * The identifier that can be used to access the instance of this servlet an run-time.
-     */
-    public static final String NAME_IN_CONTEXT = "TimerServlet";
+        /**
+         * 
+         * @param identifier
+         * @param task
+         * @param delay
+         * @param period
+         */
+        protected TaskElement(String identifier, TimerTask taskP, long delayP, long periodP) {
+            this.id = identifier;
+            this.task = taskP;
+            this.delay = delayP;
+            this.period = periodP;
+            this.date = new Date(0l);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("TaskElement [");
+            sb.append(this.task);
+            sb.append(", delay=");
+            sb.append(this.delay);
+            sb.append(", period=");
+            sb.append(this.period);
+            sb.append(", date=");
+            sb.append(this.date);
+            sb.append("]");
+            return sb.toString();
+        }
+    }
 
     private static final String CHECK_THREAD_COUNT = "CHECK_THREAD_COUNT";
-
-    private static Logger log = Logger.getLogger(TaskServlet.class);
-
-    /**
-     * List that holds all repeated task during run-time.
-     */
-    private ArrayList<TaskElement> tasks;
-
-    private Properties props;
 
     /**
 	 * 
@@ -89,10 +106,58 @@ public class TaskServlet extends GenericServlet {
     private static ScheduledThreadPoolExecutor executor;
 
     /**
+     * The init parameter of the configFile
+     */
+    private static final String INIT_PARAM_CONFIG_FILE = "configFile";
+
+    private static Logger log = Logger.getLogger(TaskServlet.class);
+
+    /**
+     * The identifier that can be used to access the instance of this servlet an run-time.
+     */
+    public static final String NAME_IN_CONTEXT = "TimerServlet";
+
+    /**
+	 * 
+	 */
+    private static final long serialVersionUID = -7342914044857243635L;
+
+    private Properties props;
+
+    /**
+     * List that holds all repeated task during run-time.
+     */
+    private ArrayList<TaskElement> tasks;
+
+    /**
      * Default constructor.
      */
     public TaskServlet() {
         super();
+    }
+
+    /**
+     * 
+     * @param identifier
+     */
+    public void cancel(String identifier) {
+        for (TaskElement te : this.tasks) {
+            if (te.id.equals(identifier)) {
+                te.task.cancel();
+                log.info("CANCELED " + te);
+            }
+
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        log.info("Destroy " + this.toString());
+        executor.shutdownNow();
+        executor = null;
+        this.tasks.clear();
+        this.tasks = null;
     }
 
     @Override
@@ -128,14 +193,38 @@ public class TaskServlet extends GenericServlet {
         log.info(" ***** Timer initiated successfully! ***** ");
     }
 
+    /**
+     * method loads the config file
+     * 
+     * @param is
+     *        InputStream containing the config file
+     * @return Returns properties of the given config file
+     * @throws IOException
+     */
+    private Properties loadProperties(InputStream is) throws IOException {
+        Properties properties = new Properties();
+        properties.load(is);
+
+        return properties;
+    }
+
     @Override
-    public void destroy() {
-        super.destroy();
-        log.info("Destroy " + this.toString());
-        executor.shutdownNow();
-        executor = null;
-        this.tasks.clear();
-        this.tasks = null;
+    public void service(ServletRequest req, ServletResponse res) {
+        throw new UnsupportedOperationException("Not supperted by TimerServlet!");
+    }
+
+    /**
+     * 
+     * @param identifier
+     * @param task
+     * @param delay
+     */
+    public void submit(String identifier, TimerTask task, long delay) {
+        executor.schedule(task, delay, TimeUnit.MILLISECONDS);
+        if (log.isDebugEnabled()) {
+            log.debug("Submitted: " + task + " with delay = " + delay);
+        }
+        this.tasks.add(new TaskElement(identifier, task, delay, 0l));
     }
 
     /**
@@ -156,39 +245,6 @@ public class TaskServlet extends GenericServlet {
         this.tasks.add(new TaskElement(identifier, task, delay, period));
     }
 
-    /**
-     * 
-     * @param identifier
-     * @param task
-     * @param delay
-     */
-    public void submit(String identifier, TimerTask task, long delay) {
-        executor.schedule(task, delay, TimeUnit.MILLISECONDS);
-        if (log.isDebugEnabled()) {
-            log.debug("Submitted: " + task + " with delay = " + delay);
-        }
-        this.tasks.add(new TaskElement(identifier, task, delay, 0l));
-    }
-
-    /**
-     * 
-     * @param identifier
-     */
-    public void cancel(String identifier) {
-        for (TaskElement te : this.tasks) {
-            if (te.id.equals(identifier)) {
-                te.task.cancel();
-                log.info("CANCELED " + te);
-            }
-
-        }
-    }
-
-    @Override
-    public void service(ServletRequest req, ServletResponse res) {
-        throw new UnsupportedOperationException("Not supperted by TimerServlet!");
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -203,61 +259,5 @@ public class TaskServlet extends GenericServlet {
         sb.delete(sb.length() - 1, sb.length() - 1);
         sb.append("]");
         return sb.toString();
-    }
-
-    /**
-     * method loads the config file
-     * 
-     * @param is
-     *        InputStream containing the config file
-     * @return Returns properties of the given config file
-     * @throws IOException
-     */
-    private Properties loadProperties(InputStream is) throws IOException {
-        Properties properties = new Properties();
-        properties.load(is);
-
-        return properties;
-    }
-
-    /**
-     * Inner class to handle storage and cancelling of tasks at runtime.
-     */
-    private class TaskElement {
-        protected TimerTask task;
-        protected long delay;
-        protected long period;
-        protected Date date;
-        protected String id;
-
-        /**
-         * 
-         * @param identifier
-         * @param task
-         * @param delay
-         * @param period
-         */
-        protected TaskElement(String identifier, TimerTask taskP, long delayP, long periodP) {
-            this.id = identifier;
-            this.task = taskP;
-            this.delay = delayP;
-            this.period = periodP;
-            this.date = new Date(0l);
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("TaskElement [");
-            sb.append(this.task);
-            sb.append(", delay=");
-            sb.append(this.delay);
-            sb.append(", period=");
-            sb.append(this.period);
-            sb.append(", date=");
-            sb.append(this.date);
-            sb.append("]");
-            return sb.toString();
-        }
     }
 }

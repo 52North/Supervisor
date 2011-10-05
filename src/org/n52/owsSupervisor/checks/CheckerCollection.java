@@ -52,6 +52,15 @@ public class CheckerCollection implements IServiceChecker {
 
     /*
      * (non-Javadoc)
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#addResult(org.n52.owsSupervisor.checks.ICheckResult)
+     */
+    @Override
+    public void addResult(ICheckResult r) {
+        throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
+    }
+
+    /*
+     * (non-Javadoc)
      * 
      * @see org.n52.owsSupervisor.IServiceChecker#check()
      */
@@ -77,6 +86,24 @@ public class CheckerCollection implements IServiceChecker {
         return b;
     }
 
+    /**
+     * 
+     * @return
+     */
+    public Collection<IServiceChecker> getCheckers() {
+        return this.checkers;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
+     */
+    @Override
+    public long getCheckIntervalMillis() {
+        throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -91,9 +118,13 @@ public class CheckerCollection implements IServiceChecker {
         return results;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.n52.owsSupervisor.checks.IServiceChecker#getService()
+     */
     @Override
-    public void addResult(ICheckResult r) {
-        throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
+    public String getService() {
+        throw new UnsupportedOperationException("Collection of checkers, which can multiple services!");
     }
 
     /*
@@ -118,25 +149,6 @@ public class CheckerCollection implements IServiceChecker {
         for (IServiceChecker c : this.checkers) {
             c.notifySuccess();
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-     */
-    @Override
-    public long getCheckIntervalMillis() {
-        throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
-    }
-
-    @Override
-    public String getService() {
-        throw new UnsupportedOperationException("Collection of checkers, which can multiple services!");
-    }
-
-    public Collection<IServiceChecker> getCheckers() {
-        return this.checkers;
     }
 
 }

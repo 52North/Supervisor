@@ -13,8 +13,16 @@ import org.n52.owsSupervisor.checks.ICheckResult;
  */
 public interface IFailureNotification {
 	
-	public String getServiceUrl();
-	
+    /**
+     * 
+     * @return
+     */
 	public Collection<ICheckResult> getCheckResults();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getServiceUrl();
 
 }

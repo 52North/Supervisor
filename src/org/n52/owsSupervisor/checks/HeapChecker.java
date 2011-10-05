@@ -40,15 +40,15 @@ import org.n52.owsSupervisor.tasks.SendEmailTask;
  */
 public class HeapChecker implements IServiceChecker {
 
-    private long interval;
-
-    private ICheckResult result;
-
-    private String lastCheckString = "";
+    private static final long L1024_2 = 1024 * 1024;
 
     private static Logger log = Logger.getLogger(SendEmailTask.class);
 
-    private static final long L1024_2 = 1024 * 1024;
+    private long interval;
+
+    private String lastCheckString = "";
+
+    private ICheckResult result;
 
     /**
      * @param l
@@ -61,11 +61,11 @@ public class HeapChecker implements IServiceChecker {
     /*
      * (non-Javadoc)
      * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getService()
+     * @see org.n52.owsSupervisor.IServiceChecker#addResult(org.n52.owsSupervisor .ICheckResult)
      */
     @Override
-    public String getService() {
-        return null;
+    public void addResult(ICheckResult r) {
+        //
     }
 
     /*
@@ -89,6 +89,16 @@ public class HeapChecker implements IServiceChecker {
     /*
      * (non-Javadoc)
      * 
+     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
+     */
+    @Override
+    public long getCheckIntervalMillis() {
+        return this.interval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.n52.owsSupervisor.IServiceChecker#getResults()
      */
     @Override
@@ -101,11 +111,11 @@ public class HeapChecker implements IServiceChecker {
     /*
      * (non-Javadoc)
      * 
-     * @see org.n52.owsSupervisor.IServiceChecker#addResult(org.n52.owsSupervisor .ICheckResult)
+     * @see org.n52.owsSupervisor.IServiceChecker#getService()
      */
     @Override
-    public void addResult(ICheckResult r) {
-        //
+    public String getService() {
+        return null;
     }
 
     /*
@@ -116,16 +126,6 @@ public class HeapChecker implements IServiceChecker {
     @Override
     public void notifyFailure() {
         //
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-     */
-    @Override
-    public long getCheckIntervalMillis() {
-        return this.interval;
     }
 
     /*

@@ -29,6 +29,8 @@ package org.n52.owsSupervisor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -49,69 +51,115 @@ import org.n52.owsSupervisor.tasks.TaskServlet;
  */
 public class SupervisorProperties {
 
-    private static Logger log = Logger.getLogger(SupervisorProperties.class);
+    private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
 
-    private static final String SERVICEVERSION = "SERVICEVERSION";
+    private static final String CHECK_CLASSES = "CHECK_CLASSES";
+
+    private static final String CHECK_LIST_SEPERATOR = "CHECK_LIST_SEPERATOR";
+
+    private static final String CHECK_SUBMIT_DELAY_SECS = "CHECK_SUBMIT_DELAY_SECS";
+
+    private static final String CHECKS = "CHECKS";
 
     private static final String DEFAULT_CHECK_INTERVAL_SECS = "DEFAULT_CHECK_INTERVAL_SECS";
 
-    private static final String MAIL_PROTOCOL = "MAIL_PROTOCOL";
+    private static final String HTML_PAGE_REFRESH_SECS = "HTML_PAGE_REFRESH_SECS";
 
-    private static final String MAIL_HOST = "MAIL_HOST";
+    private static SupervisorProperties instance;
 
-    private static final String MAIL_USER = "MAIL_USER";
-
-    private static final String MAIL_PASSWORD = "MAIL_PASSWORD";
-
-    private static final String MAIL_HOST_PORT = "MAIL_HOST_PORT";
+    private static Logger log = Logger.getLogger(SupervisorProperties.class);
 
     private static final String MAIL_ENABLE_AUTH = "MAIL_ENABLE_AUTH";
 
     private static final String MAIL_ENABLE_TLS = "MAIL_ENABLE_TLS";
 
-    private static final String MAIL_SENDER_ADDRESS = "MAIL_SENDER_ADDRESS";
+    private static final String MAIL_HOST = "MAIL_HOST";
 
-    public static final String MAIL_USER_PROPERTY = "mail.user";
+    private static final String MAIL_HOST_PORT = "MAIL_HOST_PORT";
+
+    private static final String MAIL_PASSWORD = "MAIL_PASSWORD";
 
     public static final String MAIL_PASSWORD_PROPERTY = "mail.password";
 
-    private static final String MAIL_SOCKET_FALLBACK = "false";
+    private static final String MAIL_PROTOCOL = "MAIL_PROTOCOL";
+
+    private static final String MAIL_SENDER_ADDRESS = "MAIL_SENDER_ADDRESS";
 
     private static final String MAIL_SOCKET_CLASS = "javax.net.ssl.SSLSocketFactory";
 
-    private static final String SEND_EMAILS = "SEND_EMAILS";
+    private static final String MAIL_SOCKET_FALLBACK = "false";
+
+    private static final String MAIL_USER = "MAIL_USER";
+
+    public static final String MAIL_USER_PROPERTY = "mail.user";
 
     private static final String MAX_CHECK_LIST_SIZE = "MAX_CHECK_LIST_SIZE";
 
     private static final String SEND_EMAIL_INTERVAL_MINS = "SEND_EMAIL_INTERVAL_MINS";
 
-    private static final String HTML_PAGE_REFRESH_SECS = "HTML_PAGE_REFRESH_SECS";
+    private static final String SEND_EMAILS = "SEND_EMAILS";
 
-    private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
+    private static final String SERVICEVERSION = "SERVICEVERSION";
 
-    private static final String CHECK_SUBMIT_DELAY_SECS = "CHECK_SUBMIT_DELAY_SECS";
+    private static final String USE_COMPILED_CHECKERS = "USE_COMPILED_CHECKERS";
 
-    private static SupervisorProperties instance;
+    private static final String USE_CONFIG_CHECKERS = "USE_CONFIG_CHECKERS";
 
-    private String serviceVersion;
+    /**
+     * This methode provides the only instance of PropertiesManager.
+     * 
+     * @return The instance of the PropertiesManager
+     */
+    public static SupervisorProperties getInstance() {
+        if (instance == null) {
+            log.error("PropertiesManager is not instantiated!");
+            return null;
+        }
+        return instance;
+    }
 
-    private long defaultCheckIntervalMillis;
-
-    private Properties mailProps = new Properties();
-
-    private InternetAddress emailSender;
-
-    private boolean sendEmails;
-
-    private int maximumResults;
-
-    private int emailSendPeriodMins;
-
-    private int pageRefreshSecs;
+    /**
+     * This methode provides the only instance of PropertiesManager.
+     * 
+     * @param configStream
+     *        The servletcontext stream to get the path for the phenomenonXML file of the web.xml
+     * @param basepath
+     * @return The instance of the PropertiesManager
+     */
+    public static SupervisorProperties getInstance(InputStream configStream, String basepath) {
+        if (instance == null) {
+            instance = new SupervisorProperties(configStream, basepath);
+        }
+        return instance;
+    }
 
     private String adminEmail;
 
+    private ArrayList<String> checkClasses;
+
+    private ArrayList<String> checkConfigurations;
+
     private int checkSubmitDelaySecs;
+
+    private long defaultCheckIntervalMillis;
+
+    private InternetAddress emailSender;
+
+    private int emailSendPeriodMins;
+
+    private Properties mailProps = new Properties();
+
+    private int maximumResults;
+
+    private int pageRefreshSecs;
+
+    private boolean sendEmails;
+
+    private String serviceVersion;
+
+    private boolean useCompiledCheckers;
+
+    private boolean useConfigCheckers;
 
     /**
      * Constructor to create an instance of the PropertiesManager
@@ -133,6 +181,23 @@ public class SupervisorProperties {
 
         this.serviceVersion = props.getProperty(SERVICEVERSION);
         this.defaultCheckIntervalMillis = Long.parseLong(props.getProperty(DEFAULT_CHECK_INTERVAL_SECS)) * 1000;
+
+        // the actual checks
+        this.checkConfigurations = new ArrayList<String>();
+        String checksString = props.getProperty(CHECKS);
+        String[] checks = checksString.split(props.getProperty(CHECK_LIST_SEPERATOR));
+        for (String s : checks) {
+            this.checkConfigurations.add(s.trim());
+        }
+        this.checkClasses = new ArrayList<String>();
+        String checkClassesString = props.getProperty(CHECK_CLASSES);
+        checks = checkClassesString.split(props.getProperty(CHECK_LIST_SEPERATOR));
+        for (String s : checks) {
+            this.checkClasses.add(s.trim());
+        }
+
+        this.useCompiledCheckers = Boolean.parseBoolean(props.getProperty(USE_COMPILED_CHECKERS));
+        this.useConfigCheckers = Boolean.parseBoolean(props.getProperty(USE_CONFIG_CHECKERS));
 
         // set up SMTP properties with TLS
         this.mailProps.setProperty("mail.transport.protocol", props.getProperty(MAIL_PROTOCOL));
@@ -163,39 +228,33 @@ public class SupervisorProperties {
     }
 
     /**
-     * This methode provides the only instance of PropertiesManager.
      * 
-     * @param configStream
-     *        The servletcontext stream to get the path for the phenomenonXML file of the web.xml
-     * @param basepath
-     * @return The instance of the PropertiesManager
+     * @return
      */
-    public static SupervisorProperties getInstance(InputStream configStream, String basepath) {
-        if (instance == null) {
-            instance = new SupervisorProperties(configStream, basepath);
-        }
-        return instance;
-    }
-
-    /**
-     * This methode provides the only instance of PropertiesManager.
-     * 
-     * @return The instance of the PropertiesManager
-     */
-    public static SupervisorProperties getInstance() {
-        if (instance == null) {
-            log.error("PropertiesManager is not instantiated!");
-            return null;
-        }
-        return instance;
+    public String getAdminEmail() {
+        return this.adminEmail;
     }
 
     /**
      * 
      * @return
      */
-    public String getServiceVersion() {
-        return this.serviceVersion;
+    public Collection<String> getCheckClasses() {
+        return this.checkClasses;
+    }
+
+    /**
+     * @return the checkConfigurations
+     */
+    public Collection<String> getCheckConfigurations() {
+        return this.checkConfigurations;
+    }
+
+    /**
+     * @return the checkSubmitDelaySecs
+     */
+    public int getCheckSubmitDelaySecs() {
+        return this.checkSubmitDelaySecs;
     }
 
     /**
@@ -214,6 +273,26 @@ public class SupervisorProperties {
         return "UTF-8";
     }
 
+    public long getDefaultCheckIntervalMillis() {
+        return this.defaultCheckIntervalMillis;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public Address getEmailSender() {
+        return this.emailSender;
+    }
+
+    /**
+     * 
+     * @return email send period in minutes
+     */
+    public int getEmailSendPeriodMins() {
+        return this.emailSendPeriodMins;
+    }
+
     /**
 	 * 
 	 */
@@ -225,12 +304,25 @@ public class SupervisorProperties {
      * 
      * @return
      */
-    public Address getEmailSender() {
-        return this.emailSender;
+    public int getMaximumResults() {
+        return this.maximumResults;
     }
 
-    public long getDefaultCheckIntervalMillis() {
-        return this.defaultCheckIntervalMillis;
+    /**
+     * 
+     * @return
+     */
+    public int getPageRefreshSecs() {
+        return this.pageRefreshSecs;
+    }
+
+    /**
+     * 
+     * @param timerServlet
+     * @return
+     */
+    public IJobScheduler getScheduler(TaskServlet timerServlet) {
+        return new JobSchedulerFactoryImpl(timerServlet).getJobScheduler();
     }
 
     /**
@@ -245,6 +337,14 @@ public class SupervisorProperties {
      * 
      * @return
      */
+    public String getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    /**
+     * 
+     * @return
+     */
     public String getUUID() {
         return UUID.randomUUID().toString();
     }
@@ -253,44 +353,16 @@ public class SupervisorProperties {
      * 
      * @return
      */
-    public int getMaximumResults() {
-        return this.maximumResults;
-    }
-
-    /**
-     * 
-     * @return email send period in minutes
-     */
-    public int getEmailSendPeriodMins() {
-        return this.emailSendPeriodMins;
+    public boolean isUseCompiledCheckers() {
+        return this.useCompiledCheckers;
     }
 
     /**
      * 
      * @return
      */
-    public int getPageRefreshSecs() {
-        return this.pageRefreshSecs;
-    }
-
-    public String getAdminEmail() {
-        return this.adminEmail;
-    }
-
-    /**
-     * 
-     * @param timerServlet
-     * @return
-     */
-    public IJobScheduler getScheduler(TaskServlet timerServlet) {
-        return new JobSchedulerFactoryImpl(timerServlet).getJobScheduler();
-    }
-
-    /**
-     * @return the checkSubmitDelaySecs
-     */
-    public int getCheckSubmitDelaySecs() {
-        return this.checkSubmitDelaySecs;
+    public boolean isUseConfigCheckers() {
+        return this.useConfigCheckers;
     }
 
 }
