@@ -142,6 +142,10 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return "OwsCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";

@@ -12,12 +12,16 @@
 
 	<appender name="SupervisorRoFiAppender" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="datePattern" value="'.'yyyy-MM-dd" />
-		<param name="file" value="${catalina.home}/logs/OwsSupervisor.log" />
+		<param name="file" value="E:/logs/OwsSupervisor.log" />
 		<param name="append" value="true" />
 		<param name="encoding" value="UTF-8" />
+		<rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+			<param name="FileNamePattern" value="E:/logs/OwsSupervisor.%d.log" />
+		</rollingPolicy>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{ISO8601} %-5p [%t] %c: %m%n" />
 		</layout>
+		<param name="Threshold" value="WARN" />
 	</appender>
 
 	<logger name="org.apache.commons">
