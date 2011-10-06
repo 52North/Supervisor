@@ -81,10 +81,16 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.n52.owsSupervisor.checks.IServiceChecker#addResult(org.n52.owsSupervisor.checks.ICheckResult)
      */
     @Override
     public void addResult(ICheckResult r) {
+        log.info("Result added: " + r);
+
+        if (r.getType().equals(ResultType.NEGATIVE))
+            log.warn("NEGATIVE result added to " + toString() + ":\n\n" + r + "\n");
+
         this.results.add(r);
     }
 
@@ -100,6 +106,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.n52.owsSupervisor.checks.IServiceChecker#getCheckIntervalMillis()
      */
     @Override
@@ -119,6 +126,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.n52.owsSupervisor.checks.IServiceChecker#getService()
      */
     @Override
@@ -128,12 +136,14 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.n52.owsSupervisor.checks.IServiceChecker#notifyFailure()
      */
     @Override
     public void notifyFailure() {
-        log.debug("Check FAILED: " + this);
-        
+        if (log.isDebugEnabled())
+            log.debug("Check FAILED: " + this);
+
         if (this.email == null) {
             log.error("Can not notify via email, is null!");
             return;
@@ -147,7 +157,9 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
         // append for email notification to queue
         Supervisor.appendNotification(new EmailFailureNotification(this.serviceUrl.toString(), this.email, failures));
-        log.debug("Submitted email with " + failures.size() + " failures.");
+
+        if (log.isDebugEnabled())
+            log.debug("Submitted email with " + failures.size() + " failures.");
     }
 
     /*
@@ -157,9 +169,9 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
      */
     @Override
     public void notifySuccess() {
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled())
             log.debug("Check SUCCESSFUL:" + this);
-        }
+
     }
 
 }
