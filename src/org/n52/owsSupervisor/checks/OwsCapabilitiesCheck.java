@@ -37,7 +37,7 @@ import net.opengis.ows.x11.GetCapabilitiesDocument;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
 
 /**
@@ -59,25 +59,23 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
     /**
      * 
      * @param owsVersion
-     * @param service
+     * @param serviceURL
      * @param notifyEmail
      * @param checkIntervalMillis
      */
-    public OwsCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
-        super(notifyEmail, checkIntervalMillis);
+    public OwsCapabilitiesCheck(String owsVersion, URL serviceURL, String notifyEmail, long checkIntervalMillis) {
+        super(notifyEmail, serviceURL, checkIntervalMillis);
         this.serviceVersion = owsVersion;
-        this.serviceUrl = service;
     }
 
     /**
      * 
-     * @param service
+     * @param serviceURL
      * @param notifyEmail
      */
-    public OwsCapabilitiesCheck(URL service, String notifyEmail) {
-        super(notifyEmail);
+    public OwsCapabilitiesCheck(URL serviceURL, String notifyEmail) {
+        super(notifyEmail, serviceURL);
         this.serviceVersion = DEFAULT_OWS_VERSION;
-        this.serviceUrl = service;
     }
 
     /**
@@ -97,13 +95,14 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
      */
     @Override
     public boolean check() {
+        URL sUrl = getServiceURL();
         if (log.isDebugEnabled()) {
-            log.debug("Checking Capabilities for " + this.serviceUrl);
+            log.debug("Checking Capabilities for " + sUrl);
         }
 
         if (this.serviceVersion != "1.1") {
             log.error("OWS Version not supported: " + this.serviceVersion);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... OWS Version not supported: " + this.serviceVersion, ResultType.NEGATIVE));
             return false;
         }
@@ -116,7 +115,7 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
         // send the document
         try {
-            XmlObject response = this.client.xSendPostRequest(this.serviceUrl.toString(), getCapDoc);
+            XmlObject response = this.client.xSendPostRequest(sUrl.toString(), getCapDoc);
             getCapDoc = null;
 
             // parse response - this is the test!
@@ -125,25 +124,26 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
         }
         catch (IOException e) {
             log.error("Could not send request", e);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... Could not send request!", ResultType.NEGATIVE));
             return false;
         }
         catch (XmlException e) {
             log.error("Could not send request", e);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... Could not parse response to CapabilitiesBaseType!", ResultType.NEGATIVE));
             return false;
         }
 
         // save the good result
-        addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
+        addResult(new ServiceCheckResult(new Date(), sUrl.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
 
         return true;
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override

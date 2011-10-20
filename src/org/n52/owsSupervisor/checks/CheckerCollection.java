@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.IServiceChecker;
 
 /**
  * @author Daniel Nüst

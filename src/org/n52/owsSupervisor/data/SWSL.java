@@ -34,7 +34,7 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.ICheckerFactory;
-import org.n52.owsSupervisor.checks.IServiceChecker;
+import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.checks.SirCapabilitiesCheck;
 import org.n52.owsSupervisor.checks.SorCapabilitiesCheck;
 import org.n52.owsSupervisor.checks.SosCapabilitiesCheck;
@@ -46,6 +46,7 @@ import org.n52.owsSupervisor.checks.WpsCapabilitiesCheck;
  * 
  */
 @SuppressWarnings("unused")
+@Deprecated()
 public class SWSL implements ICheckerFactory {
 
     private static final String EMAIL_DN = "d.nuest@52north.org";

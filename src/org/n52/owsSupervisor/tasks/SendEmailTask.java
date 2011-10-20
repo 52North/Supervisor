@@ -45,13 +45,13 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
+import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
 import org.n52.owsSupervisor.checks.CheckResult;
-import org.n52.owsSupervisor.checks.ICheckResult;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
-import org.n52.owsSupervisor.ui.EmailFailureNotification;
-import org.n52.owsSupervisor.ui.IFailureNotification;
+import org.n52.owsSupervisor.ui.EmailNotification;
+import org.n52.owsSupervisor.ui.INotification;
 
 /**
  * @author Daniel Nüst
@@ -71,6 +71,11 @@ public class SendEmailTask extends TimerTask {
             this.p = sp;
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see javax.mail.Authenticator#getPasswordAuthentication()
+         */
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             String userName = this.p.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
@@ -81,7 +86,7 @@ public class SendEmailTask extends TimerTask {
 
     private static final String EMAIL_CONTENT_ENCODING = "text/plain";
 
-    private static final Object EMAIL_FAILURE_DELIMITER_TEXT = "\n";
+    private static final Object EMAIL_RESULT_DELIMITER_TEXT = "\n";
 
     private static final Object EMAIL_GOODBYE_TEXT = "\n\n\nGood Luck fixing it!";
 
@@ -101,10 +106,9 @@ public class SendEmailTask extends TimerTask {
         log.info("NEW " + this.toString());
     }
 
-    /**
+    /***
      * 
-     * @param adminEmail
-     * @param notificationsP
+     * @param adminEmailP
      */
     public SendEmailTask(String adminEmailP) {
         this.adminEmail = adminEmailP;
@@ -116,23 +120,24 @@ public class SendEmailTask extends TimerTask {
      * @param notifications
      * @return
      */
-    private boolean doTask(Collection<IFailureNotification> notifications) {
+    private boolean doTask(Collection<INotification> notifications) {
         log.info("*** Sending emails based on " + notifications.size() + " notifications.");
 
         // collect all notifications for each email address
-        Map<String, Collection<EmailFailureNotification>> emails = new HashMap<String, Collection<EmailFailureNotification>>();
+        Map<String, Collection<EmailNotification>> emails = new HashMap<String, Collection<EmailNotification>>();
 
-        for (IFailureNotification iMsg : notifications) {
-            if (iMsg instanceof EmailFailureNotification) {
-                EmailFailureNotification msg = (EmailFailureNotification) iMsg;
+        // create notification emails
+        for (INotification iNoti : notifications) {
+            if (iNoti instanceof EmailNotification) {
+                EmailNotification msg = (EmailNotification) iNoti;
                 if (emails.containsKey(msg.getRecipientEmail())) {
                     // add to failure list
-                    Collection<EmailFailureNotification> failures = emails.get(msg.getRecipientEmail());
+                    Collection<EmailNotification> failures = emails.get(msg.getRecipientEmail());
                     failures.add(msg);
                 }
                 else {
                     // create new email
-                    ArrayList<EmailFailureNotification> failures = new ArrayList<EmailFailureNotification>();
+                    ArrayList<EmailNotification> failures = new ArrayList<EmailNotification>();
                     failures.add(msg);
                     emails.put(msg.getRecipientEmail(), failures);
                 }
@@ -144,19 +149,37 @@ public class SendEmailTask extends TimerTask {
         int overallFailureCounter = 0;
         int overallEmailCounter = 0;
         boolean noError = true;
-        for (Entry<String, Collection<EmailFailureNotification>> email : emails.entrySet()) {
+        for (Entry<String, Collection<EmailNotification>> email : emails.entrySet()) {
             // create message
             StringBuilder sb = new StringBuilder();
             sb.append(EMAIL_HELLO_TEXT);
 
             int failureCount = 0;
-            for (EmailFailureNotification failure : email.getValue()) {
-                for (ICheckResult f : failure.getCheckResults()) {
-                    sb.append(EMAIL_FAILURE_DELIMITER_TEXT);
-                    sb.append(f.toString());
+            for (EmailNotification noti : email.getValue()) {
+                for (ICheckResult r : noti.getResults()) {
+                    if (r.getType().equals(ResultType.NEGATIVE)) {
+                        sb.append(r.toString());
+                        sb.append(EMAIL_RESULT_DELIMITER_TEXT);
+                        
+                        failureCount++;
+                    }
                 }
 
-                failureCount += failure.getCheckResults().size();
+                sb.append("\n");
+                for (ICheckResult r : noti.getResults()) {
+                    if (r.getType().equals(ResultType.NEUTRAL)) {
+                        sb.append(r.toString());
+                        sb.append(EMAIL_RESULT_DELIMITER_TEXT);
+                    }
+                }
+                
+                sb.append("\n");
+                for (ICheckResult r : noti.getResults()) {
+                    if (r.getType().equals(ResultType.POSITIVE)) {
+                        sb.append(r.toString());
+                        sb.append(EMAIL_RESULT_DELIMITER_TEXT);
+                    }
+                }
             }
 
             sb.append(EMAIL_GOODBYE_TEXT);
@@ -180,7 +203,7 @@ public class SendEmailTask extends TimerTask {
                 noError = false;
             }
         }
-        
+
         return noError;
     }
 
@@ -191,7 +214,7 @@ public class SendEmailTask extends TimerTask {
      */
     @Override
     public void run() {
-        Collection<IFailureNotification> notifications = Supervisor.getCurrentNotificationsCopy();
+        Collection<INotification> notifications = Supervisor.getCurrentNotificationsCopy();
 
         if (notifications.size() < 1) {
             log.debug("No notifications. Yay!");
@@ -247,7 +270,7 @@ public class SendEmailTask extends TimerTask {
             transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
             transport.close();
 
-            log.debug("Sent email to " + recipient + " with " + failureCount + " failure(s).");
+            log.info("Sent email to " + recipient + " with " + failureCount + " failure(s).");
         }
         else {
             log.warn("Not sending Email (disabled in properties!)");

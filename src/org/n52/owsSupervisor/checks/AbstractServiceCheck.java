@@ -35,10 +35,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
-import org.n52.owsSupervisor.ui.EmailFailureNotification;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ui.EmailNotification;
 import org.n52.owsSupervisor.util.Client;
 
 /**
@@ -59,14 +61,15 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     private List<ICheckResult> results = new ArrayList<ICheckResult>();
 
-    protected URL serviceUrl;
+    private URL serviceURL = null;
 
     /**
      * 
      * @param notifyEmail
      */
-    public AbstractServiceCheck(String notifyEmail) {
+    public AbstractServiceCheck(String notifyEmail, URL serviceURL) {
         this.email = notifyEmail;
+        this.serviceURL = serviceURL;
     }
 
     /**
@@ -74,8 +77,8 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
      * @param notifyEmail
      * @param checkInterval
      */
-    public AbstractServiceCheck(String notifyEmail, long checkInterval) {
-        this.email = notifyEmail;
+    public AbstractServiceCheck(String notifyEmail, URL serviceURL, long checkInterval) {
+        this(notifyEmail, serviceURL);
         this.checkIntervalMillis = checkInterval;
     }
 
@@ -114,6 +117,13 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         return this.checkIntervalMillis;
     }
 
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return this.email;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -131,7 +141,14 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
      */
     @Override
     public String getService() {
-        return this.serviceUrl.toString();
+        return this.serviceURL.toString();
+    }
+
+    /**
+     * @return the serviceURL
+     */
+    public URL getServiceURL() {
+        return this.serviceURL;
     }
 
     /*
@@ -156,7 +173,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         }
 
         // append for email notification to queue
-        Supervisor.appendNotification(new EmailFailureNotification(this.serviceUrl.toString(), this.email, failures));
+        Supervisor.appendNotification(new EmailNotification(this.serviceURL.toString(), this.email, failures));
 
         if (log.isDebugEnabled())
             log.debug("Submitted email with " + failures.size() + " failures.");
@@ -169,9 +186,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
      */
     @Override
     public void notifySuccess() {
-        if (log.isDebugEnabled())
-            log.debug("Check SUCCESSFUL:" + this);
-
+        log.info("Check SUCCESSFUL:" + this);
     }
 
 }

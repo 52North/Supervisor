@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.checks.IServiceChecker;
+import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.tasks.IJobScheduler;
 
 /**

@@ -37,7 +37,7 @@ import net.opengis.sos.x10.GetCapabilitiesDocument;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
 
 /**
@@ -49,6 +49,19 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
     private static Logger log = Logger.getLogger(SosCapabilitiesCheck.class);
 
     private static final String SOS_SERVICE = "SOS";
+
+    /**
+     * 
+     * @param serviceUrl
+     * @param notifyEmail
+     * @param checkIntervalMillis
+     * @throws NumberFormatException
+     * @throws MalformedURLException
+     */
+    public SosCapabilitiesCheck(String serviceUrl, String notifyEmail, String checkIntervalMillis) throws NumberFormatException,
+            MalformedURLException {
+        super(new URL(serviceUrl), notifyEmail, Long.parseLong(checkIntervalMillis));
+    }
 
     /**
      * 
@@ -72,19 +85,6 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
     /**
      * 
-     * @param serviceUrl
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     * @throws NumberFormatException
-     * @throws MalformedURLException
-     */
-    public SosCapabilitiesCheck(String serviceUrl, String notifyEmail, String checkIntervalMillis) throws NumberFormatException,
-            MalformedURLException {
-        super(new URL(serviceUrl), notifyEmail, Long.parseLong(checkIntervalMillis));
-    }
-
-    /**
-     * 
      * @param service
      * @param notifyEmail
      * @param checkIntervalMillis
@@ -100,13 +100,15 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
      */
     @Override
     public boolean check() {
+        URL sUrl = getServiceURL();
+        
         if (log.isDebugEnabled()) {
-            log.debug("Checking SOS Capabilities for " + this.serviceUrl);
+            log.debug("Checking SOS Capabilities for " + sUrl);
         }
 
         if (this.serviceVersion != "1.1") {
             log.error("OWS Version not supported: " + this.serviceVersion);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... OWS Version not supported: " + this.serviceVersion, ResultType.NEGATIVE));
             return false;
         }
@@ -119,7 +121,7 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
         // send the document
         try {
-            XmlObject response = this.client.xSendPostRequest(this.serviceUrl.toString(), getCapDoc);
+            XmlObject response = this.client.xSendPostRequest(sUrl.toString(), getCapDoc);
             getCapDoc = null;
 
             // check it!
@@ -129,18 +131,18 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
                 // save the result
                 addResult(new ServiceCheckResult(new Date(),
-                                                 this.serviceUrl.toString(),
+                                                 sUrl.toString(),
                                                  POSITIVE_TEXT,
                                                  ResultType.POSITIVE));
                 return true;
             }
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... Response was not a Capabilities document!", ResultType.NEGATIVE));
             return false;
         }
         catch (IOException e) {
             log.error("Could not send request", e);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... Could not send request: " + e.getMessage(), ResultType.NEGATIVE));
             return false;
         }

@@ -50,7 +50,7 @@ import net.opengis.swe.x101.TimeObjectPropertyType;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
 
 /**
@@ -119,7 +119,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     /**
      * 
-     * @param service
+     * @param serviceURL
      * @param offering
      * @param observedProperty
      * @param procedure
@@ -127,18 +127,17 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
      * @param notifyEmail
      * @param checkIntervalMillis
      */
-    public SosLatestObservationCheck(URL service,
+    public SosLatestObservationCheck(URL serviceURL,
                                      String offering,
                                      String observedProperty,
                                      String procedure,
                                      long maximumAgeMillis,
                                      String notifyEmail,
                                      long checkIntervalMillis) {
-        super(notifyEmail);
+        super(notifyEmail, serviceURL);
         this.off = offering;
         this.observedProp = observedProperty;
         this.checkInterval = checkIntervalMillis;
-        this.serviceUrl = service;
         this.maximumAgeOfObservationMillis = maximumAgeMillis;
         this.proc = procedure;
     }
@@ -200,6 +199,8 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
      */
     @Override
     public boolean check() {
+        URL sUrl = getServiceURL();
+        
         // max age
         Date maxAge = new Date(System.currentTimeMillis() - this.maximumAgeOfObservationMillis);
 
@@ -213,7 +214,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
         // send the document and check response
         try {
-            XmlObject response = this.client.xSendPostRequest(this.serviceUrl.toString(), getObsDoc);
+            XmlObject response = this.client.xSendPostRequest(sUrl.toString(), getObsDoc);
             getObsDoc = null;
 
             // check it!
@@ -250,7 +251,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
                 Date timeToCheck = ISO8601LocalFormat.parse(timeString);
                 if (timeToCheck.after(maxAge)) {
                     // ALL OKAY - save the result
-                    addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), POSITIVE_TEXT
+                    addResult(new ServiceCheckResult(new Date(), getServiceURL().toString(), POSITIVE_TEXT
                             + getObservationString(), ResultType.POSITIVE));
                     return true;
                 }
@@ -285,18 +286,13 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
                 + ".";
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see org.n52.owsSupervisor.checks.AbstractServiceCheck#getService()
+     * @param text
+     * @return
      */
-    @Override
-    public String getService() {
-        return this.serviceUrl.toString();
-    }
-
     private boolean saveAndReturnNegativeResult(String text) {
-        addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), text, ResultType.NEGATIVE));
+        addResult(new ServiceCheckResult(new Date(), getServiceURL().toString(), text, ResultType.NEGATIVE));
         return false;
     }
 
@@ -308,7 +304,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
     @Override
     public String toString() {
         return "SosLatestObservationCheck [" + getService() + ", check interval=" + getCheckIntervalMillis()
-                + ", offering/bserved property/procedure=" + this.observedProp + "/" + this.off + "/" + this.proc
+                + ", offering=" + this.off + ", observed property=" + this.observedProp + ", procedure=" + this.proc
                 + ", maximum age=" + this.maximumAgeOfObservationMillis + "]";
     }
 }

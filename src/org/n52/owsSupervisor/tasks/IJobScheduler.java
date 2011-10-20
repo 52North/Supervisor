@@ -26,7 +26,7 @@
 
 package org.n52.owsSupervisor.tasks;
 
-import org.n52.owsSupervisor.checks.IServiceChecker;
+import org.n52.owsSupervisor.IServiceChecker;
 
 /**
  * 

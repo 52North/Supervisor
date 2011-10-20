@@ -160,6 +160,13 @@ public class TaskServlet extends GenericServlet {
         this.tasks = null;
     }
 
+    /**
+     * @return the tasks
+     */
+    public ArrayList<TaskElement> getTasks() {
+        return this.tasks;
+    }
+
     @Override
     public void init() throws ServletException {
         super.init();

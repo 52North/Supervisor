@@ -329,14 +329,6 @@ public class SupervisorProperties {
      * 
      * @return
      */
-    public boolean isSendEmails() {
-        return this.sendEmails;
-    }
-
-    /**
-     * 
-     * @return
-     */
     public String getServiceVersion() {
         return this.serviceVersion;
     }
@@ -347,6 +339,14 @@ public class SupervisorProperties {
      */
     public String getUUID() {
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isSendEmails() {
+        return this.sendEmails;
     }
 
     /**
