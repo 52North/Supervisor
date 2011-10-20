@@ -146,6 +146,10 @@ public class Supervisor extends GenericServlet {
         log.info("*** NEW " + this + " ***");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see javax.servlet.GenericServlet#destroy()
+     */
     @Override
     public void destroy() {
         super.destroy();
@@ -158,6 +162,10 @@ public class Supervisor extends GenericServlet {
         notifications = null;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see javax.servlet.GenericServlet#init()
+     */
     @Override
     public void init() throws ServletException {
         // get ServletContext
@@ -228,6 +236,11 @@ public class Supervisor extends GenericServlet {
         return chkrs;
     }
 
+    /**
+     * 
+     * @param checkClasses
+     * @return
+     */
     private Collection<IServiceChecker> loadCompiledCheckers(Collection<String> checkClasses) {
         Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
 
