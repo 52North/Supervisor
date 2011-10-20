@@ -25,33 +25,28 @@ Author: Daniel Nüst
  
  ******************************************************************************/
 
-package org.n52.owsSupervisor;
+package org.n52.owsSupervisor.ui;
 
 import java.util.Collection;
 
-
+import org.n52.owsSupervisor.ICheckResult;
 
 /**
- * 
  * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
-public interface ICheckerFactory {
+public interface INotification {
 
-    public static final long EVERY_12_HOURS = 1000 * 60 * 60 * 12;
-
-    public static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
-
-    public static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
-
-    public static final long EVERY_HOUR = 1000 * 60 * 60;
-
-    public static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
-    
     /**
      * 
      * @return
      */
-    public abstract Collection<IServiceChecker> getCheckers();
+    public Collection<ICheckResult> getResults();
+
+    /**
+     * 
+     * @return
+     */
+    public String getServiceUrl();
 
 }

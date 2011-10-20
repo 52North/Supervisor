@@ -37,7 +37,7 @@ import net.opengis.wps.x100.CapabilitiesDocument;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 
 /**
  * 
@@ -92,15 +92,17 @@ public class WpsCapabilitiesCheck extends OwsCapabilitiesCheck {
      */
     @Override
     public boolean check() {
+        URL sUrl = getServiceURL();
+        
         if (log.isDebugEnabled()) {
-            log.debug("Checking WPS Capabilities via GET " + this.serviceUrl);
+            log.debug("Checking WPS Capabilities via GET " + sUrl);
         }
 
         clearResults();
 
         // send the request
         try {
-            XmlObject response = this.client.xSendGetRequest(this.serviceUrl.toString(), this.getRequest);
+            XmlObject response = this.client.xSendGetRequest(sUrl.toString(), this.getRequest);
 
             // parse response - this is the test!
             CapabilitiesDocument caps = CapabilitiesDocument.Factory.parse(response.getDomNode());
@@ -108,19 +110,19 @@ public class WpsCapabilitiesCheck extends OwsCapabilitiesCheck {
         }
         catch (IOException e) {
             log.error("Could not send request", e);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... Could not send request: " + e.getMessage(), ResultType.NEGATIVE));
             return false;
         }
         catch (XmlException e) {
             log.error("Could not send request", e);
-            addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), NEGATIVE_TEXT
+            addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
                     + " ... Could not parse response to CapabilitiesBaseType!", ResultType.NEGATIVE));
             return false;
         }
 
         // save the good result
-        addResult(new ServiceCheckResult(new Date(), this.serviceUrl.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
+        addResult(new ServiceCheckResult(new Date(), sUrl.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
 
         return true;
     }

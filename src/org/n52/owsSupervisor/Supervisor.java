@@ -43,12 +43,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.checks.ICheckResult;
-import org.n52.owsSupervisor.checks.IServiceChecker;
 import org.n52.owsSupervisor.tasks.IJobScheduler;
 import org.n52.owsSupervisor.tasks.SendEmailTask;
 import org.n52.owsSupervisor.tasks.TaskServlet;
-import org.n52.owsSupervisor.ui.IFailureNotification;
+import org.n52.owsSupervisor.ui.INotification;
 import org.n52.owsSupervisor.util.SubmitCheckersTask;
 
 /**
@@ -68,7 +66,7 @@ public class Supervisor extends GenericServlet {
 
     private static Logger log = Logger.getLogger(Supervisor.class);
 
-    private static Queue<IFailureNotification> notifications;
+    private static Queue<INotification> notifications;
 
     private static final long serialVersionUID = -4629591718212281703L;
 
@@ -103,7 +101,7 @@ public class Supervisor extends GenericServlet {
      * 
      * @param results
      */
-    public static void appendNotification(IFailureNotification notification) {
+    public static void appendNotification(INotification notification) {
         notifications.add(notification);
     }
 
@@ -118,8 +116,8 @@ public class Supervisor extends GenericServlet {
     /**
      * @return
      */
-    public static Collection<IFailureNotification> getCurrentNotificationsCopy() {
-        return new ArrayList<IFailureNotification>(notifications);
+    public static Collection<INotification> getCurrentNotificationsCopy() {
+        return new ArrayList<INotification>(notifications);
     }
 
     /**
@@ -133,7 +131,7 @@ public class Supervisor extends GenericServlet {
     /**
      * @return
      */
-    public static synchronized boolean removeAllNotifications(Collection<IFailureNotification> c) {
+    public static synchronized boolean removeAllNotifications(Collection<INotification> c) {
         return notifications.removeAll(c);
     }
 
@@ -174,7 +172,7 @@ public class Supervisor extends GenericServlet {
         // initialize lists
         this.checkers = new ArrayList<IServiceChecker>();
         latestResults = new LinkedBlockingQueue<ICheckResult>(SupervisorProperties.getInstance().getMaximumResults());
-        notifications = new LinkedBlockingQueue<IFailureNotification>();
+        notifications = new LinkedBlockingQueue<INotification>();
 
         // init timer servlet
         TaskServlet timerServlet = (TaskServlet) context.getAttribute(TaskServlet.NAME_IN_CONTEXT);
@@ -255,11 +253,11 @@ public class Supervisor extends GenericServlet {
                 log.error("Could not instantiate checker factory.", e);
                 continue;
             }
-            
+
             Collection<IServiceChecker> factoryCheckers = factory.getCheckers();
             chkrs.addAll(factoryCheckers);
         }
-        
+
         return chkrs;
     }
 
@@ -310,8 +308,6 @@ public class Supervisor extends GenericServlet {
                 if (params != null && params.length > 0) {
                     Constructor< ? > constructor = clazz.getConstructor(paramsClassArray);
                     chckr = (IServiceChecker) constructor.newInstance((Object[]) params);
-                    // params = null;
-                    // paramsClassArray = null;
                 }
                 else {
                     try {

@@ -31,14 +31,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.n52.owsSupervisor.checks.ICheckResult.ResultType;
+import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.IServiceChecker;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.tasks.SendEmailTask;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class HeapChecker implements IServiceChecker {
+public class HeapCheck implements IServiceChecker {
 
     private static final long L1024_2 = 1024 * 1024;
 
@@ -51,10 +53,10 @@ public class HeapChecker implements IServiceChecker {
     private ICheckResult result;
 
     /**
-     * @param l
      * 
+     * @param intervalMillis
      */
-    public HeapChecker(long intervalMillis) {
+    public HeapCheck(long intervalMillis) {
         this.interval = intervalMillis;
     }
 
@@ -65,7 +67,10 @@ public class HeapChecker implements IServiceChecker {
      */
     @Override
     public void addResult(ICheckResult r) {
-        //
+        if (this.result != null)
+            log.debug("Overriding old result!");
+
+        this.result = r;
     }
 
     /*
@@ -125,7 +130,7 @@ public class HeapChecker implements IServiceChecker {
      */
     @Override
     public void notifyFailure() {
-        //
+        log.fatal("HeapChecker cannot fail!");
     }
 
     /*
@@ -139,7 +144,7 @@ public class HeapChecker implements IServiceChecker {
             log.debug(this.lastCheckString);
         }
 
-        this.result = new CheckResult("Internal Heap Checker", this.lastCheckString, ResultType.POSITIVE);
+        addResult(new CheckResult("Internal Heap Checker", this.lastCheckString, ResultType.POSITIVE));
     }
 
 }

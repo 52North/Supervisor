@@ -24,26 +24,56 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.checks;
+package org.n52.owsSupervisor;
 
-import java.util.Date;
+import java.util.Collection;
+
 
 /**
  * @author Daniel Nüst
  * 
  */
-public interface ICheckResult {
+public interface IServiceChecker {
 
-	public static enum ResultType {
-		NEGATIVE, NEUTRAL, POSITIVE
-	}
+	/**
+	 * add a result to the result list
+	 */
+	public void addResult(ICheckResult r);
 
-	public String getCheckIdentifier();
+	/**
+	 * 
+	 * run the checks and 
+	 * 
+	 * @return
+	 */
+	public boolean check();
 
-	public String getResult();
+	/**
+	 * 
+	 * @return
+	 */
+	public long getCheckIntervalMillis();
 
-	public Date getTimeOfCheck();
+	/**
+	 * 
+	 * @return
+	 */
+	public Collection<ICheckResult> getResults();
 
-	public ResultType getType();
+	/**
+	 * 
+	 * @return the identifier of the checked service
+	 */
+	public String getService();
+	
+	/**
+	 * notify about failure of (one ore more) of the contained checks
+	 */
+	public void notifyFailure();
+
+	/**
+	 * notify about successful completition of the check/all checks
+	 */
+	public void notifySuccess();
 
 }

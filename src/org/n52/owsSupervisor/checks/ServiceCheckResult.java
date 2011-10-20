@@ -28,6 +28,8 @@ package org.n52.owsSupervisor.checks;
 
 import java.util.Date;
 
+import org.n52.owsSupervisor.ICheckResult;
+
 /**
  * @author Daniel Nüst
  * 
@@ -67,6 +69,10 @@ public class ServiceCheckResult implements ICheckResult {
 		this(new Date(), serviceP, resultP, typeP);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.n52.owsSupervisor.ICheckResult#getCheckIdentifier()
+	 */
 	@Override
 	public String getCheckIdentifier() {
 		return getServiceIdentifier();
@@ -111,6 +117,10 @@ public class ServiceCheckResult implements ICheckResult {
 		return this.type;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "[" + getType().name() + "] " + this.time + ": "

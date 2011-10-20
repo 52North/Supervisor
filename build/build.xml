@@ -28,9 +28,11 @@
 			<fileset dir="WebContent" />
 		</copy>
 		<copy file="build/log4j.xml" tofile="tmp/WEB-INF/classes/log4j.xml" overwrite="true" />
+		
 		<delete dir="tmp/WEB-INF/unused_lib" />
 
 		<replace file="tmp/WEB-INF/web.xml" token="@BUILDINFO@" value="Version ${service.version}: Build no. ${build.num} @ ${build.date}" />
+		
 		<replace file="tmp/WEB-INF/conf/supervisor.properties" token="@SERVICE_VERSION@" value="${service.version}" />
 		<replace file="tmp/WEB-INF/conf/supervisor.properties" token="@ADMIN_EMAIL@" value="${admin.email}" />
 		<replace file="tmp/WEB-INF/conf/supervisor.properties" token="@EMAIL_PASSWORD@" value="${email.password}" />
@@ -48,6 +50,7 @@
 
 	<target name="war" depends="javac" description="Create a war file">
 		<zip destfile="dist/${webapp.name}.war" basedir="tmp" />
+		
 		<delete dir='tmp' />
 	</target>
 

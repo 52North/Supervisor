@@ -24,61 +24,26 @@ visit the Free Software Foundation web page, http://www.fsf.org.
 Author: Daniel Nüst
  
  ******************************************************************************/
-package org.n52.owsSupervisor.ui;
+package org.n52.owsSupervisor;
 
-import java.util.Collection;
-
-import org.n52.owsSupervisor.checks.ICheckResult;
+import java.util.Date;
 
 /**
  * @author Daniel Nüst
  * 
  */
-public class EmailFailureNotification implements IFailureNotification {
+public interface ICheckResult {
 
-	private Collection<ICheckResult> checkResults;
-
-	private String recipientEmail;
-
-	private String serviceUrl;
-
-	/**
-	 * 
-	 * @param checkResults
-	 * @param recipientEmail
-	 * @param serviceUrl
-	 */
-	public EmailFailureNotification(String serviceUrlP,
-			String recipientEmailP, Collection<ICheckResult> failuresP) {
-		this.checkResults = failuresP;
-		this.recipientEmail = recipientEmailP;
-		this.serviceUrl = serviceUrlP;
+	public static enum ResultType {
+		NEGATIVE, NEUTRAL, POSITIVE
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	@Override
-	public Collection<ICheckResult> getCheckResults() {
-		return this.checkResults;
-	}
+	public String getCheckIdentifier();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getRecipientEmail() {
-		return this.recipientEmail;
-	}
+	public String getResult();
 
-	/**
-	 * 
-	 * @return
-	 */
-	@Override
-	public String getServiceUrl() {
-		return this.serviceUrl;
-	}
+	public Date getTimeOfCheck();
+
+	public ResultType getType();
 
 }
