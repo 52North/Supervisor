@@ -92,9 +92,9 @@ public class SendEmailTask extends TimerTask {
 
     private static final Object EMAIL_RESULT_DELIMITER_TEXT = "\n";
 
-    private static final Object EMAIL_GOODBYE_TEXT = "\n\n\nGood Luck fixing it!";
+    private static final Object EMAIL_GOODBYE_TEXT = "\n\nThis message is provided by OwsSupervisor, courtesy of 52°North. Enjoy!\nhttp://52north.org/ -- exploring horizons";
 
-    private static final Object EMAIL_HELLO_TEXT = "Attention on deck!\n\nFailed check(s) occured while testing.\n\n";
+    private static final Object EMAIL_HELLO_TEXT = "Attention on deck! The following check results were reported in the system since the last email:\n";
 
     private static Logger log = Logger.getLogger(SendEmailTask.class);
 
@@ -166,7 +166,8 @@ public class SendEmailTask extends TimerTask {
                         failureCount++;
                     }
                 }
-
+            }
+            for (EmailNotification noti : email.getValue()) {
                 sb.append("\n");
                 for (ICheckResult r : noti.getResults()) {
                     if (r.getType().equals(ResultType.NEUTRAL)) {
@@ -174,7 +175,8 @@ public class SendEmailTask extends TimerTask {
                         sb.append(EMAIL_RESULT_DELIMITER_TEXT);
                     }
                 }
-
+            }
+            for (EmailNotification noti : email.getValue()) {
                 sb.append("\n");
                 for (ICheckResult r : noti.getResults()) {
                     if (r.getType().equals(ResultType.POSITIVE)) {

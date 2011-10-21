@@ -89,5 +89,15 @@ public class CheckResult implements ICheckResult {
 	public ResultType getType() {
 		return this.type;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+	    // TODO Auto-generated method stub
+	    return "CheckResult [identifier=" + this.checkIdentifier + ", type=" + this.type + ", time=" + this.timeOfCheck + ", result=" + this.result + "]";
+	}
 
 }
