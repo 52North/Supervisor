@@ -67,6 +67,10 @@ public class SendEmailTask extends TimerTask {
     private class PropertyAuthenticator extends Authenticator {
         private Properties p;
 
+        /**
+         * 
+         * @param sp
+         */
         public PropertyAuthenticator(Properties sp) {
             this.p = sp;
         }
@@ -122,33 +126,31 @@ public class SendEmailTask extends TimerTask {
      */
     private boolean doTask(Collection<INotification> notifications) {
         log.info("*** Sending emails based on " + notifications.size() + " notifications.");
+        boolean noError = true;
+        int overallFailureCounter = 0;
+        int overallEmailCounter = 0;
 
         // collect all notifications for each email address
         Map<String, Collection<EmailNotification>> emails = new HashMap<String, Collection<EmailNotification>>();
-
-        // create notification emails
         for (INotification iNoti : notifications) {
             if (iNoti instanceof EmailNotification) {
                 EmailNotification msg = (EmailNotification) iNoti;
                 if (emails.containsKey(msg.getRecipientEmail())) {
-                    // add to failure list
-                    Collection<EmailNotification> failures = emails.get(msg.getRecipientEmail());
-                    failures.add(msg);
+                    // add to existing notification list
+                    Collection<EmailNotification> notificationsForEmailaddress = emails.get(msg.getRecipientEmail());
+                    notificationsForEmailaddress.add(msg);
                 }
                 else {
-                    // create new email
-                    ArrayList<EmailNotification> failures = new ArrayList<EmailNotification>();
-                    failures.add(msg);
-                    emails.put(msg.getRecipientEmail(), failures);
+                    // create new notification list for the address
+                    ArrayList<EmailNotification> notificationsForEmailaddress = new ArrayList<EmailNotification>();
+                    notificationsForEmailaddress.add(msg);
+                    emails.put(msg.getRecipientEmail(), notificationsForEmailaddress);
                 }
             }
-            // not an email notification
+            // not an email notification, not handled
         }
 
-        // send emails
-        int overallFailureCounter = 0;
-        int overallEmailCounter = 0;
-        boolean noError = true;
+        // iterate through emails
         for (Entry<String, Collection<EmailNotification>> email : emails.entrySet()) {
             // create message
             StringBuilder sb = new StringBuilder();
@@ -160,7 +162,7 @@ public class SendEmailTask extends TimerTask {
                     if (r.getType().equals(ResultType.NEGATIVE)) {
                         sb.append(r.toString());
                         sb.append(EMAIL_RESULT_DELIMITER_TEXT);
-                        
+
                         failureCount++;
                     }
                 }
@@ -172,7 +174,7 @@ public class SendEmailTask extends TimerTask {
                         sb.append(EMAIL_RESULT_DELIMITER_TEXT);
                     }
                 }
-                
+
                 sb.append("\n");
                 for (ICheckResult r : noti.getResults()) {
                     if (r.getType().equals(ResultType.POSITIVE)) {
@@ -183,16 +185,12 @@ public class SendEmailTask extends TimerTask {
             }
 
             sb.append(EMAIL_GOODBYE_TEXT);
-
+            
+            // do the sending
             try {
                 sendEmail(email.getKey(), sb.toString(), failureCount);
-
                 overallEmailCounter++;
                 overallFailureCounter += failureCount;
-
-                ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "Sent " + overallEmailCounter
-                        + " email(s) with " + overallFailureCounter + " failure(s).", ResultType.NEUTRAL);
-                Supervisor.appendLatestResult(result);
             }
             catch (MessagingException e) {
                 log.error("Could not send email to " + email.getKey(), e);
@@ -202,7 +200,11 @@ public class SendEmailTask extends TimerTask {
                 Supervisor.appendLatestResult(result);
                 noError = false;
             }
-        }
+        } // loop over all email addresses
+
+        ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "Sent " + overallEmailCounter
+                + " email(s) with " + overallFailureCounter + " failure(s).", ResultType.NEUTRAL);
+        Supervisor.appendLatestResult(result);
 
         return noError;
     }
@@ -245,7 +247,8 @@ public class SendEmailTask extends TimerTask {
     /**
      * 
      * @param recipient
-     * @param failures
+     * @param messageText
+     * @param failureCount
      * @throws MessagingException
      */
     protected void sendEmail(String recipient, String messageText, int failureCount) throws MessagingException {

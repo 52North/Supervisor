@@ -66,9 +66,10 @@ public class EmailNotification implements INotification {
         return this.results;
     }
 
-    /*
-	 * 
-	 */
+    /**
+     * 
+     * @return
+     */
     public String getRecipientEmail() {
         return this.recipientEmail;
     }
@@ -83,9 +84,13 @@ public class EmailNotification implements INotification {
         return this.serviceUrl;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         return "EmailNotification [recipient=" + this.recipientEmail + ", service=" + this.serviceUrl + ", results="
                 + Arrays.toString(this.results.toArray());
     }
