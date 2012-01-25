@@ -125,7 +125,6 @@ public class SendEmailTask extends TimerTask {
      * @return
      */
     private boolean doTask(Collection<INotification> notifications) {
-        log.info("*** Sending emails based on " + notifications.size() + " notifications.");
         boolean noError = true;
         int overallFailureCounter = 0;
         int overallEmailCounter = 0;
@@ -187,7 +186,7 @@ public class SendEmailTask extends TimerTask {
             }
 
             sb.append(EMAIL_GOODBYE_TEXT);
-            
+
             // do the sending
             try {
                 sendEmail(email.getKey(), sb.toString(), failureCount);
@@ -204,8 +203,8 @@ public class SendEmailTask extends TimerTask {
             }
         } // loop over all email addresses
 
-        ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "Sent " + overallEmailCounter
-                + " email(s) with " + overallFailureCounter + " failure(s).", ResultType.NEUTRAL);
+        ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "Sent " + overallEmailCounter + " email(s) with "
+                + overallFailureCounter + " failure(s).", ResultType.NEUTRAL);
         Supervisor.appendLatestResult(result);
 
         return noError;
@@ -221,28 +220,30 @@ public class SendEmailTask extends TimerTask {
         Collection<INotification> notifications = Supervisor.getCurrentNotificationsCopy();
 
         if (notifications.size() < 1) {
-            log.debug("No notifications. Yay!");
+            log.info("** No notifications, skipping to send emails.");
             return;
         }
 
         try {
+            log.info("** Sending emails based on " + notifications.size() + " notifications.");
             boolean noError = doTask(notifications);
 
             // all went ok, clear notifications
             if (noError)
                 Supervisor.removeAllNotifications(notifications);
+            else log.error("** Error sending emails.");
         }
         catch (Error e) {
-            log.error("Error fulfilling task");
+            log.error("Error fulfilling SendEmailTask");
             if (this.adminEmail != null) {
                 try {
-                    sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 0);
+                    sendEmail(this.adminEmail, "ERROR: " + e.getMessage(), 1);
                 }
                 catch (MessagingException e1) {
-                    log.error("Could not send email on error!");
+                    log.error("Could not send email to admin with error!");
                 }
             }
-            throw e;
+            // throw e;
         }
     }
 
@@ -263,10 +264,14 @@ public class SendEmailTask extends TimerTask {
             Transport transport = mailSession.getTransport();
 
             MimeMessage message = new MimeMessage(mailSession);
+
             if (failureCount > 1)
                 message.setSubject("[OwsSupervisor] " + failureCount + " checks failed");
-            else
+            else if (failureCount == 1)
                 message.setSubject("[OwsSupervisor] " + failureCount + " check failed");
+            else
+                message.setSubject("[OwsSupervisor] All checks passed");
+
             message.setContent(messageText, EMAIL_CONTENT_ENCODING);
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
             message.setSender(sp.getEmailSender());
