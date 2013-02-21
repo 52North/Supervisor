@@ -26,12 +26,11 @@ package org.n52.owsSupervisor.checks;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
+import org.n52.owsSupervisor.IServiceChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.n52.owsSupervisor.ICheckResult;
-import org.n52.owsSupervisor.IServiceChecker;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
-import org.n52.owsSupervisor.tasks.SendEmailTask;
 
 /**
  * @author Daniel Nüst

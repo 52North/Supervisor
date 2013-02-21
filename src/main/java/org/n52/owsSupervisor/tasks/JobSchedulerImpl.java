@@ -25,10 +25,10 @@ package org.n52.owsSupervisor.tasks;
 
 import java.util.TimerTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 

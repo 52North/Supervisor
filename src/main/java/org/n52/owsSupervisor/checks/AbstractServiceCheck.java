@@ -31,10 +31,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.n52.owsSupervisor.ICheckResult;
+import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
-import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.ui.EmailNotification;
 import org.n52.owsSupervisor.util.Client;
 import org.slf4j.Logger;
