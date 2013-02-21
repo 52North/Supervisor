@@ -1,0 +1,353 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.n52</groupId>
+	<artifactId>owssupervisor</artifactId>
+	<packaging>war</packaging>
+	<version>0.1</version>
+	<name>OwsSupervisor</name>
+	<description>Web application for supervision of OGC Web Services</description>
+	<url>https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor</url>
+
+	<inceptionYear>2013</inceptionYear>
+
+	<organization>
+		<name>52°North Initiative for Geospatial Open Source Software GmbH</name>
+		<url>http://52north.org</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<name>Daniel Nüst</name>
+			<email>d.nuest@52north.org</email>
+			<organization>${project.organization.name}</organization>
+			<organizationUrl>${project.organization.url}</organizationUrl>
+			<timezone>GMT+1</timezone>
+			<id>DanielNuest</id>
+		</developer>
+	</developers>
+
+	<mailingLists>
+		<mailingList>
+			<name>Sensor Web Community Mailing List</name>
+			<subscribe>http://list.52north.org/mailman/listinfo/swe</subscribe>
+			<unsubscribe>http://list.52north.org/mailman/listinfo/swe</unsubscribe>
+			<post>swe@52north.org</post>
+			<archive>http://list.52north.org/pipermail/swe</archive>
+			<otherArchives>
+				<otherArchive>http://sensorweb.forum.52north.org</otherArchive>
+			</otherArchives>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:svn:https://svn.52north.org/svn/swe/incubation/${project.name}/trunk</connection>
+		<url>https://svn.52north.org/cgi-bin/viewvc.cgi/incubation/${project.name}/trunk/?root=sensorweb</url>
+	</scm>
+
+	<issueManagement>
+		<system>Bugzilla</system>
+		<url>https://bugzilla.52north.org/</url>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>General Public License Version 2</name>
+			<url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<properties>
+		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- <restlet.version>2.0.11</restlet.version> -->
+		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
+
+		<webapp.name>OwsSupervisor</webapp.name>
+		<service.version>0.3</service.version>
+		<admin.email.address>administrator@mydomain.com</admin.email.address>
+		<service.email.password>123456</service.email.password>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<!-- it’s just the api and the implementation should be provided by the 
+				application server/web container -->
+			<scope>provided</scope> <!-- for running with tomcat-maven-plugin, see http://singztechmusings.wordpress.com/2011/06/17/java-lang-classcastexception-cannot-be-cast-to-javax-servlet-servlet-how-to-resolve/ -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.1.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>2.5.0</version>
+			<!-- if added, the wrong XmlConstants is used -->
+			<exclusions>
+				<exclusion>
+					<groupId>stax</groupId>
+					<artifactId>stax-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.n52.sensorweb</groupId>
+			<artifactId>52n-xml-sps-v100</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-xml-wps-v100</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.n52.sensorweb</groupId>
+			<artifactId>52n-xml-sos-v100</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<!-- RSS support -->
+		<!-- <dependency> -->
+		<!-- <groupId>net.java.dev.rome</groupId> -->
+		<!-- <artifactId>rome</artifactId> -->
+		<!-- <version>1.0.0</version> -->
+		<!-- </dependency> -->
+
+		<dependency>
+			<groupId>org.n52.sensorweb</groupId>
+			<artifactId>52n-xml-sir-v032</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.n52.sensorweb</groupId>
+			<artifactId>52n-xml-sor-v031</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.name}</finalName>
+
+		<plugins>
+			<plugin>
+				<!-- http://wiki.eclipse.org/Jetty/Feature/Jetty_Maven_Plugin -->
+				<!-- jetty:run-exploded invoces lifecycle phase package -->
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.1.9.v20130131</version>
+
+				<configuration>
+					<scanIntervalSeconds>2</scanIntervalSeconds>
+					<!-- if you embed the following in <webApp>, then jetty:run-exploded 
+						will result in error "When configuring a basic element the configuration 
+						cannot contain any child elements. Configuration element 'war'." -->
+					<contextPath>${service.path}</contextPath> <!-- is ignored for run-exploded, but used by Webby: Right-click, Debug as, 
+						Webby ... -->
+					<war>target/${project.build.finalName}</war>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version>
+
+				<configuration>
+					<!-- have to explicitly add resources and target paths if I want to 
+						do filtering on different resources -->
+					<!-- http://maven.apache.org/plugins/maven-war-plugin/examples/adding-filtering-webresources.html -->
+					<webResources>
+						<resource>
+							<directory>src/main/webapp</directory>
+							<filtering>true</filtering>
+						</resource>
+						<resource>
+							<directory>src/main/resources</directory>
+							<filtering>true</filtering>
+							<targetPath>WEB-INF/classes</targetPath>
+						</resource>
+					</webResources>
+
+					<filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<Implementation-Build>${buildNumber}</Implementation-Build>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>true</doCheck>
+					<doUpdate>true</doUpdate>
+					<format>{0,number}</format>
+					<items>
+						<item>buildNumber</item>
+					</items>
+					<buildNumberPropertiesFileLocation>${basedir}/src/main/config/buildNumber.properties</buildNumberPropertiesFileLocation>
+					<revisionOnScmFailure>svm-NA</revisionOnScmFailure>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.0-SNAPSHOT</version>
+				<!-- advanced configuration: http://tomcat.apache.org/maven-plugin-2.0-SNAPSHOT/run-mojo-features.html -->
+				<!-- <configuration> <systemProperties> <java.io.tmpdir>target</java.io.tmpdir> 
+					</systemProperties> </configuration> -->
+				<configuration>
+					<path>${service.path}</path>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>commons-io</groupId>
+						<artifactId>commons-io</artifactId>
+						<version>2.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<!-- check for correct source file headers during test phase: http://code.google.com/p/maven-license-plugin/wiki/HowTo -->
+				<!-- run "mvn license:check -Dyear=2011" to check -->
+				<!-- run "mvn license:format -Dyear=2011" to add to the files -->
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.9.0</version>
+				<configuration>
+					<header>src/main/resources/52N_license.txt</header>
+					<excludes>
+						<exclude>**/log4j*</exclude>
+						<exclude>**/iso_schematron_skeleton_for_saxon.xsl</exclude>
+						<exclude>**/iso_svrl_for_xslt2.xsl</exclude>
+						<exclude>**/test/resources/**</exclude>
+						<exclude>**/webapp/TestRequests/**</exclude>
+						<exclude>**/webapp/codemirror/**</exclude>
+						<exclude>**/buildNumber.properties</exclude>
+						<exclude>**/org/n52/sir/util/ext/**</exclude>
+					</excludes>
+					<includes>
+						<include>**/*.java</include>
+						<include>**/*.properties</include>
+						<include>**/*.jsp</include>
+						<include>**/*.js</include>
+						<include>**/*.xml</include>
+						<include>**/*.xsl</include>
+						<include>**/*.sch</include>
+						<include>**/*.sql</include>
+						<!-- <include>**/*.css</include> -->
+						<include>**/*.html</include>
+					</includes>
+					<strictCheck>true</strictCheck>
+					<properties>
+						<year>${project.inceptionYear}</year>
+					</properties>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>test</phase>
+						<!-- test will fail if license headers are not correct, run license:format 
+							to add the headers. -->
+						<goals>
+							<goal>check</goal>
+							<!-- <goal>format</goal> -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>n52-releases</id>
+			<name>52n Releases</name>
+			<url>http://52north.org/maven/repo/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>n52-snapshots</id>
+			<name>52n Snapshots</name>
+			<url>http://52north.org/maven/repo/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+</project>
