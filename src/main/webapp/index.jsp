@@ -95,7 +95,7 @@ seconds):</p>
 </ul>
 
 <p class="infotext">Developer contact: Daniel N&uuml;st,
-d.nuest@52north.org | More information: <a href="https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor" title="OwsSupervisor @ 52North Wiki">52North Wiki: OwsSupervisor</a>.</p>
+d.nuest@52north.org | More information: <a href="https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor" title="OwsSupervisor @ 52&deg;North Wiki">52&deg;North Wiki: OwsSupervisor</a>.</p>
 
 </div>
 

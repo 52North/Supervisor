@@ -25,7 +25,8 @@ package org.n52.owsSupervisor.tasks;
 
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.SupervisorProperties;
 
@@ -40,7 +41,7 @@ public class JobSchedulerImpl implements IJobScheduler {
 
 	private static final long DEFAULT_DELAY_MILLISECS = 10;
 
-	private static Logger log = Logger.getLogger(JobSchedulerImpl.class);
+	private static Logger log = LoggerFactory.getLogger(JobSchedulerImpl.class);
 
 	private TaskServlet timerServlet;
 

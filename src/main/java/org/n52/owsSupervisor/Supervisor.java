@@ -39,12 +39,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.tasks.IJobScheduler;
 import org.n52.owsSupervisor.tasks.SendEmailTask;
 import org.n52.owsSupervisor.tasks.TaskServlet;
 import org.n52.owsSupervisor.ui.INotification;
 import org.n52.owsSupervisor.util.SubmitCheckersTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -61,7 +62,7 @@ public class Supervisor extends GenericServlet {
 
     private static Queue<ICheckResult> latestResults;
 
-    private static Logger log = Logger.getLogger(Supervisor.class);
+    private static Logger log = LoggerFactory.getLogger(Supervisor.class);
 
     private static Queue<INotification> notifications;
 
@@ -373,7 +374,7 @@ public class Supervisor extends GenericServlet {
      */
     @Override
     public void service(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException {
-        log.fatal("'service' method is not supported. ServletRequest: " + arg0);
+        log.error("'service' method is not supported. ServletRequest: " + arg0);
     }
 
 }

@@ -28,10 +28,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
@@ -39,7 +40,7 @@ import org.n52.owsSupervisor.SupervisorProperties;
  */
 public class SupervisorBean {
 
-	private static Logger log = Logger.getLogger(SupervisorBean.class);
+	private static Logger log = LoggerFactory.getLogger(SupervisorBean.class);
 
 	/**
 	 * 

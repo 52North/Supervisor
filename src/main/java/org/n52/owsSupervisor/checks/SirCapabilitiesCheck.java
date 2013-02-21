@@ -28,7 +28,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
@@ -41,7 +42,7 @@ import org.x52North.sir.x032.GetCapabilitiesDocument;
  */
 public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-    private static Logger log = Logger.getLogger(SirCapabilitiesCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SirCapabilitiesCheck.class);
 
     /**
      * 

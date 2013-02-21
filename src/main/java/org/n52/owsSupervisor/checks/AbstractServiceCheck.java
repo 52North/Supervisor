@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
@@ -38,6 +37,8 @@ import org.n52.owsSupervisor.SupervisorProperties;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.ui.EmailNotification;
 import org.n52.owsSupervisor.util.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
@@ -47,7 +48,7 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     public static final DateFormat ISO8601LocalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SS.SSS");
 
-    private static Logger log = Logger.getLogger(AbstractServiceCheck.class);
+    private static Logger log = LoggerFactory.getLogger(AbstractServiceCheck.class);
 
     private long checkIntervalMillis = SupervisorProperties.getInstance().getDefaultCheckIntervalMillis();
 

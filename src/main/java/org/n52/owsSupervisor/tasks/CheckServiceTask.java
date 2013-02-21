@@ -26,7 +26,8 @@ package org.n52.owsSupervisor.tasks;
 import java.util.Collection;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.Supervisor;
@@ -41,7 +42,7 @@ import org.n52.owsSupervisor.Supervisor;
  */
 public class CheckServiceTask extends TimerTask {
 
-	private static Logger log = Logger.getLogger(CheckServiceTask.class);
+	private static Logger log = LoggerFactory.getLogger(CheckServiceTask.class);
 
 	private IServiceChecker checker;
 

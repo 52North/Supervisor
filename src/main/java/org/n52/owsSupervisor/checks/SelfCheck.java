@@ -27,7 +27,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.Supervisor;
@@ -45,7 +46,7 @@ public class SelfCheck extends AbstractServiceCheck {
 
     private static final long L1024_2 = 1024 * 1024;
 
-    private static Logger log = Logger.getLogger(SelfCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SelfCheck.class);
 
     private String message;
 
@@ -115,7 +116,7 @@ public class SelfCheck extends AbstractServiceCheck {
      */
     @Override
     public void notifyFailure() {
-        log.fatal("SelfChecker cannot fail!");
+        log.error("SelfChecker cannot fail!");
     }
 
     /*

@@ -30,7 +30,8 @@ import java.util.Date;
 import net.opengis.ows.x11.CapabilitiesBaseType;
 import net.opengis.ows.x11.GetCapabilitiesDocument;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
@@ -44,7 +45,7 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
     protected static final String DEFAULT_OWS_VERSION = "1.1";
 
-    private static Logger log = Logger.getLogger(OwsCapabilitiesCheck.class);
+    private static Logger log = LoggerFactory.getLogger(OwsCapabilitiesCheck.class);
 
     protected static final String NEGATIVE_TEXT = "Request for capabilities document FAILED.";
 

@@ -23,7 +23,8 @@
  */
 package org.n52.owsSupervisor.tasks;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -34,7 +35,7 @@ import org.apache.log4j.Logger;
  */
 public class JobSchedulerFactoryImpl implements IJobSchedulerFactory {
 
-    private static Logger log = Logger.getLogger(JobSchedulerFactoryImpl.class);
+    private static Logger log = LoggerFactory.getLogger(JobSchedulerFactoryImpl.class);
 
     private TaskServlet timerServlet;
 

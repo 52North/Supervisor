@@ -28,10 +28,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.x52North.sor.x031.CapabilitiesDocument;
 import org.x52North.sor.x031.GetCapabilitiesDocument;
 
@@ -41,7 +42,7 @@ import org.x52North.sor.x031.GetCapabilitiesDocument;
  */
 public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-    private static Logger log = Logger.getLogger(SorCapabilitiesCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SorCapabilitiesCheck.class);
 
     /**
      * 

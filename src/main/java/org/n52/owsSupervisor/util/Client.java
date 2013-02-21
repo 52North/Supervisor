@@ -34,10 +34,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.log4j.Logger;
+
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.SupervisorProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -50,7 +52,7 @@ public class Client {
 
     private static final String GET_METHOD = "GET";
 
-    private static Logger log = Logger.getLogger(Client.class);
+    private static Logger log = LoggerFactory.getLogger(Client.class);
 
     private static final String POST_METHOD = "POST";
 

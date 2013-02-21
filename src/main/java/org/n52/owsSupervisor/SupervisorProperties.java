@@ -34,10 +34,11 @@ import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.tasks.IJobScheduler;
 import org.n52.owsSupervisor.tasks.JobSchedulerFactoryImpl;
 import org.n52.owsSupervisor.tasks.TaskServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This singleton class handles service wide properties.
@@ -63,7 +64,7 @@ public class SupervisorProperties {
 
     private static SupervisorProperties instance;
 
-    private static Logger log = Logger.getLogger(SupervisorProperties.class);
+    private static Logger log = LoggerFactory.getLogger(SupervisorProperties.class);
 
     private static final String MAIL_ENABLE_AUTH = "MAIL_ENABLE_AUTH";
 

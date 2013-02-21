@@ -26,7 +26,8 @@ package org.n52.owsSupervisor.checks;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.IServiceChecker;
 
@@ -36,7 +37,7 @@ import org.n52.owsSupervisor.IServiceChecker;
  */
 public class CheckerCollection implements IServiceChecker {
 
-    private static Logger log = Logger.getLogger(CheckerCollection.class);
+    private static Logger log = LoggerFactory.getLogger(CheckerCollection.class);
 
     private Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
 

@@ -288,13 +288,8 @@
 					<header>src/main/resources/52N_license.txt</header>
 					<excludes>
 						<exclude>**/log4j*</exclude>
-						<exclude>**/iso_schematron_skeleton_for_saxon.xsl</exclude>
-						<exclude>**/iso_svrl_for_xslt2.xsl</exclude>
 						<exclude>**/test/resources/**</exclude>
-						<exclude>**/webapp/TestRequests/**</exclude>
-						<exclude>**/webapp/codemirror/**</exclude>
 						<exclude>**/buildNumber.properties</exclude>
-						<exclude>**/org/n52/sir/util/ext/**</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
@@ -303,9 +298,6 @@
 						<include>**/*.js</include>
 						<include>**/*.xml</include>
 						<include>**/*.xsl</include>
-						<include>**/*.sch</include>
-						<include>**/*.sql</include>
-						<!-- <include>**/*.css</include> -->
 						<include>**/*.html</include>
 					</includes>
 					<strictCheck>true</strictCheck>
