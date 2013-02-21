@@ -26,7 +26,8 @@ package org.n52.owsSupervisor.checks;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
@@ -40,7 +41,7 @@ public class HeapCheck implements IServiceChecker {
 
     private static final long L1024_2 = 1024 * 1024;
 
-    private static Logger log = Logger.getLogger(SendEmailTask.class);
+    private static Logger log = LoggerFactory.getLogger(HeapCheck.class);
 
     private long interval;
 
@@ -126,7 +127,7 @@ public class HeapCheck implements IServiceChecker {
      */
     @Override
     public void notifyFailure() {
-        log.fatal("HeapChecker cannot fail!");
+        log.error("HeapChecker cannot fail!");
     }
 
     /*

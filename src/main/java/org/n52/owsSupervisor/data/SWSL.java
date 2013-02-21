@@ -28,7 +28,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckerFactory;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.checks.SirCapabilitiesCheck;
@@ -47,7 +48,7 @@ public class SWSL implements ICheckerFactory {
 
     private static final String EMAIL_DN = "d.nuest@52north.org";
 
-    private static Logger log = Logger.getLogger(SWSL.class);
+    private static Logger log = LoggerFactory.getLogger(SWSL.class);
 
     /**
      * 

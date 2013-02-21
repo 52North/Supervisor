@@ -31,7 +31,8 @@ import java.util.Date;
 import net.opengis.sos.x10.CapabilitiesDocument;
 import net.opengis.sos.x10.GetCapabilitiesDocument;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
@@ -42,7 +43,7 @@ import org.n52.owsSupervisor.util.XmlTools;
  */
 public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
-    private static Logger log = Logger.getLogger(SosCapabilitiesCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SosCapabilitiesCheck.class);
 
     private static final String SOS_SERVICE = "SOS";
 

@@ -43,7 +43,8 @@ import net.opengis.sos.x10.GetObservationDocument.GetObservation;
 import net.opengis.sos.x10.GetObservationDocument.GetObservation.EventTime;
 import net.opengis.swe.x101.TimeObjectPropertyType;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
@@ -63,7 +64,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     private static final String LATEST_OBSERVATION_VALUE = "latest";
 
-    private static Logger log = Logger.getLogger(SosLatestObservationCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SosLatestObservationCheck.class);
 
     protected static final String NEGATIVE_TEXT = "Request for latest observation FAILED.";
 

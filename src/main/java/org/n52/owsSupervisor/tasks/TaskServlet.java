@@ -40,7 +40,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -107,7 +108,7 @@ public class TaskServlet extends GenericServlet {
      */
     private static final String INIT_PARAM_CONFIG_FILE = "configFile";
 
-    private static Logger log = Logger.getLogger(TaskServlet.class);
+    private static Logger log = LoggerFactory.getLogger(TaskServlet.class);
 
     /**
      * The identifier that can be used to access the instance of this servlet an run-time.
@@ -173,9 +174,10 @@ public class TaskServlet extends GenericServlet {
         context.setAttribute(NAME_IN_CONTEXT, this);
 
         // get configFile as Inputstream
-        InputStream configStream = context.getResourceAsStream(getInitParameter(INIT_PARAM_CONFIG_FILE));
+        String file = getInitParameter(INIT_PARAM_CONFIG_FILE);
+        InputStream configStream = context.getResourceAsStream(file);
         if (configStream == null) {
-            log.fatal("Could not open the config file!");
+            log.error("Could not open the config file " + file);
             throw new UnavailableException("Could not open the config file.");
         }
 
@@ -184,7 +186,7 @@ public class TaskServlet extends GenericServlet {
             this.props = loadProperties(configStream);
         }
         catch (IOException e) {
-            log.fatal("Could not load properties file!");
+            log.error("Could not load properties file!", e);
             throw new UnavailableException("Could not load properties file!");
         }
 

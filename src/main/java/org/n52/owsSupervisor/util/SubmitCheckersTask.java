@@ -26,9 +26,10 @@ package org.n52.owsSupervisor.util;
 import java.util.Collection;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.tasks.IJobScheduler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
@@ -36,7 +37,7 @@ import org.n52.owsSupervisor.tasks.IJobScheduler;
  */
 public class SubmitCheckersTask extends TimerTask {
 
-    private static Logger log = Logger.getLogger(SubmitCheckersTask.class);
+    private static Logger log = LoggerFactory.getLogger(SubmitCheckersTask.class);
 
     private Collection<IServiceChecker> checkers;
     

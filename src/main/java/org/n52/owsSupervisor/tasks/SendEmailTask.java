@@ -40,7 +40,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.Supervisor;
@@ -92,7 +93,7 @@ public class SendEmailTask extends TimerTask {
 
     private static final Object EMAIL_HELLO_TEXT = "Attention on deck! The following check results were reported in the system since the last email:\n";
 
-    private static Logger log = Logger.getLogger(SendEmailTask.class);
+    private static Logger log = LoggerFactory.getLogger(SendEmailTask.class);
 
     private static final String RESULT_IDENTIFIER = "Send Email Task";
 
