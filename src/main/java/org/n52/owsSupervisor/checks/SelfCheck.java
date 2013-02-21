@@ -27,13 +27,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.Supervisor;
 import org.n52.owsSupervisor.ui.EmailNotification;
 import org.n52.owsSupervisor.ui.INotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 

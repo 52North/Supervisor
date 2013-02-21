@@ -31,11 +31,11 @@ import java.util.Date;
 import net.opengis.sos.x10.CapabilitiesDocument;
 import net.opengis.sos.x10.GetCapabilitiesDocument;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst

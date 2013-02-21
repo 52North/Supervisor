@@ -28,8 +28,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.n52.owsSupervisor.ICheckerFactory;
 import org.n52.owsSupervisor.IServiceChecker;
 import org.n52.owsSupervisor.checks.SirCapabilitiesCheck;
@@ -37,6 +35,8 @@ import org.n52.owsSupervisor.checks.SorCapabilitiesCheck;
 import org.n52.owsSupervisor.checks.SosCapabilitiesCheck;
 import org.n52.owsSupervisor.checks.SosLatestObservationCheck;
 import org.n52.owsSupervisor.checks.WpsCapabilitiesCheck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst

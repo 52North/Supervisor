@@ -28,11 +28,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.owsSupervisor.ICheckResult.ResultType;
 import org.n52.owsSupervisor.util.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.x52North.sir.x032.CapabilitiesDocument;
 import org.x52North.sir.x032.GetCapabilitiesDocument;
 
