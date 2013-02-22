@@ -67,9 +67,32 @@
 
 		<webapp.name>OwsSupervisor</webapp.name>
 		<service.version>0.3</service.version>
+
+		<!-- override these in your settings.xml with the correct settings -->
 		<admin.email.address>administrator@mydomain.com</admin.email.address>
 		<service.email.password>123456</service.email.password>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>test</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<admin.email.address>administrator@mydomain.com</admin.email.address>
+				<service.email.password>123456</service.email.password>
+			</properties>
+		</profile>
+		<profile>
+			<id>supervisor.deploy</id>
+			<properties>
+				<!-- override these in your settings.xml with the correct settings -->
+				<!-- <admin.email.address>administrator@mydomain.com</admin.email.address> -->
+				<!-- <service.email.password>123456</service.email.password> -->
+			</properties>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>

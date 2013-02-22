@@ -48,6 +48,14 @@ public class SupervisorBean {
 	public SupervisorBean() {
 		log.info("NEW " + this.toString());
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getAdminEmail() {
+	    return SupervisorProperties.getInstance().getAdminEmail();
+	}
 
 	/**
 	 * 
