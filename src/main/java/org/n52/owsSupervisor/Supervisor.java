@@ -21,6 +21,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA or
  * visit the Free Software Foundation web page, http://www.fsf.org.
  */
+
 package org.n52.owsSupervisor;
 
 import java.io.IOException;
@@ -28,9 +29,12 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.GenericServlet;
@@ -69,6 +73,10 @@ public class Supervisor extends GenericServlet {
     private static final long serialVersionUID = -4629591718212281703L;
 
     private static final String SUBMIT_CHECKERS_TASK_ID = "SubmitCheckersTask";
+
+    private static final String COMMENT_PREFIX = "#";
+
+    public static final String NAME_IN_CONTEXT = "Supervisor";
 
     /**
      * 
@@ -125,7 +133,54 @@ public class Supervisor extends GenericServlet {
     public static List<ICheckResult> getLatestResults() {
         return new ArrayList<ICheckResult>(latestResults);
     }
-    
+
+    /**
+     * 
+     */
+    public static void clearResults() {
+        log.debug("Clearing all results: {}", Arrays.deepToString(latestResults.toArray()));
+        latestResults.clear();
+    }
+
+    /**
+     * 
+     */
+    public void runAllNow(boolean notify) {
+        log.info("Running all checks now!");
+
+        this.manualExecutor.submit(new ManualChecker(this.checkers, notify));
+    }
+
+    private class ManualChecker extends Thread {
+
+        private Collection<IServiceChecker> checkers;
+        private boolean notify;
+
+        public ManualChecker(Collection<IServiceChecker> checkers, boolean notify) {
+            this.checkers = checkers;
+            this.notify = notify;
+            log.debug("NEW {}", this);
+        }
+
+        @Override
+        public void run() {
+            for (IServiceChecker checker : this.checkers) {
+                boolean b = checker.check();
+
+                if (this.notify) {
+                    if ( !b) {
+                        checker.notifyFailure();
+                    }
+                    else {
+                        checker.notifySuccess();
+                    }
+                }
+                else
+                    log.debug("Ran check manually, got result {} - not notifying!      Check: {}", b, checker);
+            }
+        }
+    }
+
     /**
      * @return
      */
@@ -137,6 +192,8 @@ public class Supervisor extends GenericServlet {
 
     private IJobScheduler scheduler;
 
+    private ExecutorService manualExecutor;
+
     /**
 	 * 
 	 */
@@ -146,6 +203,7 @@ public class Supervisor extends GenericServlet {
 
     /*
      * (non-Javadoc)
+     * 
      * @see javax.servlet.GenericServlet#destroy()
      */
     @Override
@@ -162,12 +220,15 @@ public class Supervisor extends GenericServlet {
 
     /*
      * (non-Javadoc)
+     * 
      * @see javax.servlet.GenericServlet#init()
      */
     @Override
     public void init() throws ServletException {
         // get ServletContext
         ServletContext context = getServletContext();
+
+        context.setAttribute(NAME_IN_CONTEXT, this);
 
         String basepath = context.getRealPath("/");
         InputStream configStream = context.getResourceAsStream(getInitParameter(CONFIG_FILE_INIT_PARAMETER));
@@ -208,6 +269,9 @@ public class Supervisor extends GenericServlet {
         timerServlet.submit(SUBMIT_CHECKERS_TASK_ID,
                             sct,
                             SupervisorProperties.getInstance().getCheckSubmitDelaySecs() * 1000);
+
+        // create thread pool for manually started checks
+        this.manualExecutor = Executors.newSingleThreadExecutor();
 
         log.info("*** INITIALIZED SUPERVISOR ***");
     }
@@ -281,6 +345,11 @@ public class Supervisor extends GenericServlet {
         Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
 
         for (String configuration : checkConfigurations) {
+            if (configuration.startsWith(COMMENT_PREFIX)) {
+                log.debug("Skipping commented out checker: {}", configuration);
+                continue;
+            }
+
             String[] params = null;
             String classString = null;
             Class< ? >[] paramsClassArray = null;

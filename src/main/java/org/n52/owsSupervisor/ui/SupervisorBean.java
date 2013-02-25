@@ -21,12 +21,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA or
  * visit the Free Software Foundation web page, http://www.fsf.org.
  */
+
 package org.n52.owsSupervisor.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import javax.servlet.ServletContext;
 
 import org.n52.owsSupervisor.ICheckResult;
 import org.n52.owsSupervisor.Supervisor;
@@ -40,63 +43,46 @@ import org.slf4j.LoggerFactory;
  */
 public class SupervisorBean {
 
-	private static Logger log = LoggerFactory.getLogger(SupervisorBean.class);
+    private static Logger log = LoggerFactory.getLogger(SupervisorBean.class);
 
-	/**
-	 * 
-	 */
-	public SupervisorBean() {
-		log.info("NEW " + this.toString());
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getAdminEmail() {
-	    return SupervisorProperties.getInstance().getAdminEmail();
-	}
+    public SupervisorBean() {
+        log.info("NEW " + this.toString());
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Collection<ICheckResult> getCheckResults() {
-		return Supervisor.getLatestResults();
-	}
-	
-	   /**
-     * 
-     * @return
-     */
+    public String getAdminEmail() {
+        return SupervisorProperties.getInstance().getAdminEmail();
+    }
+
+    public Collection<ICheckResult> getCheckResults() {
+        return Supervisor.getLatestResults();
+    }
+
     public Collection<ICheckResult> getCheckResultsReversed() {
         List<ICheckResult> reversed = new ArrayList<>(Supervisor.getLatestResults());
         Collections.reverse(reversed);
         return reversed;
     }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public int getMaximumNumberOfResults() {
-		return SupervisorProperties.getInstance().getMaximumResults();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public int getPageRefreshIntervalSecs() {
-		return SupervisorProperties.getInstance().getPageRefreshSecs();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getVersion() {
-		return SupervisorProperties.getInstance().getServiceVersion();
-	}
+    public int getMaximumNumberOfResults() {
+        return SupervisorProperties.getInstance().getMaximumResults();
+    }
+
+    public int getPageRefreshIntervalSecs() {
+        return SupervisorProperties.getInstance().getPageRefreshSecs();
+    }
+
+    public String getVersion() {
+        return SupervisorProperties.getInstance().getServiceVersion();
+    }
+
+    public void clearCheckResults() {
+        Supervisor.clearResults();
+    }
+
+    public void runChecksNow(ServletContext context) {
+        Supervisor sv = (Supervisor) context.getAttribute(Supervisor.NAME_IN_CONTEXT);
+        if(sv != null)
+            sv.runAllNow(true);
+    }
 
 }
