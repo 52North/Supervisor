@@ -49,6 +49,10 @@ public class SupervisorBean {
         log.info("NEW " + this.toString());
     }
 
+    public void clearCheckResults() {
+        Supervisor.clearResults();
+    }
+
     public String getAdminEmail() {
         return SupervisorProperties.getInstance().getAdminEmail();
     }
@@ -73,10 +77,6 @@ public class SupervisorBean {
 
     public String getVersion() {
         return SupervisorProperties.getInstance().getServiceVersion();
-    }
-
-    public void clearCheckResults() {
-        Supervisor.clearResults();
     }
 
     public void runChecksNow(ServletContext context) {

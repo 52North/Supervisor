@@ -52,6 +52,14 @@ public class EmailNotification implements INotification {
         this.serviceUrl = serviceUrlP;
     }
 
+    /**
+     * 
+     * @return
+     */
+    public String getRecipientEmail() {
+        return this.recipientEmail;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -60,14 +68,6 @@ public class EmailNotification implements INotification {
     @Override
     public Collection<ICheckResult> getResults() {
         return this.results;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public String getRecipientEmail() {
-        return this.recipientEmail;
     }
 
     /*
