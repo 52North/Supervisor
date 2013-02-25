@@ -50,61 +50,91 @@
 
 <body>
 
-<div id="content">
+	<div id="content">
 
-<div id="header">
-<div id="headline"><a href="<%=request.getContextPath()%>"
-	title="Home"> <span class="title">OWS Supervisor</span><br />
-<span class="infotext">OGC Web Service Supervisor Version <%=supervisor.getVersion()%></span></a></div>
-<div id="logos"><a href="http://52north.org"
-	title="52° North Open Source Initiative"> <img
-	src="<%=request.getContextPath()%>/images/logo.gif" height="62"
-	alt="52N logo" /></a></div>
+		<div id="header">
+			<div id="headline">
+				<a href="<%=request.getContextPath()%>" title="Home"> <span
+					class="title">OWS Supervisor</span><br /> <span class="infotext">OGC
+						Web Service Supervisor Version <%=supervisor.getVersion()%></span></a>
+			</div>
+			<div id="logos">
+				<a href="http://52north.org"
+					title="52° North Open Source Initiative"> <img
+					src="<%=request.getContextPath()%>/images/logo.gif" height="62"
+					alt="52N logo" /></a>
+			</div>
 
-</div>
+		</div>
 
+		<%
+		    if (request.getParameterNames() != null) {
+		        if(request.getParameter("runnow") != null)
+		            supervisor.runChecksNow(application);
+		        else if(request.getParameter("clearresults") != null)
+		            supervisor.clearCheckResults();
+		    }
+		%>
+		
+		<form id="svform" method="post">
+			<div>
+				<input type="submit" value="Run checks now!" name="runnow"  /> <input
+					type="submit" value="Clear result list" name="clearresults" />
+			</div>
+		</form>
 
+		<p class="infotext">
+			The latest check results (maximum of
+			<%=supervisor.getMaximumNumberOfResults()%>, automatic refresh every
+			<%=supervisor.getPageRefreshIntervalSecs()%>
+			seconds):
+		</p>
 
-<p class="infotext">The latest check results (maximum of <%=supervisor.getMaximumNumberOfResults()%>,
-automatic refresh every <%=supervisor.getPageRefreshIntervalSecs()%>
-seconds):</p>
+		<ul>
+			<%
+			    Collection<ICheckResult> results = supervisor.getCheckResultsReversed();
+			    for (ICheckResult current : results) {
+			        String style = "";
+			        switch (current.getType()) {
+			        case POSITIVE:
+			            style = "checkPositive";
+			            break;
+			        case NEGATIVE:
+			            style = "checkNegative";
+			            break;
+			        case NEUTRAL:
+			            style = "checkNeutral";
+			            break;
+			        }
+			%>
+			<li><span class="checkTime"><%=current.getTimeOfCheck()%></span>:
+				<span class="checkService"><%=current.getCheckIdentifier()%></span>
+				- <span class="<%=style%>"><%=current.getResult()%></span></li>
+			<%
+			    }
+			%>
+		</ul>
 
-<ul>
-	<%
-		Collection<ICheckResult> results = supervisor.getCheckResultsReversed();
-		for (ICheckResult current : results) {
-			String style = "";
-			switch (current.getType()) {
-			case POSITIVE:
-				style = "checkPositive";
-				break;
-			case NEGATIVE:
-				style = "checkNegative";
-				break;
-			case NEUTRAL:
-				style = "checkNeutral";
-				break;
-			}
-	%>
-	<li><span class="checkTime"><%=current.getTimeOfCheck()%></span>:
-	<span class="checkService"><%=current.getCheckIdentifier()%></span> - <span
-		class="<%=style%>"><%=current.getResult()%></span></li>
-	<%
-		}
-	%>
-</ul>
+		<p class="infotext">
+			Admin contact:
+			<%=supervisor.getAdminEmail()%>
+			| More information: <a
+				href="https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor"
+				title="OwsSupervisor @ 52&deg;North Wiki">52&deg;North Wiki:
+				OwsSupervisor</a>.
+		</p>
 
-<p class="infotext">Admin contact: <%=supervisor.getAdminEmail()%> | More information: <a href="https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor" title="OwsSupervisor @ 52&deg;North Wiki">52&deg;North Wiki: OwsSupervisor</a>.</p>
+	</div>
 
-</div>
-
-<div class="center"><a
-	href="http://validator.w3.org/check?uri=referer"> <img
-	src="<%=request.getContextPath()%>/images/valid-xhtml11.png"
-	alt="Valid XHTML 1.1" /> </a> <a
-	href="http://jigsaw.w3.org/css-validator/check/referer"> <img
-	src="<%=request.getContextPath()%>/images/vcss.gif" alt="CSS is valid!" />
-</a></div>
+	<div class="center">
+		<a href="http://validator.w3.org/check?uri=referer"> <img
+			src="<%=request.getContextPath()%>/images/valid-xhtml11.png"
+			alt="Valid XHTML 1.1" />
+		</a> <a href="http://jigsaw.w3.org/css-validator/check/referer"> <img
+			src="<%=request.getContextPath()%>/images/vcss.gif"
+			alt="CSS is valid!" />
+		</a>
+	</div>
 
 </body>
 </html>
