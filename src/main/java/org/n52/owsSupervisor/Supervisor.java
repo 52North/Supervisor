@@ -60,6 +60,36 @@ import org.slf4j.LoggerFactory;
  */
 public class Supervisor extends GenericServlet {
 
+    private class ManualChecker extends Thread {
+
+        private Collection<IServiceChecker> checkers;
+        private boolean notify;
+
+        public ManualChecker(Collection<IServiceChecker> checkers, boolean notify) {
+            this.checkers = checkers;
+            this.notify = notify;
+            log.debug("NEW {}", this);
+        }
+
+        @Override
+        public void run() {
+            for (IServiceChecker checker : this.checkers) {
+                boolean b = checker.check();
+
+                if (this.notify) {
+                    if ( !b) {
+                        checker.notifyFailure();
+                    }
+                    else {
+                        checker.notifySuccess();
+                    }
+                }
+                else
+                    log.debug("Ran check manually, got result {} - not notifying!      Check: {}", b, checker);
+            }
+        }
+    }
+
     private static final String CONFIG_FILE_INIT_PARAMETER = "configFile";
 
     private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
@@ -120,6 +150,14 @@ public class Supervisor extends GenericServlet {
     }
 
     /**
+     * 
+     */
+    public static void clearResults() {
+        log.debug("Clearing all results: {}", Arrays.deepToString(latestResults.toArray()));
+        latestResults.clear();
+    }
+
+    /**
      * @return
      */
     public static Collection<INotification> getCurrentNotificationsCopy() {
@@ -132,53 +170,6 @@ public class Supervisor extends GenericServlet {
      */
     public static List<ICheckResult> getLatestResults() {
         return new ArrayList<ICheckResult>(latestResults);
-    }
-
-    /**
-     * 
-     */
-    public static void clearResults() {
-        log.debug("Clearing all results: {}", Arrays.deepToString(latestResults.toArray()));
-        latestResults.clear();
-    }
-
-    /**
-     * 
-     */
-    public void runAllNow(boolean notify) {
-        log.info("Running all checks now!");
-
-        this.manualExecutor.submit(new ManualChecker(this.checkers, notify));
-    }
-
-    private class ManualChecker extends Thread {
-
-        private Collection<IServiceChecker> checkers;
-        private boolean notify;
-
-        public ManualChecker(Collection<IServiceChecker> checkers, boolean notify) {
-            this.checkers = checkers;
-            this.notify = notify;
-            log.debug("NEW {}", this);
-        }
-
-        @Override
-        public void run() {
-            for (IServiceChecker checker : this.checkers) {
-                boolean b = checker.check();
-
-                if (this.notify) {
-                    if ( !b) {
-                        checker.notifyFailure();
-                    }
-                    else {
-                        checker.notifySuccess();
-                    }
-                }
-                else
-                    log.debug("Ran check manually, got result {} - not notifying!      Check: {}", b, checker);
-            }
-        }
     }
 
     /**
@@ -434,6 +425,15 @@ public class Supervisor extends GenericServlet {
         }
 
         return chkrs;
+    }
+
+    /**
+     * 
+     */
+    public void runAllNow(boolean notify) {
+        log.info("Running all checks now!");
+
+        this.manualExecutor.submit(new ManualChecker(this.checkers, notify));
     }
 
     /*
