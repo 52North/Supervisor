@@ -56,7 +56,7 @@
 			<div id="headline">
 				<a href="<%=request.getContextPath()%>" title="Home"> <span
 					class="title">OWS Supervisor</span><br /> <span class="infotext">OGC
-						Web Service Supervisor Version <%=supervisor.getVersion()%></span></a>
+						Web Service Supervisor</span></a>
 			</div>
 			<div id="logos">
 				<a href="http://52north.org"
@@ -121,7 +121,7 @@
 			| More information: <a
 				href="https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor"
 				title="OwsSupervisor @ 52&deg;North Wiki">52&deg;North Wiki:
-				OwsSupervisor</a>.
+				OwsSupervisor</a> | Build: #${build-commit-abbrev} @ ${buildTimestamp}
 		</p>
 
 	</div>
