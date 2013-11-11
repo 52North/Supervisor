@@ -61,9 +61,9 @@
 
 	<properties>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 
 		<n52.xml-common.version>1.1.6-SNAPSHOT</n52.xml-common.version>
 
@@ -209,9 +209,6 @@
 				<version>2.4</version>
 
 				<configuration>
-					<!-- have to explicitly add resources and target paths if I want to 
-						do filtering on different resources -->
-					<!-- http://maven.apache.org/plugins/maven-war-plugin/examples/adding-filtering-webresources.html -->
 					<webResources>
 						<resource>
 							<directory>src/main/webapp</directory>
@@ -310,7 +307,70 @@
 					</licenseMapping>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>com.github.danielflower.mavenplugins</groupId>
+				<artifactId>maven-gitlog-plugin</artifactId>
+				<version>1.5.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.code54.mojo</groupId>
+				<artifactId>buildversion-plugin</artifactId>
+				<version>1.0.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>set-properties</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											com.code54.mojo
+										</groupId>
+										<artifactId>
+											buildversion-plugin
+										</artifactId>
+										<versionRange>
+											[1.0.3,)
+										</versionRange>
+										<goals>
+											<goal>set-properties</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 	<repositories>
@@ -335,4 +395,10 @@
 		</repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype-releases</id>
+			<url>http://oss.sonatype.org/content/repositories/releases</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
