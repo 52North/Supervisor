@@ -52,9 +52,10 @@
 
 	<licenses>
 		<license>
-			<name>General Public License Version 2</name>
-			<url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
 
@@ -63,7 +64,7 @@
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
-		
+
 		<n52.xml-common.version>1.1.6-SNAPSHOT</n52.xml-common.version>
 
 		<!-- override these in your settings.xml with the correct settings -->
@@ -266,23 +267,18 @@
 			</plugin>
 
 			<plugin>
-				<!-- check for correct source file headers during test phase: http://code.google.com/p/maven-license-plugin/wiki/HowTo -->
-				<!-- run "mvn license:check -Dyear=2011" to check -->
-				<!-- run "mvn license:format -Dyear=2011" to add to the files -->
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
 				<version>1.9.0</version>
 				<configuration>
-					<header>src/main/resources/52N_license.txt</header>
+					<header>src/main/resources/license_header.txt</header>
 					<excludes>
+						<exclude>**/logback*</exclude>
 						<exclude>**/log4j*</exclude>
-						<exclude>**/test/resources/**</exclude>
-						<exclude>**/buildNumber.properties</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
 						<include>**/*.properties</include>
-						<include>**/*.jsp</include>
 						<include>**/*.js</include>
 						<include>**/*.xml</include>
 						<include>**/*.xsl</include>
@@ -296,11 +292,8 @@
 				<executions>
 					<execution>
 						<phase>test</phase>
-						<!-- test will fail if license headers are not correct, run license:format 
-							to add the headers. -->
 						<goals>
 							<goal>check</goal>
-							<!-- <goal>format</goal> -->
 						</goals>
 					</execution>
 				</executions>
