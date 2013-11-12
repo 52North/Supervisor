@@ -21,8 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.ServletContext;
-
 import org.n52.supervisor.ICheckResult;
 import org.n52.supervisor.Supervisor;
 import org.n52.supervisor.SupervisorProperties;
@@ -63,24 +61,6 @@ public class SupervisorBean {
         List<ICheckResult> reversed = new ArrayList<>(Supervisor.getLatestResults());
         Collections.reverse(reversed);
         return reversed;
-    }
-
-    public int getMaximumNumberOfResults() {
-        return props.getMaximumResults();
-    }
-
-    public int getPageRefreshIntervalSecs() {
-        return props.getPageRefreshSecs();
-    }
-
-    public String getVersion() {
-        return props.getServiceVersion();
-    }
-
-    public void runChecksNow(ServletContext context) {
-        Supervisor sv = (Supervisor) context.getAttribute(Supervisor.NAME_IN_CONTEXT);
-        if (sv != null)
-            sv.runAllNow(true);
     }
 
 }

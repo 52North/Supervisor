@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.tasks;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.TimerTask;
 
+import net.opengis.sensorML.x101.ArrayLinkDocument.ArrayLink;
+
 import org.n52.supervisor.IServiceChecker;
-import org.n52.supervisor.SupervisorProperties;
+import org.n52.supervisor.id.IdentifierGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
 
 /**
  * 
@@ -31,88 +38,60 @@ import org.slf4j.LoggerFactory;
  */
 public class JobSchedulerImpl implements IJobScheduler {
 
-	private static final long DEFAULT_DELAY_MILLISECS = 10;
+    private static final long DEFAULT_DELAY_MILLISECS = 10;
 
-	private static Logger log = LoggerFactory.getLogger(JobSchedulerImpl.class);
+    private static Logger log = LoggerFactory.getLogger(JobSchedulerImpl.class);
 
-	private TaskServlet timerServlet;
+    private TaskServlet timerServlet;
 
-	/**
-	 * 
-	 * @param timer
-	 */
-	protected JobSchedulerImpl(TaskServlet timer) {
-		this.timerServlet = timer;
-		log.info("NEW " + this);
-	}
+    private IdentifierGenerator idGen;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.n52.owsSupervisor.tasks.IJobScheduler#cancel(java.lang.String)
-	 */
-	@Override
-	public void cancel(String identifier) {
-		if (log.isDebugEnabled()) {
-			log.debug("Cancelling Task: " + identifier + ".");
-		}
-		this.timerServlet.cancel(identifier);
-	}
+    @Inject
+    protected JobSchedulerImpl(TaskServlet timer, IdentifierGenerator idGen) {
+        this.timerServlet = timer;
+        this.idGen = idGen;
+        log.info("NEW " + this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.n52.owsSupervisor.tasks.IJobScheduler#submit(org.n52.owsSupervisor.checks.IServiceChecker)
-	 */
-	@Override
-	public String submit(IServiceChecker checker) {
-		return submit(checker, DEFAULT_DELAY_MILLISECS);
-	}
+    @Override
+    public void cancel(String identifier) {
+        if (log.isDebugEnabled()) {
+            log.debug("Cancelling Task: " + identifier + ".");
+        }
+        this.timerServlet.cancel(identifier);
+    }
 
-	/**
-	 * 
-	 * @param checker
-	 * @param delay
-	 * @return
-	 */
-	private String submit(IServiceChecker checker, long delay) {
-		log.debug("Added " + checker);
-		
-		// schedule periodic push
-		String id = SupervisorProperties.getInstance().getUUID();
-		submitRepeating(id, new CheckServiceTask(id, checker), delay,
-				checker.getCheckIntervalMillis());
-		
-		return id;
-	}
+    @Override
+    public String submit(IServiceChecker checker) {
+        return submit(checker, DEFAULT_DELAY_MILLISECS);
+    }
 
-	/**
-	 * 
-	 * @param identifier
-	 * @param task
-	 * @param delay
-	 * @param period
-	 */
-	private void submitRepeating(String identifier, TimerTask task, long delay,
-			long period) {
-		if (log.isDebugEnabled()) {
-			log.debug("Scheduling Task: " + task
-					+ " for execution now and with period of " + period
-					+ "ms after a delay of " + delay + "ms.");
-		}
-		this.timerServlet.submit(identifier, task, delay, period);
-	}
+    @Override
+    public String submit(IServiceChecker checker, long delay) {
+        log.debug("Added " + checker);
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("JobSchedulerImpl [default delay (msecs) (ALWAYS applied!)=");
-		sb.append(DEFAULT_DELAY_MILLISECS);
-		sb.append(", internal task handler: ");
-		sb.append(this.timerServlet);
-		sb.append("]");
-		return sb.toString();
-	}
+        String id = this.idGen.generate();
+        submit(id, new CheckServiceTask(id, checker), delay, checker.getCheckIntervalMillis());
+
+        return id;
+    }
+
+    private void submit(String identifier, TimerTask task, long delay, long period) {
+        if (log.isDebugEnabled()) {
+            log.debug("Scheduling Task: " + task + " for execution now and with period of " + period
+                    + "ms after a delay of " + delay + "ms.");
+        }
+        this.timerServlet.submit(identifier, task, delay, period);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("JobSchedulerImpl [default delay (msecs) (ALWAYS applied!)=");
+        sb.append(DEFAULT_DELAY_MILLISECS);
+        sb.append(", internal task handler: ");
+        sb.append(this.timerServlet);
+        sb.append("]");
+        return sb.toString();
+    }
 }

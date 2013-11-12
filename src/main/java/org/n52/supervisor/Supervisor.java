@@ -16,8 +16,6 @@
 
 package org.n52.supervisor;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -25,66 +23,32 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.annotation.PreDestroy;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
 import org.n52.supervisor.tasks.IJobScheduler;
-import org.n52.supervisor.tasks.SendEmailTask;
-import org.n52.supervisor.tasks.TaskServlet;
 import org.n52.supervisor.ui.INotification;
-import org.n52.supervisor.util.SubmitCheckersTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.google.inject.servlet.SessionScoped;
+import com.sun.jersey.api.view.Viewable;
+
 /**
- * 
- * Main class of OwsSupervisor.
  * 
  * @author Daniel Nüst
  * 
  */
-public class Supervisor extends GenericServlet {
-
-    private class ManualChecker extends Thread {
-
-        private Collection<IServiceChecker> checkers;
-        private boolean notify;
-
-        public ManualChecker(Collection<IServiceChecker> checkers, boolean notify) {
-            this.checkers = checkers;
-            this.notify = notify;
-            log.debug("NEW {}", this);
-        }
-
-        @Override
-        public void run() {
-            for (IServiceChecker checker : this.checkers) {
-                boolean b = checker.check();
-
-                if (this.notify) {
-                    if ( !b) {
-                        checker.notifyFailure();
-                    }
-                    else {
-                        checker.notifySuccess();
-                    }
-                }
-                else
-                    log.debug("Ran check manually, got result {} - not notifying!      Check: {}", b, checker);
-            }
-        }
-    }
-
-    private static final String CONFIG_FILE_INIT_PARAMETER = "configFile";
-
-    private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
+@Path("/")
+@SessionScoped
+public class Supervisor {
 
     private static Queue<ICheckResult> latestResults;
 
@@ -92,31 +56,25 @@ public class Supervisor extends GenericServlet {
 
     private static Queue<INotification> notifications;
 
-    private static final long serialVersionUID = -4629591718212281703L;
-
-    private static final String SUBMIT_CHECKERS_TASK_ID = "SubmitCheckersTask";
-
     private static final String COMMENT_PREFIX = "#";
 
     public static final String NAME_IN_CONTEXT = "Supervisor";
 
-    /**
-     * 
-     * @param result
-     */
     public static void appendLatestResult(ICheckResult result) {
         latestResults.add(result);
     }
 
     public static void appendLatestResults(Collection<ICheckResult> results) {
-        if (latestResults.size() >= SupervisorProperties.getInstance().getMaximumResults()) {
-            log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() + " existing.");
-            for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
-                // remove the first element so many times that the new results
-                // fit.
-                latestResults.remove();
-            }
-        }
+        // if (latestResults.size() >= 100) { // FIXME make append non static so that config parameter can be
+        // // used: this.maxStoredResults
+        // log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() +
+        // " existing.");
+        // for (int i = 0; i < Math.min(results.size(), latestResults.size()); i++) {
+        // // remove the first element so many times that the new results
+        // // fit.
+        // latestResults.remove();
+        // }
+        // }
 
         latestResults.addAll(results);
     }
@@ -147,79 +105,69 @@ public class Supervisor extends GenericServlet {
         return notifications.removeAll(c);
     }
 
-    private Collection<IServiceChecker> checkers;
+    private static Collection<IServiceChecker> checkers;
 
     private IJobScheduler scheduler;
 
-    private ExecutorService manualExecutor;
+    private int maxStoredResults;
 
-    public Supervisor() {
-        log.info("*** NEW " + this + " ***");
+    @Inject
+    public Supervisor(@Named("context.basepath")
+    String basepath, @Named("supervisor.checks.maxStoredResults")
+    int maxStoredResults, IJobScheduler scheduler) {
+        this.maxStoredResults = maxStoredResults;
+        this.scheduler = scheduler;
+
+        // this.appConstants = constants;
+        //
+        // log.info("{} | Version: {} | Build: {} | From: {}",
+        // this,
+        // this.appConstants.getApplicationVersion(),
+        // this.appConstants.getApplicationCommit(),
+        // this.appConstants.getApplicationTimestamp());
+
+        init(basepath);
+
+        log.info(" ***** NEW {} *****", this);
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        log.info("Destroy " + this.toString());
-        this.checkers.clear();
-        this.checkers = null;
+    @PreDestroy
+    protected void shutdown() throws Throwable {
+        log.info("SHUTDOWN called...");
+        // SirConfigurator.getInstance().getExecutor().shutdown();
+
+        Supervisor.checkers.clear();
+        Supervisor.checkers = null;
         latestResults.clear();
         latestResults = null;
         notifications.clear();
         notifications = null;
     }
 
-    @Override
-    public void init() throws ServletException {
-        // get ServletContext
-        ServletContext context = getServletContext();
-
-        context.setAttribute(NAME_IN_CONTEXT, this);
-
-        String basepath = context.getRealPath("/");
-        InputStream configStream = context.getResourceAsStream(getInitParameter(CONFIG_FILE_INIT_PARAMETER));
-
-        // initialize property manager
-        SupervisorProperties sp = SupervisorProperties.getInstance(configStream, basepath);
+    public void init(String basepath) {
+        log.trace("InitializING {} ...", this);
 
         // initialize lists
-        this.checkers = new ArrayList<IServiceChecker>();
-        latestResults = new LinkedBlockingQueue<ICheckResult>(SupervisorProperties.getInstance().getMaximumResults());
+        Supervisor.checkers = new ArrayList<IServiceChecker>();
+        latestResults = new LinkedBlockingQueue<ICheckResult>(this.maxStoredResults);
         notifications = new LinkedBlockingQueue<INotification>();
 
-        // init timer servlet
-        TaskServlet timerServlet = (TaskServlet) context.getAttribute(TaskServlet.NAME_IN_CONTEXT);
-        this.scheduler = sp.getScheduler(timerServlet);
-
-        // add task for email notifications, with out without admin email
-        String adminEmail = sp.getAdminEmail();
-        if (adminEmail.contains("@ADMIN_EMAIL@")) {
-            timerServlet.submit(EMAIL_SENDER_TASK_ID,
-                                new SendEmailTask(),
-                                sp.getEmailSendPeriodMins(),
-                                sp.getEmailSendPeriodMins());
-        }
-        else {
-            log.info("Found admin email address for send email task.");
-            timerServlet.submit(EMAIL_SENDER_TASK_ID,
-                                new SendEmailTask(adminEmail),
-                                sp.getEmailSendPeriodMins(),
-                                sp.getEmailSendPeriodMins());
-        }
+        SupervisorProperties sp = SupervisorProperties.getInstance();
 
         // initialize checkers
-        this.checkers = loadCheckers(sp);// SWSL.checkers;
+        Supervisor.checkers = loadCheckers(sp);// SWSL.checkers;
 
         // submit checkers
-        SubmitCheckersTask sct = new SubmitCheckersTask(this.scheduler, this.checkers);
-        timerServlet.submit(SUBMIT_CHECKERS_TASK_ID,
-                            sct,
-                            SupervisorProperties.getInstance().getCheckSubmitDelaySecs() * 1000);
+        for (IServiceChecker sc : Supervisor.checkers) {
+            this.scheduler.submit(sc, sp.getCheckSubmitDelaySecs() * 1000);
+        }
 
-        // create thread pool for manually started checks
-        this.manualExecutor = Executors.newSingleThreadExecutor();
+        // SubmitCheckersTask sct = new SubmitCheckersTask(this.scheduler, this.checkers);
+        // timerServlet.submit(SUBMIT_CHECKERS_TASK_ID,
+        // sct,
+        // SupervisorProperties.getInstance().getCheckSubmitDelaySecs() * 1000);
 
-        log.info("*** INITIALIZED SUPERVISOR ***");
+        log.trace("InitializED {}", this);
     }
 
     private Collection<IServiceChecker> loadCheckers(SupervisorProperties sp) {
@@ -366,15 +314,15 @@ public class Supervisor extends GenericServlet {
         return chkrs;
     }
 
-    public void runAllNow(boolean notify) {
-        log.info("Running all checks now!");
-
-        this.manualExecutor.submit(new ManualChecker(this.checkers, notify));
+    @GET
+    @Path("/")
+    @Produces("text/html")
+    public Response index() {
+        return Response.ok().entity(new Viewable("/index")).build();
     }
 
-    @Override
-    public void service(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException {
-        log.error("'service' method is not supported. ServletRequest: " + arg0);
+    public static Collection<IServiceChecker> getCheckers() {
+        return checkers;
     }
 
 }

@@ -16,20 +16,14 @@
 
 package org.n52.supervisor;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
-import java.util.UUID;
 
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.n52.supervisor.tasks.IJobScheduler;
-import org.n52.supervisor.tasks.JobSchedulerFactoryImpl;
-import org.n52.supervisor.tasks.TaskServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +46,6 @@ public class SupervisorProperties {
     private static final String CHECKS = "CHECKS";
 
     private static final String DEFAULT_CHECK_INTERVAL_SECS = "DEFAULT_CHECK_INTERVAL_SECS";
-
-    private static final String HTML_PAGE_REFRESH_SECS = "HTML_PAGE_REFRESH_SECS";
 
     private static SupervisorProperties instance;
 
@@ -83,13 +75,7 @@ public class SupervisorProperties {
 
     public static final String MAIL_USER_PROPERTY = "mail.user";
 
-    private static final String MAX_CHECK_LIST_SIZE = "MAX_CHECK_LIST_SIZE";
-
-    private static final String SEND_EMAIL_INTERVAL_MINS = "SEND_EMAIL_INTERVAL_MINS";
-
-    private static final String SEND_EMAILS = "SEND_EMAILS";
-
-    private static final String SERVICEVERSION = "SERVICEVERSION";
+    private static final String SEND_EMAILS = "supervisor.tasks.email.send";
 
     private static final String USE_COMPILED_CHECKERS = "USE_COMPILED_CHECKERS";
 
@@ -116,9 +102,9 @@ public class SupervisorProperties {
      * @param basepath
      * @return The instance of the PropertiesManager
      */
-    public static SupervisorProperties getInstance(InputStream configStream, String basepath) {
+    public static SupervisorProperties getInstance(Properties props) {
         if (instance == null) {
-            instance = new SupervisorProperties(configStream, basepath);
+            instance = new SupervisorProperties(props);
         }
         return instance;
     }
@@ -135,13 +121,7 @@ public class SupervisorProperties {
 
     private InternetAddress emailSender;
 
-    private int emailSendPeriodMins;
-
     private Properties mailProps = new Properties();
-
-    private int maximumResults;
-
-    private int pageRefreshSecs;
 
     private boolean sendEmails;
 
@@ -151,25 +131,7 @@ public class SupervisorProperties {
 
     private boolean useConfigCheckers;
 
-    /**
-     * Constructor to create an instance of the PropertiesManager
-     * 
-     * @param configStream
-     *        The servletcontext stream to get the path for the phenomenonXML file of the web.xml
-     * @param basepath
-     * @throws AddressException
-     */
-    private SupervisorProperties(InputStream configStream, String basepath) {
-        Properties props = new Properties();
-        // load properties
-        try {
-            props.load(configStream);
-        }
-        catch (IOException e) {
-            log.error("Loading properties failed.");
-        }
-
-        this.serviceVersion = props.getProperty(SERVICEVERSION);
+    private SupervisorProperties(Properties props) {
         this.defaultCheckIntervalMillis = Long.parseLong(props.getProperty(DEFAULT_CHECK_INTERVAL_SECS)) * 1000;
 
         // the actual checks
@@ -206,11 +168,9 @@ public class SupervisorProperties {
         catch (AddressException e) {
             log.error("Could not create sender email address!", e);
         }
+        
         this.sendEmails = Boolean.parseBoolean(props.getProperty(SEND_EMAILS));
-        this.emailSendPeriodMins = Integer.parseInt(props.getProperty(SEND_EMAIL_INTERVAL_MINS)) * 1000 * 60;
 
-        this.maximumResults = Integer.parseInt(props.getProperty(MAX_CHECK_LIST_SIZE));
-        this.pageRefreshSecs = Integer.parseInt(props.getProperty(HTML_PAGE_REFRESH_SECS));
         this.adminEmail = props.getProperty(ADMIN_EMAIL);
         this.checkSubmitDelaySecs = Integer.parseInt(props.getProperty(CHECK_SUBMIT_DELAY_SECS));
 
@@ -225,40 +185,22 @@ public class SupervisorProperties {
         return this.adminEmail;
     }
 
-    /**
-     * 
-     * @return
-     */
     public Collection<String> getCheckClasses() {
         return this.checkClasses;
     }
 
-    /**
-     * @return the checkConfigurations
-     */
     public Collection<String> getCheckConfigurations() {
         return this.checkConfigurations;
     }
 
-    /**
-     * @return the checkSubmitDelaySecs
-     */
     public int getCheckSubmitDelaySecs() {
         return this.checkSubmitDelaySecs;
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getClientRequestContentType() {
         return "text/xml";
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getClientRequestEncoding() {
         return "UTF-8";
     }
@@ -267,90 +209,26 @@ public class SupervisorProperties {
         return this.defaultCheckIntervalMillis;
     }
 
-    /**
-     * 
-     * @return
-     */
     public Address getEmailSender() {
         return this.emailSender;
     }
 
-    /**
-     * 
-     * @return email send period in minutes
-     */
-    public int getEmailSendPeriodMins() {
-        return this.emailSendPeriodMins;
-    }
-
-    /**
-	 * 
-	 */
     public Properties getMailSessionProperties() {
         return this.mailProps;
     }
 
-    /**
-     * 
-     * @return
-     */
-    public int getMaximumResults() {
-        return this.maximumResults;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public int getPageRefreshSecs() {
-        return this.pageRefreshSecs;
-    }
-
-    /**
-     * 
-     * @param timerServlet
-     * @return
-     */
-    public IJobScheduler getScheduler(TaskServlet timerServlet) {
-        return new JobSchedulerFactoryImpl(timerServlet).getJobScheduler();
-    }
-
-    /**
-     * 
-     * @return
-     */
     public String getServiceVersion() {
         return this.serviceVersion;
     }
 
-    /**
-     * 
-     * @return
-     */
-    public String getUUID() {
-        return UUID.randomUUID().toString();
-    }
-
-    /**
-     * 
-     * @return
-     */
     public boolean isSendEmails() {
         return this.sendEmails;
     }
 
-    /**
-     * 
-     * @return
-     */
     public boolean isUseCompiledCheckers() {
         return this.useCompiledCheckers;
     }
 
-    /**
-     * 
-     * @return
-     */
     public boolean isUseConfigCheckers() {
         return this.useConfigCheckers;
     }

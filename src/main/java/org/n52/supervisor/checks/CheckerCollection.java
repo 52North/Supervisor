@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.util.ArrayList;
@@ -33,31 +34,18 @@ public class CheckerCollection implements IServiceChecker {
 
     private Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
 
-    /**
-     * 
-     * @param checkers
-     */
     public CheckerCollection(Collection<IServiceChecker> checkersP) {
         this.checkers = checkersP;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#addResult(org.n52.owsSupervisor.checks.ICheckResult)
-     */
     @Override
     public void addResult(ICheckResult r) {
         throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#check()
-     */
     @Override
     public boolean check() {
-        log.debug("Checking collection of " + this.checkers.size());
+        log.debug("Checking collection of {} checkers.", this.checkers.size());
 
         boolean b = true;
         int success = 0;
@@ -77,29 +65,15 @@ public class CheckerCollection implements IServiceChecker {
         return b;
     }
 
-    /**
-     * 
-     * @return
-     */
     public Collection<IServiceChecker> getCheckers() {
         return this.checkers;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-     */
     @Override
     public long getCheckIntervalMillis() {
         throw new UnsupportedOperationException("Collection of checkers, which can contain different intervals!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getResults()
-     */
     @Override
     public Collection<ICheckResult> getResults() {
         ArrayList<ICheckResult> results = new ArrayList<ICheckResult>();
@@ -109,20 +83,11 @@ public class CheckerCollection implements IServiceChecker {
         return results;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#getService()
-     */
     @Override
     public String getService() {
         throw new UnsupportedOperationException("Collection of checkers, which can multiple services!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#notifyFailure()
-     */
     @Override
     public void notifyFailure() {
         for (IServiceChecker c : this.checkers) {
@@ -130,11 +95,6 @@ public class CheckerCollection implements IServiceChecker {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifySuccess()
-     */
     @Override
     public void notifySuccess() {
         for (IServiceChecker c : this.checkers) {

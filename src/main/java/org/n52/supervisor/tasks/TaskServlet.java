@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.tasks;
 
 import java.io.IOException;
@@ -90,27 +91,23 @@ public class TaskServlet extends GenericServlet {
 
     private static final String CHECK_THREAD_COUNT = "CHECK_THREAD_COUNT";
 
-    /**
-	 * 
-	 */
+    private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
+
     private static ScheduledThreadPoolExecutor executor;
 
-    /**
-     * The init parameter of the configFile
-     */
     private static final String INIT_PARAM_CONFIG_FILE = "configFile";
 
     private static Logger log = LoggerFactory.getLogger(TaskServlet.class);
 
-    /**
-     * The identifier that can be used to access the instance of this servlet an run-time.
-     */
     public static final String NAME_IN_CONTEXT = "TimerServlet";
 
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = -7342914044857243635L;
+
+    private static final String EMAIL_SEND_PERIOD_MINDS = "supervisor.tasks.email.sendPeriodMins";
+
+    private static final String EMAIL_ADMIN_EMAIL = "supervisor.admin.email";
+
+    private static final String SEND_EMAILS = "supervisor.tasks.email.send";
 
     private Properties props;
 
@@ -119,17 +116,10 @@ public class TaskServlet extends GenericServlet {
      */
     private ArrayList<TaskElement> tasks;
 
-    /**
-     * Default constructor.
-     */
     public TaskServlet() {
-        super();
+        log.info("NEW {}", this);
     }
 
-    /**
-     * 
-     * @param identifier
-     */
     public void cancel(String identifier) {
         for (TaskElement te : this.tasks) {
             if (te.id.equals(identifier)) {
@@ -150,9 +140,6 @@ public class TaskServlet extends GenericServlet {
         this.tasks = null;
     }
 
-    /**
-     * @return the tasks
-     */
     public ArrayList<TaskElement> getTasks() {
         return this.tasks;
     }
@@ -162,12 +149,11 @@ public class TaskServlet extends GenericServlet {
         super.init();
         log.info(" * Initializing Timer ... ");
 
-        ServletContext context = getServletContext();
-        context.setAttribute(NAME_IN_CONTEXT, this);
+        this.tasks = new ArrayList<TaskServlet.TaskElement>();
 
         // get configFile as Inputstream
         String file = getInitParameter(INIT_PARAM_CONFIG_FILE);
-        InputStream configStream = context.getResourceAsStream(file);
+        InputStream configStream = TaskServlet.class.getResourceAsStream(file);
         if (configStream == null) {
             log.error("Could not open the config file " + file);
             throw new UnavailableException("Could not open the config file.");
@@ -186,19 +172,27 @@ public class TaskServlet extends GenericServlet {
         int threadCount = Integer.parseInt(this.props.getProperty(CHECK_THREAD_COUNT));
         executor = new ScheduledThreadPoolExecutor(threadCount);
 
-        this.tasks = new ArrayList<TaskServlet.TaskElement>();
+        boolean sendEmails = Boolean.parseBoolean(props.getProperty(SEND_EMAILS));
+
+        if (sendEmails) {
+            // add task for email notifications, with out without admin email
+            String adminEmail = this.props.getProperty(EMAIL_ADMIN_EMAIL);
+
+            long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
+            if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
+                log.info("Found admin email address for send email task.");
+                submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(adminEmail), emailSendInterval, emailSendInterval);
+            }
+        }
+        else
+            log.debug("Not sending emails, not starting email tasks.");
+
+        ServletContext context = getServletContext();
+        context.setAttribute(NAME_IN_CONTEXT, this);
 
         log.info(" ***** Timer initiated successfully! ***** ");
     }
 
-    /**
-     * method loads the config file
-     * 
-     * @param is
-     *        InputStream containing the config file
-     * @return Returns properties of the given config file
-     * @throws IOException
-     */
     private Properties loadProperties(InputStream is) throws IOException {
         Properties properties = new Properties();
         properties.load(is);
@@ -211,12 +205,6 @@ public class TaskServlet extends GenericServlet {
         throw new UnsupportedOperationException("Not supperted by TimerServlet!");
     }
 
-    /**
-     * 
-     * @param identifier
-     * @param task
-     * @param delay
-     */
     public void submit(String identifier, TimerTask task, long delay) {
         executor.schedule(task, delay, TimeUnit.MILLISECONDS);
         if (log.isDebugEnabled()) {
@@ -245,18 +233,19 @@ public class TaskServlet extends GenericServlet {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("TimerServlet [executor: ");
-        sb.append(executor.toString());
-        sb.append(" -- ");
-        sb.append("tasks: ");
-        for (TaskElement te : this.tasks) {
-            sb.append(te);
-            sb.append(", ");
+        StringBuilder builder = new StringBuilder();
+        builder.append("TaskServlet [");
+        if (props != null) {
+            builder.append("props=");
+            builder.append(props);
+            builder.append(", ");
         }
-        sb.delete(sb.length() - 1, sb.length() - 1);
-        sb.append("]");
-        return sb.toString();
+        if (tasks != null) {
+            builder.append("tasks=");
+            builder.append(tasks);
+        }
+        builder.append("]");
+        return builder.toString();
     }
-    
+
 }

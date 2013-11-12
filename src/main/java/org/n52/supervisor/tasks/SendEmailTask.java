@@ -91,28 +91,11 @@ public class SendEmailTask extends TimerTask {
 
     private String adminEmail = null;
 
-    /**
-     * 
-     * @param notifications2
-     */
-    public SendEmailTask() {
-        log.info("NEW " + this.toString());
-    }
-
-    /***
-     * 
-     * @param adminEmailP
-     */
     public SendEmailTask(String adminEmailP) {
         this.adminEmail = adminEmailP;
         log.info("NEW " + this.toString());
     }
 
-    /**
-     * 
-     * @param notifications
-     * @return
-     */
     private boolean doTask(Collection<INotification> notifications) {
         boolean noError = true;
         int overallFailureCounter = 0;
@@ -199,11 +182,6 @@ public class SendEmailTask extends TimerTask {
         return noError;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.TimerTask#run()
-     */
     @Override
     public void run() {
         Collection<INotification> notifications = Supervisor.getCurrentNotificationsCopy();
@@ -236,13 +214,6 @@ public class SendEmailTask extends TimerTask {
         }
     }
 
-    /**
-     * 
-     * @param recipient
-     * @param messageText
-     * @param failureCount
-     * @throws MessagingException
-     */
     protected void sendEmail(String recipient, String messageText, int failureCount) throws MessagingException {
         SupervisorProperties sp = SupervisorProperties.getInstance();
 
