@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.util;
 
 import java.util.ArrayList;
@@ -50,13 +51,13 @@ public class XmlTools {
     public static final String OM_NAMESPACE_URI = "http://www.opengis.net/om/1.0";
 
     public static final String OWS_1_1_NAMESPACE_URI = "http://www.opengis.net/ows/1.1";
-    
+
     public static final String OWS_NAMESPACE_PREFIX = "ows";
 
     public static final String SOR_NAMESPACE_PREFIX = "sor";
-    
+
     public static final String SOR_NAMESPACE_URI = "http://swsl.uni-muenster.de/sor";
-    
+
     public static final String SOR_SCHEMA_LOCATION = SOR_NAMESPACE_URI
             + " http://giv-genesis.uni-muenster.de/schemas/sor/sorAll.xsd";
 

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.util;
 
 import java.util.Collection;
@@ -32,7 +33,7 @@ public class SubmitCheckersTask extends TimerTask {
     private static Logger log = LoggerFactory.getLogger(SubmitCheckersTask.class);
 
     private Collection<IServiceChecker> checkers;
-    
+
     private IJobScheduler scheduler;
 
     /**
@@ -43,7 +44,7 @@ public class SubmitCheckersTask extends TimerTask {
     public SubmitCheckersTask(IJobScheduler schedulerP, Collection<IServiceChecker> checkersP) {
         this.checkers = checkersP;
         this.scheduler = schedulerP;
-        
+
         log.info("NEW " + this);
     }
 
@@ -55,7 +56,7 @@ public class SubmitCheckersTask extends TimerTask {
     @Override
     public void run() {
         log.info("Submitting checkers.");
-        
+
         for (IServiceChecker c : this.checkers) {
             this.scheduler.submit(c);
         }
