@@ -20,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import net.opengis.sos.x10.CapabilitiesDocument;
 import net.opengis.sos.x10.GetCapabilitiesDocument;
 
@@ -33,60 +35,30 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
 
     private static Logger log = LoggerFactory.getLogger(SosCapabilitiesCheck.class);
 
     private static final String SOS_SERVICE = "SOS";
 
-    /**
-     * 
-     * @param serviceUrl
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     * @throws NumberFormatException
-     * @throws MalformedURLException
-     */
     public SosCapabilitiesCheck(String serviceUrl, String notifyEmail, String checkIntervalMillis) throws NumberFormatException,
             MalformedURLException {
         super(new URL(serviceUrl), notifyEmail, Long.parseLong(checkIntervalMillis));
     }
 
-    /**
-     * 
-     * @param owsVersion
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SosCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
         super(owsVersion, service, notifyEmail, checkIntervalMillis);
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     */
     public SosCapabilitiesCheck(URL service, String notifyEmail) {
         super(service, notifyEmail);
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SosCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
         super(service, notifyEmail, checkIntervalMillis);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.OwsCapabilitiesCheck#check()
-     */
     @Override
     public boolean check() {
         URL sUrl = getServiceURL();
@@ -137,14 +109,14 @@ public class SosCapabilitiesCheck extends OwsCapabilitiesCheck {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.OwsCapabilitiesCheck#toString()
-     */
     @Override
     public String toString() {
         return "SosCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
+    }
+    
+    @Override
+    public String getType() {
+        return "SosCapabilitiesCheck";
     }
 
 }

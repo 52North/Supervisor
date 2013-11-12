@@ -17,6 +17,8 @@ package org.n52.supervisor.checks;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.n52.supervisor.ICheckResult;
 
 /**
@@ -24,6 +26,7 @@ import org.n52.supervisor.ICheckResult;
  * @author Daniel Nüst
  *
  */
+@XmlRootElement
 public class CheckResult implements ICheckResult {
 
 	private String checkIdentifier;

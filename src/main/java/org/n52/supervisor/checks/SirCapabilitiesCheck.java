@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.xmlbeans.XmlObject;
 import org.n52.supervisor.ICheckResult.ResultType;
@@ -32,49 +35,28 @@ import org.x52North.sir.x032.GetCapabilitiesDocument;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
 
     private static Logger log = LoggerFactory.getLogger(SirCapabilitiesCheck.class);
 
-    /**
-     * 
-     * @param serviceUrl
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     * @throws NumberFormatException
-     * @throws MalformedURLException
-     */
+    public SirCapabilitiesCheck() {
+        // required for jaxb binding
+    }
+
     public SirCapabilitiesCheck(String serviceUrl, String notifyEmail, String checkIntervalMillis) throws NumberFormatException,
             MalformedURLException {
         this(new URL(serviceUrl), notifyEmail, Long.valueOf(checkIntervalMillis).longValue());
     }
 
-    /**
-     * 
-     * @param owsVersion
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SirCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
         super(owsVersion, service, notifyEmail, checkIntervalMillis);
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     */
     public SirCapabilitiesCheck(URL service, String notifyEmail) {
         super(service, notifyEmail);
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SirCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
         super(service, notifyEmail, checkIntervalMillis);
     }
@@ -87,7 +69,7 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
     @Override
     public boolean check() {
         URL sUrl = getServiceURL();
-        
+
         if (log.isDebugEnabled()) {
             log.debug("Checking SOS Capabilities for " + sUrl);
         }
@@ -116,10 +98,7 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
                 log.debug("Parsed caps, serviceVersion: " + caps.getCapabilities().getVersion());
 
                 // save the result
-                addResult(new ServiceCheckResult(new Date(),
-                                                 sUrl.toString(),
-                                                 POSITIVE_TEXT,
-                                                 ResultType.POSITIVE));
+                addResult(new ServiceCheckResult(new Date(), sUrl.toString(), POSITIVE_TEXT, ResultType.POSITIVE));
                 return true;
             }
             addResult(new ServiceCheckResult(new Date(), sUrl.toString(), NEGATIVE_TEXT
@@ -134,14 +113,14 @@ public class SirCapabilitiesCheck extends OwsCapabilitiesCheck {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.OwsCapabilitiesCheck#toString()
-     */
     @Override
     public String toString() {
         return "SirCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
+    }
+    
+    @Override
+    public String getType() {
+        return "SirCapabilitiesCheck";
     }
 
 }

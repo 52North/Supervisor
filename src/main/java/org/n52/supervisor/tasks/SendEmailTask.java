@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.tasks;
 
 import java.util.ArrayList;
@@ -42,17 +43,15 @@ import org.n52.supervisor.ui.INotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
 /**
  * @author Daniel Nüst
  * 
  */
 public class SendEmailTask extends TimerTask {
 
-    /**
-     * 
-     * @author Daniel Nüst
-     * 
-     */
     private class PropertyAuthenticator extends Authenticator {
         private Properties p;
 
@@ -91,8 +90,14 @@ public class SendEmailTask extends TimerTask {
 
     private String adminEmail = null;
 
-    public SendEmailTask(String adminEmailP) {
-        this.adminEmail = adminEmailP;
+    // FIXME need to get notifications here
+    private Collection<INotification> notifications;
+
+    @Inject
+    public SendEmailTask(@Named("supervisor.admin.email")
+    String adminEmail) {
+        this.adminEmail = adminEmail;
+        
         log.info("NEW " + this.toString());
     }
 
@@ -184,8 +189,6 @@ public class SendEmailTask extends TimerTask {
 
     @Override
     public void run() {
-        Collection<INotification> notifications = Supervisor.getCurrentNotificationsCopy();
-
         if (notifications.size() < 1) {
             log.info("** No notifications, skipping to send emails.");
             return;
@@ -198,7 +201,8 @@ public class SendEmailTask extends TimerTask {
             // all went ok, clear notifications
             if (noError)
                 Supervisor.removeAllNotifications(notifications);
-            else log.error("** Error sending emails.");
+            else
+                log.error("** Error sending emails.");
         }
         catch (Error e) {
             log.error("Error fulfilling SendEmailTask");

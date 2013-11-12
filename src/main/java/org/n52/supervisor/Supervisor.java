@@ -93,11 +93,11 @@ public class Supervisor {
         latestResults.clear();
     }
 
-    public static Collection<INotification> getCurrentNotificationsCopy() {
+    public Collection<INotification> getCurrentNotificationsCopy() {
         return new ArrayList<INotification>(notifications);
     }
 
-    public static List<ICheckResult> getLatestResults() {
+    public List<ICheckResult> getLatestResults() {
         return new ArrayList<ICheckResult>(latestResults);
     }
 
@@ -105,7 +105,7 @@ public class Supervisor {
         return notifications.removeAll(c);
     }
 
-    private static Collection<IServiceChecker> checkers;
+    private Collection<IServiceChecker> checkers;
 
     private IJobScheduler scheduler;
 
@@ -134,10 +134,9 @@ public class Supervisor {
     @PreDestroy
     protected void shutdown() throws Throwable {
         log.info("SHUTDOWN called...");
-        // SirConfigurator.getInstance().getExecutor().shutdown();
 
-        Supervisor.checkers.clear();
-        Supervisor.checkers = null;
+        checkers.clear();
+        checkers = null;
         latestResults.clear();
         latestResults = null;
         notifications.clear();
@@ -145,21 +144,21 @@ public class Supervisor {
     }
 
     public void init(String basepath) {
-        log.trace("InitializING {} ...", this);
+        log.debug("InitializING {} ...", this);
 
-        // initialize lists
-        Supervisor.checkers = new ArrayList<IServiceChecker>();
+        checkers = new ArrayList<IServiceChecker>();
         latestResults = new LinkedBlockingQueue<ICheckResult>(this.maxStoredResults);
         notifications = new LinkedBlockingQueue<INotification>();
 
         SupervisorProperties sp = SupervisorProperties.getInstance();
 
         // initialize checkers
-        Supervisor.checkers = loadCheckers(sp);// SWSL.checkers;
+        checkers = loadCheckers(sp);// SWSL.checkers;
 
         // submit checkers
-        for (IServiceChecker sc : Supervisor.checkers) {
-            this.scheduler.submit(sc, sp.getCheckSubmitDelaySecs() * 1000);
+        for (IServiceChecker sc : checkers) {
+            String id = this.scheduler.submit(sc, sp.getCheckSubmitDelaySecs() * 1000);
+            sc.setIdentifier(id);
         }
 
         // SubmitCheckersTask sct = new SubmitCheckersTask(this.scheduler, this.checkers);
@@ -321,7 +320,7 @@ public class Supervisor {
         return Response.ok().entity(new Viewable("/index")).build();
     }
 
-    public static Collection<IServiceChecker> getCheckers() {
+    public Collection<IServiceChecker> getCheckers() {
         return checkers;
     }
 

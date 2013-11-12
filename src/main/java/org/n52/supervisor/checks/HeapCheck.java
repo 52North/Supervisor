@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.n52.supervisor.ICheckResult;
 import org.n52.supervisor.IServiceChecker;
@@ -28,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class HeapCheck implements IServiceChecker {
 
     private static final long L1024_2 = 1024 * 1024;
@@ -40,19 +44,17 @@ public class HeapCheck implements IServiceChecker {
 
     private ICheckResult result;
 
-    /**
-     * 
-     * @param intervalMillis
-     */
+    private String identifier;
+
     public HeapCheck(long intervalMillis) {
         this.interval = intervalMillis;
     }
+    
+    public HeapCheck(String identifier, long intervalMillis) {
+        this(intervalMillis);
+        this.identifier = identifier;
+    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#addResult(org.n52.owsSupervisor .ICheckResult)
-     */
     @Override
     public void addResult(ICheckResult r) {
         if (this.result != null)
@@ -61,11 +63,6 @@ public class HeapCheck implements IServiceChecker {
         this.result = r;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#check()
-     */
     @Override
     public boolean check() {
         long heapSize = Runtime.getRuntime().totalMemory();
@@ -79,21 +76,11 @@ public class HeapCheck implements IServiceChecker {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-     */
     @Override
     public long getCheckIntervalMillis() {
         return this.interval;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getResults()
-     */
     @Override
     public Collection<ICheckResult> getResults() {
         ArrayList<ICheckResult> l = new ArrayList<ICheckResult>();
@@ -101,31 +88,16 @@ public class HeapCheck implements IServiceChecker {
         return l;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getService()
-     */
     @Override
     public String getService() {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#notifyFailure()
-     */
     @Override
     public void notifyFailure() {
         log.error("HeapChecker cannot fail!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifySuccess()
-     */
     @Override
     public void notifySuccess() {
         if (log.isDebugEnabled()) {
@@ -133,6 +105,21 @@ public class HeapCheck implements IServiceChecker {
         }
 
         addResult(new CheckResult("Internal Heap Checker", this.lastCheckString, ResultType.POSITIVE));
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    @Override
+    public void setIdentifier(String id) {
+        this.identifier = id;
+    }
+
+    @Override
+    public String getType() {
+        return "HeapCheck";
     }
 
 }

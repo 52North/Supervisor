@@ -143,9 +143,11 @@ public class SupervisorProperties {
         }
         this.checkClasses = new ArrayList<String>();
         String checkClassesString = props.getProperty(CHECK_CLASSES);
-        checks = checkClassesString.split(props.getProperty(CHECK_LIST_SEPERATOR));
-        for (String s : checks) {
-            this.checkClasses.add(s.trim());
+        if ( !checkClassesString.isEmpty()) {
+            checks = checkClassesString.split(props.getProperty(CHECK_LIST_SEPERATOR));
+            for (String s : checks) {
+                this.checkClasses.add(s.trim());
+            }
         }
 
         this.useCompiledCheckers = Boolean.parseBoolean(props.getProperty(USE_COMPILED_CHECKERS));
@@ -168,7 +170,7 @@ public class SupervisorProperties {
         catch (AddressException e) {
             log.error("Could not create sender email address!", e);
         }
-        
+
         this.sendEmails = Boolean.parseBoolean(props.getProperty(SEND_EMAILS));
 
         this.adminEmail = props.getProperty(ADMIN_EMAIL);

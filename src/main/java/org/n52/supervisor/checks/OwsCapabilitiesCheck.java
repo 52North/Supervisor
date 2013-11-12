@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 import net.opengis.ows.x11.CapabilitiesBaseType;
 import net.opengis.ows.x11.GetCapabilitiesDocument;
@@ -33,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
     protected static final String DEFAULT_OWS_VERSION = "1.1";
@@ -45,43 +49,24 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
 
     protected String serviceVersion;
 
-    /**
-     * 
-     * @param owsVersion
-     * @param serviceURL
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
+    public OwsCapabilitiesCheck() {
+        // required for jaxb binding
+    }
+
     public OwsCapabilitiesCheck(String owsVersion, URL serviceURL, String notifyEmail, long checkIntervalMillis) {
         super(notifyEmail, serviceURL, checkIntervalMillis);
         this.serviceVersion = owsVersion;
     }
 
-    /**
-     * 
-     * @param serviceURL
-     * @param notifyEmail
-     */
     public OwsCapabilitiesCheck(URL serviceURL, String notifyEmail) {
         super(notifyEmail, serviceURL);
         this.serviceVersion = DEFAULT_OWS_VERSION;
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public OwsCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
         this(DEFAULT_OWS_VERSION, service, notifyEmail, checkIntervalMillis);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#check()
-     */
     @Override
     public boolean check() {
         URL sUrl = getServiceURL();
@@ -130,14 +115,22 @@ public class OwsCapabilitiesCheck extends AbstractServiceCheck {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "OwsCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
+    }
+
+    public String getServiceVersion() {
+        return serviceVersion;
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
+    }
+
+    @Override
+    public String getType() {
+        return "OwsCapabilitiesCheck";
     }
 
 }

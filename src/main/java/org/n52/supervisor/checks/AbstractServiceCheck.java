@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.net.URL;
@@ -52,30 +53,27 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
 
     private URL serviceURL = null;
 
-    /**
-     * 
-     * @param notifyEmail
-     */
+    private String identifier;
+    
+    public AbstractServiceCheck() {
+        // required for jaxb binding
+    }
+
     public AbstractServiceCheck(String notifyEmail, URL serviceURL) {
         this.email = notifyEmail;
         this.serviceURL = serviceURL;
     }
 
-    /**
-     * 
-     * @param notifyEmail
-     * @param checkInterval
-     */
     public AbstractServiceCheck(String notifyEmail, URL serviceURL, long checkInterval) {
         this(notifyEmail, serviceURL);
         this.checkIntervalMillis = checkInterval;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#addResult(org.n52.owsSupervisor.checks.ICheckResult)
-     */
+    public AbstractServiceCheck(String identifier, String notifyEmail, URL serviceURL, long checkInterval) {
+        this(notifyEmail, serviceURL, checkInterval);
+        this.identifier = identifier;
+    }
+
     @Override
     public void addResult(ICheckResult r) {
         log.info("Result added: " + r);
@@ -86,9 +84,6 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         this.results.add(r);
     }
 
-    /**
-	 * 
-	 */
     public void clearResults() {
         if (log.isDebugEnabled()) {
             log.debug("Clearing " + this.results.size() + " results");
@@ -96,55 +91,29 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
         this.results.clear();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#getCheckIntervalMillis()
-     */
     @Override
     public long getCheckIntervalMillis() {
         return this.checkIntervalMillis;
     }
 
-    /**
-     * @return the email
-     */
     public String getEmail() {
         return this.email;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getResults()
-     */
     @Override
     public Collection<ICheckResult> getResults() {
         return this.results;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#getService()
-     */
     @Override
     public String getService() {
         return this.serviceURL.toString();
     }
 
-    /**
-     * @return the serviceURL
-     */
     public URL getServiceURL() {
         return this.serviceURL;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifyFailure()
-     */
     @Override
     public void notifyFailure() {
         if (log.isDebugEnabled())
@@ -168,14 +137,19 @@ public abstract class AbstractServiceCheck implements IServiceChecker {
             log.debug("Submitted email with " + failures.size() + " failures.");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#notifySuccess()
-     */
     @Override
     public void notifySuccess() {
         log.info("Check SUCCESSFUL:" + this);
+    }
+
+    @Override
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    @Override
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
 }

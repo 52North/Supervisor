@@ -19,7 +19,7 @@ class ManualChecker extends Thread {
         this.checkers = checkers;
         this.notify = notify;
 
-        log.debug("NEW {}", this);
+        log.debug("NEW {} with {} checkers", this, checkers.size());
     }
 
     @Override
@@ -27,7 +27,7 @@ class ManualChecker extends Thread {
         for (IServiceChecker checker : this.checkers) {
             log.debug("Running checker {} ...", checker);
             boolean b = checker.check();
-            log.debug("Result: {}", b);
+            log.debug("Result: {} for {}", b, checker);
 
             if (this.notify) {
                 log.debug("Notify about result {}", b);
@@ -39,7 +39,7 @@ class ManualChecker extends Thread {
                 }
             }
             else
-                log.debug("Ran check manually, got result {} - not notifying!      Check: {}", b, checker);
+                log.info("Ran check manually, got result {} - not notifying!      Check: {}", b, checker);
         }
     }
 }

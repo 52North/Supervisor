@@ -19,6 +19,8 @@ package org.n52.supervisor.checks;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.n52.supervisor.ICheckResult;
 import org.n52.supervisor.IServiceChecker;
 import org.slf4j.Logger;
@@ -28,11 +30,14 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class CheckerCollection implements IServiceChecker {
 
     private static Logger log = LoggerFactory.getLogger(CheckerCollection.class);
 
     private Collection<IServiceChecker> checkers = new ArrayList<IServiceChecker>();
+
+    private String identifier;
 
     public CheckerCollection(Collection<IServiceChecker> checkersP) {
         this.checkers = checkersP;
@@ -100,6 +105,21 @@ public class CheckerCollection implements IServiceChecker {
         for (IServiceChecker c : this.checkers) {
             c.notifySuccess();
         }
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    @Override
+    public void setIdentifier(String id) {
+        this.identifier = id;
+    }
+
+    @Override
+    public String getType() {
+        return "CollectionChecker";
     }
 
 }

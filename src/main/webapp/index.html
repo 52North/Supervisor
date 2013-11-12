@@ -122,7 +122,7 @@
 
 					$("#btRunNow").click(
 							function() {
-								alert("Handler for .click() called.");
+								// alert("Handler for .click() called.");
 								$.ajax({
 									dataType : "text",
 									type : "put",
@@ -130,7 +130,7 @@
 											+ "api/v1/checks/run?all=true",
 									success : function(data) {
 										console.log(data);
-										// 								$("#settingMaxResults").html(data.maxResults);
+										// $("#settingMaxResults").html(data.maxResults);
 									}
 								});
 							});
