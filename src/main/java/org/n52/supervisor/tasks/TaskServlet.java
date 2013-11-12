@@ -36,6 +36,8 @@ import javax.servlet.UnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 /**
  * 
  * This class can be used to execute {@link TimerTask} instances. It runs as a servlet and can be accessed by
@@ -114,8 +116,9 @@ public class TaskServlet extends GenericServlet {
     /**
      * List that holds all repeated task during run-time.
      */
-    private ArrayList<TaskElement> tasks;
+    private ArrayList<TaskElement> tasks = new ArrayList<TaskServlet.TaskElement>();
 
+    @Inject
     public TaskServlet() {
         log.info("NEW {}", this);
     }
@@ -149,8 +152,6 @@ public class TaskServlet extends GenericServlet {
         super.init();
         log.info(" * Initializing Timer ... ");
 
-        this.tasks = new ArrayList<TaskServlet.TaskElement>();
-
         // get configFile as Inputstream
         String file = getInitParameter(INIT_PARAM_CONFIG_FILE);
         InputStream configStream = TaskServlet.class.getResourceAsStream(file);
@@ -181,7 +182,8 @@ public class TaskServlet extends GenericServlet {
             long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
             if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
                 log.info("Found admin email address for send email task.");
-                submit(EMAIL_SENDER_TASK_ID, new SendEmailTask(adminEmail), emailSendInterval, emailSendInterval);
+                SendEmailTask set = new SendEmailTask(adminEmail);
+                submit(EMAIL_SENDER_TASK_ID, set, emailSendInterval, emailSendInterval);
             }
         }
         else
@@ -210,6 +212,7 @@ public class TaskServlet extends GenericServlet {
         if (log.isDebugEnabled()) {
             log.debug("Submitted: " + task + " with delay = " + delay);
         }
+        
         this.tasks.add(new TaskElement(identifier, task, delay, 0l));
     }
 
@@ -225,10 +228,12 @@ public class TaskServlet extends GenericServlet {
      */
     public void submit(String identifier, TimerTask task, long delay, long period) {
         executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
+        
+        this.tasks.add(new TaskElement(identifier, task, delay, period));
+        
         if (log.isDebugEnabled()) {
             log.debug("Submitted: " + task + " with period = " + period + ", delay = " + delay);
         }
-        this.tasks.add(new TaskElement(identifier, task, delay, period));
     }
 
     @Override

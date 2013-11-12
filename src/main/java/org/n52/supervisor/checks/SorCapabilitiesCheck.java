@@ -20,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.xmlbeans.XmlObject;
 import org.n52.supervisor.ICheckResult.ResultType;
 import org.n52.supervisor.util.XmlTools;
@@ -32,47 +34,23 @@ import org.x52North.sor.x031.GetCapabilitiesDocument;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
 
     private static Logger log = LoggerFactory.getLogger(SorCapabilitiesCheck.class);
 
-    /**
-     * 
-     * @param serviceUrl
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     * @throws MalformedURLException
-     */
     public SorCapabilitiesCheck(String serviceUrl, String notifyEmail, String checkIntervalMillis) throws MalformedURLException {
         this(new URL(serviceUrl), notifyEmail, Long.valueOf(checkIntervalMillis).longValue());
     }
 
-    /**
-     * 
-     * @param owsVersion
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SorCapabilitiesCheck(String owsVersion, URL service, String notifyEmail, long checkIntervalMillis) {
         super(owsVersion, service, notifyEmail, checkIntervalMillis);
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     */
     public SorCapabilitiesCheck(URL service, String notifyEmail) {
         super(service, notifyEmail);
     }
 
-    /**
-     * 
-     * @param service
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SorCapabilitiesCheck(URL service, String notifyEmail, long checkIntervalMillis) {
         super(service, notifyEmail, checkIntervalMillis);
     }
@@ -130,6 +108,11 @@ public class SorCapabilitiesCheck extends OwsCapabilitiesCheck {
     @Override
     public String toString() {
         return "SorCapabilitiesCheck [" + getService() + ", check interval=" + getCheckIntervalMillis() + "]";
+    }
+    
+    @Override
+    public String getType() {
+        return "SorCapabilitiesCheck";
     }
 
 }

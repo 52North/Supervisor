@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.n52.supervisor.ICheckResult;
 import org.n52.supervisor.Supervisor;
@@ -34,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
+@XmlRootElement
 public class SelfCheck extends AbstractServiceCheck {
 
     private static final long L1024_2 = 1024 * 1024;
@@ -42,32 +46,18 @@ public class SelfCheck extends AbstractServiceCheck {
 
     private String message;
 
-    /**
-     * 
-     * @param serviceURL
-     * @param notifyEmail
-     * @param checkInterval
-     * @throws MalformedURLException
-     */
     public SelfCheck(String serviceURL, String notifyEmail, String checkInterval) throws MalformedURLException {
         this(notifyEmail, new URL(serviceURL), Long.valueOf(checkInterval).longValue());
     }
 
-    /**
-     * 
-     * @param notifyEmail
-     * @param serviceURL
-     * @param checkInterval
-     */
     public SelfCheck(String notifyEmail, URL serviceURL, long checkInterval) {
         super(notifyEmail, serviceURL, checkInterval);
     }
+    
+    public SelfCheck(String id, String notifyEmail, URL serviceURL, long checkInterval) {
+        super(id, notifyEmail, serviceURL, checkInterval);
+    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.IServiceChecker#check()
-     */
     @Override
     public boolean check() {
         // check if everything is running fine...
@@ -101,21 +91,11 @@ public class SelfCheck extends AbstractServiceCheck {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.AbstractServiceCheck#notifyFailure()
-     */
     @Override
     public void notifyFailure() {
         log.error("SelfChecker cannot fail!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.checks.AbstractServiceCheck#notifySuccess()
-     */
     @Override
     public void notifySuccess() {
         // send email
@@ -137,14 +117,23 @@ public class SelfCheck extends AbstractServiceCheck {
             log.debug("Submitted email with " + results.size() + " successes.");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return "SelfCheck [" + getServiceURL() + ", email=" + getEmail() + ", check interval=" + getCheckIntervalMillis();
+        return "SelfCheck [" + getServiceURL() + ", email=" + getEmail() + ", check interval="
+                + getCheckIntervalMillis();
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    @Override
+    public String getType() {
+        return "SelfCheck";
     }
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 
 import net.opengis.gml.AbstractTimeObjectType;
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst
  * 
  */
+@XmlRootElement
 public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     private static final String GET_OBS_RESPONSE_FORMAT = "text/xml;subtype=\"om/1.0.0\""; // text/xml;subtype="om/1.0.0
@@ -78,18 +81,6 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     private String proc;
 
-    /**
-     * 
-     * @param serviceUrl
-     * @param offering
-     * @param observedProperty
-     * @param procedure
-     * @param maximumAgeMillis
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     * @throws NumberFormatException
-     * @throws MalformedURLException
-     */
     public SosLatestObservationCheck(String serviceUrl,
                                      String offering,
                                      String observedProperty,
@@ -106,16 +97,6 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
              Long.parseLong(checkIntervalMillis));
     }
 
-    /**
-     * 
-     * @param serviceURL
-     * @param offering
-     * @param observedProperty
-     * @param procedure
-     * @param maximumAgeMillis
-     * @param notifyEmail
-     * @param checkIntervalMillis
-     */
     public SosLatestObservationCheck(URL serviceURL,
                                      String offering,
                                      String observedProperty,
@@ -181,15 +162,10 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
         return getObs;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#check()
-     */
     @Override
     public boolean check() {
         URL sUrl = getServiceURL();
-        
+
         // max age
         Date maxAge = new Date(System.currentTimeMillis() - this.maximumAgeOfObservationMillis);
 
@@ -260,11 +236,6 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
                 + " -- Response did not contain TimeInstant as samplingTime!");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.IServiceChecker#getCheckIntervalMillis()
-     */
     @Override
     public long getCheckIntervalMillis() {
         return this.checkInterval;
@@ -275,25 +246,60 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
                 + ".";
     }
 
-    /**
-     * 
-     * @param text
-     * @return
-     */
     private boolean saveAndReturnNegativeResult(String text) {
         addResult(new ServiceCheckResult(new Date(), getServiceURL().toString(), text, ResultType.NEGATIVE));
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "SosLatestObservationCheck [" + getService() + ", check interval=" + getCheckIntervalMillis()
                 + ", offering=" + this.off + ", observed property=" + this.observedProp + ", procedure=" + this.proc
                 + ", maximum age=" + this.maximumAgeOfObservationMillis + "]";
+    }
+
+    public long getCheckInterval() {
+        return checkInterval;
+    }
+
+    public void setCheckInterval(long checkInterval) {
+        this.checkInterval = checkInterval;
+    }
+
+    public long getMaximumAgeOfObservationMillis() {
+        return maximumAgeOfObservationMillis;
+    }
+
+    public void setMaximumAgeOfObservationMillis(long maximumAgeOfObservationMillis) {
+        this.maximumAgeOfObservationMillis = maximumAgeOfObservationMillis;
+    }
+
+    public String getObservedProp() {
+        return observedProp;
+    }
+
+    public void setObservedProp(String observedProp) {
+        this.observedProp = observedProp;
+    }
+
+    public String getOff() {
+        return off;
+    }
+
+    public void setOff(String off) {
+        this.off = off;
+    }
+
+    public String getProc() {
+        return proc;
+    }
+
+    public void setProc(String proc) {
+        this.proc = proc;
+    }
+    
+    @Override
+    public String getType() {
+        return "SosLatestObservationCheck";
     }
 }

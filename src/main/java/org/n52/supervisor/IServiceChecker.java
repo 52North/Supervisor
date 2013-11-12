@@ -22,6 +22,8 @@ import java.util.Collection;
  * @author Daniel Nüst
  * 
  */
+// @XmlJavaTypeAdapter(AnyTypeAdapter.class)
+// @XmlRootElement
 public interface IServiceChecker {
 
     /**
@@ -51,4 +53,18 @@ public interface IServiceChecker {
      */
     public void notifySuccess();
 
+    /**
+     * 
+     * @return the identifier of the checker itself
+     */
+    public String getIdentifier();
+
+    public void setIdentifier(String id);
+
+    /**
+     * 
+     * @return the type of the checker
+     */
+    public String getType();
+    
 }

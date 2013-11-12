@@ -20,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import net.opengis.wps.x100.CapabilitiesDocument;
 
 import org.apache.xmlbeans.XmlException;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
+@XmlRootElement
 public class WpsCapabilitiesCheck extends OwsCapabilitiesCheck {
 
     private static Logger log = LoggerFactory.getLogger(WpsCapabilitiesCheck.class);
