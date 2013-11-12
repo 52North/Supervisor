@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor;
 
 import java.util.Collection;
-
-
 
 /**
  * 
@@ -35,7 +34,7 @@ public interface ICheckerFactory {
     public static final long EVERY_HOUR = 1000 * 60 * 60;
 
     public static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
-    
+
     /**
      * 
      * @return

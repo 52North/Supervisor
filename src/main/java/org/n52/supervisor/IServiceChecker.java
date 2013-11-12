@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor;
 
 import java.util.Collection;
-
 
 /**
  * @author Daniel Nüst
@@ -24,45 +24,31 @@ import java.util.Collection;
  */
 public interface IServiceChecker {
 
-	/**
-	 * add a result to the result list
-	 */
-	public void addResult(ICheckResult r);
+    /**
+     * add a result to the result list
+     */
+    public void addResult(ICheckResult r);
 
-	/**
-	 * 
-	 * run the checks and 
-	 * 
-	 * @return
-	 */
-	public boolean check();
+    public boolean check();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public long getCheckIntervalMillis();
+    public long getCheckIntervalMillis();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Collection<ICheckResult> getResults();
+    public Collection<ICheckResult> getResults();
 
-	/**
-	 * 
-	 * @return the identifier of the checked service
-	 */
-	public String getService();
-	
-	/**
-	 * notify about failure of (one ore more) of the contained checks
-	 */
-	public void notifyFailure();
+    /**
+     * 
+     * @return the identifier of the checked service
+     */
+    public String getService();
 
-	/**
-	 * notify about successful completition of the check/all checks
-	 */
-	public void notifySuccess();
+    /**
+     * notify about failure of (one ore more) of the contained checks
+     */
+    public void notifyFailure();
+
+    /**
+     * notify about successful completition of the check/all checks
+     */
+    public void notifySuccess();
 
 }

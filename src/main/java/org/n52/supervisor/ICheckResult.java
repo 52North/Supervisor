@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor;
 
 import java.util.Date;
@@ -23,16 +24,16 @@ import java.util.Date;
  */
 public interface ICheckResult {
 
-	public static enum ResultType {
-		NEGATIVE, NEUTRAL, POSITIVE
-	}
+    public static enum ResultType {
+        NEGATIVE, NEUTRAL, POSITIVE
+    }
 
-	public String getCheckIdentifier();
+    public String getCheckIdentifier();
 
-	public String getResult();
+    public String getResult();
 
-	public Date getTimeOfCheck();
+    public Date getTimeOfCheck();
 
-	public ResultType getType();
+    public ResultType getType();
 
 }
