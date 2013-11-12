@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.ui;
 
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ import org.n52.supervisor.SupervisorProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 /**
  * @author Daniel Nüst
  * 
@@ -36,7 +39,11 @@ public class SupervisorBean {
 
     private static Logger log = LoggerFactory.getLogger(SupervisorBean.class);
 
-    public SupervisorBean() {
+    private SupervisorProperties props;
+
+    @Inject
+    public SupervisorBean(SupervisorProperties props) {
+        this.props = props;
         log.info("NEW " + this.toString());
     }
 
@@ -45,7 +52,7 @@ public class SupervisorBean {
     }
 
     public String getAdminEmail() {
-        return SupervisorProperties.getInstance().getAdminEmail();
+        return props.getAdminEmail();
     }
 
     public Collection<ICheckResult> getCheckResults() {
@@ -59,20 +66,20 @@ public class SupervisorBean {
     }
 
     public int getMaximumNumberOfResults() {
-        return SupervisorProperties.getInstance().getMaximumResults();
+        return props.getMaximumResults();
     }
 
     public int getPageRefreshIntervalSecs() {
-        return SupervisorProperties.getInstance().getPageRefreshSecs();
+        return props.getPageRefreshSecs();
     }
 
     public String getVersion() {
-        return SupervisorProperties.getInstance().getServiceVersion();
+        return props.getServiceVersion();
     }
 
     public void runChecksNow(ServletContext context) {
         Supervisor sv = (Supervisor) context.getAttribute(Supervisor.NAME_IN_CONTEXT);
-        if(sv != null)
+        if (sv != null)
             sv.runAllNow(true);
     }
 

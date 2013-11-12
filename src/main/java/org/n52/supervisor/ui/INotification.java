@@ -25,16 +25,8 @@ import org.n52.supervisor.ICheckResult;
  */
 public interface INotification {
 
-    /**
-     * 
-     * @return
-     */
     public Collection<ICheckResult> getResults();
 
-    /**
-     * 
-     * @return
-     */
     public String getServiceUrl();
 
 }

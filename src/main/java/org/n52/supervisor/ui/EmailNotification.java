@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.ui;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.n52.supervisor.ICheckResult;
@@ -32,55 +32,46 @@ public class EmailNotification implements INotification {
 
     private String serviceUrl;
 
-    /**
-     * 
-     * @param results
-     * @param recipientEmail
-     * @param serviceURL
-     */
     public EmailNotification(String serviceUrlP, String recipientEmailP, Collection<ICheckResult> resultsP) {
         this.results = resultsP;
         this.recipientEmail = recipientEmailP;
         this.serviceUrl = serviceUrlP;
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getRecipientEmail() {
         return this.recipientEmail;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.ui.INotification#getResults()
-     */
     @Override
     public Collection<ICheckResult> getResults() {
         return this.results;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.n52.owsSupervisor.ui.INotification#getServiceUrl()
-     */
     @Override
     public String getServiceUrl() {
         return this.serviceUrl;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return "EmailNotification [recipient=" + this.recipientEmail + ", service=" + this.serviceUrl + ", results="
-                + Arrays.toString(this.results.toArray());
+        StringBuilder builder = new StringBuilder();
+        builder.append("EmailNotification [");
+        if (results != null) {
+            builder.append("results=");
+            builder.append(results);
+            builder.append(", ");
+        }
+        if (recipientEmail != null) {
+            builder.append("recipientEmail=");
+            builder.append(recipientEmail);
+            builder.append(", ");
+        }
+        if (serviceUrl != null) {
+            builder.append("serviceUrl=");
+            builder.append(serviceUrl);
+        }
+        builder.append("]");
+        return builder.toString();
     }
 
 }
