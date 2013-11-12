@@ -335,14 +335,16 @@
 					<excludes>
 						<exclude>**/logback*</exclude>
 						<exclude>**/log4j*</exclude>
+						<exclude>**/bootstrap*</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
 						<include>**/*.properties</include>
 						<include>**/*.js</include>
+						<include>**/*.css</include>
 						<include>**/*.xml</include>
 						<include>**/*.xsl</include>
-						<include>**/*.html</include>
+						<!-- <include>**/*.html</include> -->
 					</includes>
 					<strictCheck>true</strictCheck>
 					<properties>

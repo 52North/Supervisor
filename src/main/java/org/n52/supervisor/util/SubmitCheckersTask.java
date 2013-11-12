@@ -36,11 +36,6 @@ public class SubmitCheckersTask extends TimerTask {
 
     private IJobScheduler scheduler;
 
-    /**
-     * @param scheduler
-     * @param checkers
-     * @param i
-     */
     public SubmitCheckersTask(IJobScheduler schedulerP, Collection<IServiceChecker> checkersP) {
         this.checkers = checkersP;
         this.scheduler = schedulerP;
@@ -48,11 +43,6 @@ public class SubmitCheckersTask extends TimerTask {
         log.info("NEW " + this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.TimerTask#run()
-     */
     @Override
     public void run() {
         log.info("Submitting checkers.");

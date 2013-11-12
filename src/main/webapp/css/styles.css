@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.supervisor.tasks;
+@CHARSET "UTF-8";
 
-/**
- * 
- * Factory class for encapsulation of {@link IJobScheduler} instances.
- * 
- * @author Daniel Nüst (daniel.neust@uni-muenster.de)
- * 
- */
-public interface IJobSchedulerFactory {
+.checkTime {
+	font-style: italic;
+}
 
-    /**
-     * 
-     * @return An instance of an {@link IJobScheduler} to schedule new or cancel existing tasks.
-     */
-    public abstract IJobScheduler getJobScheduler();
+.checkService {
+	font-weight: bold;
+}
 
+.checkPositive {
+	color: #00FF00;
+}
+
+.checkNegative {
+	color: #FF0000;
+}
+
+.checkNeutral {
+	color: #000000;
 }

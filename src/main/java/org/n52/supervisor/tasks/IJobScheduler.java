@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.tasks;
 
 import org.n52.supervisor.IServiceChecker;
@@ -39,5 +40,14 @@ public interface IJobScheduler {
      * @return the id
      */
     public abstract String submit(IServiceChecker checker);
+
+    /**
+     * 
+     * @param checker
+     * @param delay
+     *        delay in milliseconds after which the task is executed the first time
+     * @return
+     */
+    public abstract String submit(IServiceChecker checker, long delay);
 
 }
