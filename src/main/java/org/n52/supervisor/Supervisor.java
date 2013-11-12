@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor;
 
 import java.io.IOException;
@@ -107,10 +108,6 @@ public class Supervisor extends GenericServlet {
         latestResults.add(result);
     }
 
-    /**
-     * 
-     * @param results
-     */
     public static void appendLatestResults(Collection<ICheckResult> results) {
         if (latestResults.size() >= SupervisorProperties.getInstance().getMaximumResults()) {
             log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() + " existing.");
@@ -124,48 +121,28 @@ public class Supervisor extends GenericServlet {
         latestResults.addAll(results);
     }
 
-    /**
-     * 
-     * @param results
-     */
     public static void appendNotification(INotification notification) {
         notifications.add(notification);
     }
 
-    /**
-	 * 
-	 */
     public static void clearNotifications() {
         log.info("Clearing notifications!");
         notifications.clear();
     }
 
-    /**
-     * 
-     */
     public static void clearResults() {
         log.debug("Clearing all results: {}", Arrays.deepToString(latestResults.toArray()));
         latestResults.clear();
     }
 
-    /**
-     * @return
-     */
     public static Collection<INotification> getCurrentNotificationsCopy() {
         return new ArrayList<INotification>(notifications);
     }
 
-    /**
-     * 
-     * @return
-     */
     public static List<ICheckResult> getLatestResults() {
         return new ArrayList<ICheckResult>(latestResults);
     }
 
-    /**
-     * @return
-     */
     public static synchronized boolean removeAllNotifications(Collection<INotification> c) {
         return notifications.removeAll(c);
     }
@@ -176,18 +153,10 @@ public class Supervisor extends GenericServlet {
 
     private ExecutorService manualExecutor;
 
-    /**
-	 * 
-	 */
     public Supervisor() {
         log.info("*** NEW " + this + " ***");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.servlet.GenericServlet#destroy()
-     */
     @Override
     public void destroy() {
         super.destroy();
@@ -200,11 +169,6 @@ public class Supervisor extends GenericServlet {
         notifications = null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.servlet.GenericServlet#init()
-     */
     @Override
     public void init() throws ServletException {
         // get ServletContext
@@ -258,12 +222,6 @@ public class Supervisor extends GenericServlet {
         log.info("*** INITIALIZED SUPERVISOR ***");
     }
 
-    /**
-     * class loading inspired by SPFRegistry.java
-     * 
-     * @param sp
-     * @return
-     */
     private Collection<IServiceChecker> loadCheckers(SupervisorProperties sp) {
         Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
 
@@ -280,11 +238,6 @@ public class Supervisor extends GenericServlet {
         return chkrs;
     }
 
-    /**
-     * 
-     * @param checkClasses
-     * @return
-     */
     private Collection<IServiceChecker> loadCompiledCheckers(Collection<String> checkClasses) {
         Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
 
@@ -318,11 +271,6 @@ public class Supervisor extends GenericServlet {
         return chkrs;
     }
 
-    /**
-     * 
-     * @param checkConfigurations
-     * @return
-     */
     private Collection<IServiceChecker> loadConfigFileCheckers(Collection<String> checkConfigurations) {
         Collection<IServiceChecker> chkrs = new ArrayList<IServiceChecker>();
 
@@ -418,20 +366,12 @@ public class Supervisor extends GenericServlet {
         return chkrs;
     }
 
-    /**
-     * 
-     */
     public void runAllNow(boolean notify) {
         log.info("Running all checks now!");
 
         this.manualExecutor.submit(new ManualChecker(this.checkers, notify));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.servlet.GenericServlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
-     */
     @Override
     public void service(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException {
         log.error("'service' method is not supported. ServletRequest: " + arg0);
