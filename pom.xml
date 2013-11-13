@@ -346,6 +346,7 @@
 						<exclude>**/logback*</exclude>
 						<exclude>**/log4j*</exclude>
 						<exclude>**/bootstrap*</exclude>
+						<exclude>**/js/lib*</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
