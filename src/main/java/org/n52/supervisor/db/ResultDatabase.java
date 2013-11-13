@@ -39,7 +39,7 @@ import com.google.inject.name.Named;
 @Singleton
 public class ResultDatabase {
 
-    private static Queue<CheckResult> latestResults;
+    private Queue<CheckResult> latestResults;
 
     private static Logger log = LoggerFactory.getLogger(ResultDatabase.class);
 

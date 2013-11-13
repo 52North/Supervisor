@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
 import org.n52.supervisor.ui.INotification;
 import org.n52.supervisor.util.Client;
@@ -46,17 +47,19 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
 
     protected ServiceCheck c;
 
+    private ResultDatabase rd;
+
     public AbstractServiceCheckRunner(ServiceCheck check) {
         this.c = check;
     }
 
     @Override
     public void addResult(CheckResult r) {
-        if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
-            log.debug("NEGATIVE result added to {}:", this, r);
+        // if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
+        // log.debug("NEGATIVE result added to {}:", this, r);
 
         this.results.add(r);
-        log.info("Result added: " + r);
+        log.debug("Result added: " + r);
     }
 
     public void clearResults() {
@@ -73,29 +76,33 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
 
     @Override
     public void notifyFailure() {
-        if (log.isDebugEnabled())
-            log.debug("Check FAILED: " + this);
+        log.info("Check FAILED: {}", this);
+
+        if (this.rd != null)
+            this.rd.appendResults(getResults());
 
         if (this.c.getNotificationEmail() == null) {
             log.error("Can not notify via email, is null!");
-            return;
+
+            Collection<CheckResult> failures = new ArrayList<CheckResult>();
+            for (CheckResult r : this.results) {
+                if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
+                    failures.add(r);
+            }
+
+            INotification n = new EmailNotification(this.c, failures);
+            SupervisorInit.appendNotification(n);
+
+            log.debug("Submitted email with {} failures to {}.", failures.size(), this.c.getNotificationEmail());
         }
-
-        Collection<CheckResult> failures = new ArrayList<CheckResult>();
-        for (CheckResult r : this.results) {
-            if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
-                failures.add(r);
-        }
-
-        INotification n = new EmailNotification(this.c, failures);
-        SupervisorInit.appendNotification(n);
-
-        log.debug("Submitted email with {} failures to {}.", failures.size(), this.c.getNotificationEmail());
     }
 
     @Override
     public void notifySuccess() {
-        log.info("Check SUCCESSFUL:" + this);
+        log.info("Check SUCCESSFUL: {}", this);
+
+        if (this.rd != null)
+            this.rd.appendResults(getResults());
     }
 
     @Override
@@ -111,6 +118,11 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
         }
         else
             throw new UnsupportedCheckException();
+    }
+
+    @Override
+    public void setResultDatabase(ResultDatabase rd) {
+        this.rd = rd;
     }
 
 }

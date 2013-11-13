@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.UnsupportedCheckException;
+import org.n52.supervisor.db.ResultDatabase;
 
 /**
  * @author Daniel Nüst
@@ -31,9 +32,9 @@ public interface ICheckRunner {
     public void addResult(CheckResult r);
 
     public void setCheck(Check c) throws UnsupportedCheckException;
-    
+
     public Check getCheck();
-    
+
     public boolean check();
 
     public Collection<CheckResult> getResults();
@@ -42,5 +43,10 @@ public interface ICheckRunner {
 
     public void notifySuccess();
 
-    
+    /**
+     * @param rd
+     *        is required so that the runner can announce its results
+     */
+    public void setResultDatabase(ResultDatabase rd);
+
 }

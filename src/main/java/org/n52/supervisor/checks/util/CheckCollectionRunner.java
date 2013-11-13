@@ -25,6 +25,7 @@ import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.UnsupportedCheckException;
+import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +118,13 @@ public class CheckCollectionRunner implements ICheckRunner {
     @Override
     public Check getCheck() {
         return null;
+    }
+
+    @Override
+    public void setResultDatabase(ResultDatabase rd) {
+        for (ICheckRunner r : this.checks.keySet()) {
+            r.setResultDatabase(rd);
+        }
     }
 
 }

@@ -26,7 +26,7 @@ import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.UnsupportedCheckException;
-import org.n52.supervisor.checks.CheckResult.ResultType;
+import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +46,8 @@ public class HeapCheckRunner implements ICheckRunner {
     private CheckResult result;
 
     private HeapCheck c;
+
+    private ResultDatabase rd;
 
     public HeapCheckRunner(HeapCheck c) {
         this.c = c;
@@ -81,7 +83,10 @@ public class HeapCheckRunner implements ICheckRunner {
 
     @Override
     public void notifyFailure() {
-        log.error("HeapChecker cannot fail!");
+        log.error("HeapChecker should not fail!");
+
+        if (this.rd != null)
+            this.rd.appendResults(getResults());
     }
 
     @Override
@@ -94,6 +99,9 @@ public class HeapCheckRunner implements ICheckRunner {
                                       this.lastCheckString,
                                       new Date(),
                                       CheckResult.ResultType.POSITIVE));
+
+        if (this.rd != null)
+            this.rd.appendResults(getResults());
     }
 
     @Override
@@ -109,6 +117,11 @@ public class HeapCheckRunner implements ICheckRunner {
     @Override
     public Check getCheck() {
         return this.c;
+    }
+
+    @Override
+    public void setResultDatabase(ResultDatabase rd) {
+        this.rd = rd;
     }
 
 }
