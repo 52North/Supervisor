@@ -39,6 +39,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.db.CheckDatabase;
+import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.tasks.ManualChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +60,16 @@ public class ChecksResource {
 
     private ExecutorService manualExecutor;
 
-    private CheckDatabase db;
+    private CheckDatabase cd;
+
+    private ResultDatabase rd;
 
     private CheckerResolver cr;
 
     @Inject
-    public ChecksResource(CheckDatabase db, CheckerResolver cr) {
-        this.db = db;
+    public ChecksResource(CheckDatabase cd, ResultDatabase rd, CheckerResolver cr) {
+        this.cd = cd;
+        this.rd = rd;
         this.cr = cr;
 
         // create thread pool for manually started checks
@@ -79,15 +83,15 @@ public class ChecksResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getChecks(@Context
     UriInfo uriInfo) {
-        List<Check> checks = this.db.getAllChecks();
+        List<Check> checks = this.cd.getAllChecks();
 
         // GenericEntity<List<Check>> entity = new GenericEntity<List<Check>>(Lists.newArrayList(checks)) {};
         StringBuilder sb = new StringBuilder();
         sb.append("{ \"checks\": [");
         for (Check c : checks) {
-            sb.append("{ \"");
+            sb.append("{ \"id\": \"");
             sb.append(c.getIdentifier());
-            sb.append("\": \"");
+            sb.append("\", \"uri\": \"");
             URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(c.getIdentifier()).build();
             sb.append(path);
             sb.append("\", ");
@@ -110,12 +114,12 @@ public class ChecksResource {
     String id) {
         log.debug("Requesting checker with id {}", id);
 
-        Check c = this.db.getCheck(id);
+        Check c = this.cd.getCheck(id);
 
         if (c != null)
             return Response.ok().entity(c).build();
 
-        return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\"").build();
+        return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
     }
 
     @GET
@@ -147,9 +151,11 @@ public class ChecksResource {
         ManualChecker c = null;
         if (runAll) {
             Collection<ICheckRunner> checkers = new ArrayList<>();
-            List<Check> allChecks = this.db.getAllChecks();
+            List<Check> allChecks = this.cd.getAllChecks();
             for (Check check : allChecks) {
                 ICheckRunner runner = this.cr.getRunner(check);
+                runner.setResultDatabase(this.rd);
+
                 if (runner != null)
                     checkers.add(runner);
             }

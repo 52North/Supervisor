@@ -135,7 +135,7 @@ public class SupervisorInit {
                                                                               db.getAllChecks(),
                                                                               this.cr,
                                                                               scheduler,
-                                                                              sp.getCheckSubmitDelaySecs() * 1000));
+                                                                              1));
 
         }
         catch (Exception e) {
@@ -176,7 +176,7 @@ public class SupervisorInit {
 
             for (Check c : this.checks) {
                 ICheckRunner runner = this.cr.getRunner(c);
-                String id = this.scheduler.submit(runner, this.submitDelaySecs);
+                String id = this.scheduler.submit(runner, this.submitDelaySecs * 1000);
 
                 log.debug("Submitted check with id {} : {} \n\t and runner: {}", id, c, runner);
             }

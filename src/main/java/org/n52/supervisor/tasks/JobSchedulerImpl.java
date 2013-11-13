@@ -34,7 +34,7 @@ import com.google.inject.Inject;
  */
 public class JobSchedulerImpl implements IJobScheduler {
 
-    private static final long DEFAULT_DELAY_MILLISECS = 10;
+    private static final long DEFAULT_DELAY_MILLISECS = 1000;
 
     private static Logger log = LoggerFactory.getLogger(JobSchedulerImpl.class);
 

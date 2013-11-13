@@ -57,7 +57,7 @@ public class ResultsResource {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("{ \"results\": [");
+        sb.append("{ \"results\": [   "); // add a few spaces in the end if no results are found
         for (CheckResult r : results) {
             sb.append("{ \"check\": \"");
             URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(r.getCheckIdentifier()).build();

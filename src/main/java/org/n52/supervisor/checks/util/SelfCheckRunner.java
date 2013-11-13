@@ -25,6 +25,7 @@ import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.CheckResult.ResultType;
 import org.n52.supervisor.checks.UnsupportedCheckException;
+import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
 import org.n52.supervisor.ui.INotification;
 import org.slf4j.Logger;
@@ -43,6 +44,8 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
     private static Logger log = LoggerFactory.getLogger(SelfCheckRunner.class);
 
+    private ResultDatabase rd;
+
     public SelfCheckRunner(SelfCheck check) {
         super(check);
     }
@@ -56,7 +59,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Self check ran succesfully, service is most probably up and running.\n Go to <a href='");
+        sb.append("Self check ran succesfully, service is most probably up and running. Go to <a href='");
         sb.append(this.c.getServiceUrl());
         sb.append("' title='OwsSupervisor HTML Interface'>");
         sb.append(this.c.getServiceUrl());
@@ -72,10 +75,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         sb.append(".");
 
         // TODO add currently running tasks and their last message
-        CheckResult result = new SelfCheckResult(this.c.getIdentifier(),
-                                                 sb.toString(),
-                                                 new Date(),
-                                                 ResultType.POSITIVE);
+        CheckResult result = new SelfCheckResult(this.c.getIdentifier(), sb.toString(), new Date(), ResultType.POSITIVE);
         addResult(result);
 
         return true;
@@ -84,26 +84,28 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
     @Override
     public void notifyFailure() {
         log.error("SelfChecker cannot fail!");
+        if (this.rd != null)
+            this.rd.appendResults(getResults());
     }
 
     @Override
     public void notifySuccess() {
-        if (log.isDebugEnabled())
-            log.debug("Check SUCCESSFUL: " + this);
-
-        if (this.c.getNotificationEmail() == null) {
-            log.error("Can not notify via email, is null!");
-            return;
-        }
+        log.debug("Check SUCCESSFUL: {}", this);
 
         Collection<CheckResult> results = getResults();
 
-        INotification noti = new EmailNotification(c, results);
-        // append for email notification to queue
-        SupervisorInit.appendNotification(noti);
+        if (this.c.getNotificationEmail() == null)
+            log.error("Can not notify via email, is null!");
+        else {
+            INotification noti = new EmailNotification(c, results);
+            // append for email notification to queue
+            SupervisorInit.appendNotification(noti);
 
-        if (log.isDebugEnabled())
-            log.debug("Submitted email with " + results.size() + " successes.");
+            log.debug("Submitted email with {} successes.", results.size());
+        }
+
+        if (this.rd != null)
+            this.rd.appendResults(getResults());
     }
 
     @Override
@@ -114,6 +116,11 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         }
         else
             throw new UnsupportedCheckException();
+    }
+
+    @Override
+    public void setResultDatabase(ResultDatabase rd) {
+        this.rd = rd;
     }
 
 }
