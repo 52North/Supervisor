@@ -19,9 +19,12 @@ package org.n52.supervisor.guice;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.n52.supervisor.ApiResource;
+import org.n52.supervisor.CheckerResolver;
+import org.n52.supervisor.ChecksResource;
+import org.n52.supervisor.ResultsResource;
 import org.n52.supervisor.SettingsResource;
-import org.n52.supervisor.Supervisor;
-import org.n52.supervisor.tasks.ChecksResource;
+import org.n52.supervisor.SupervisorInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +59,12 @@ public class SupervisorModule extends JerseyServletModule {
 
         // bind the JAX-RS resources
         // http://code.google.com/p/google-guice/wiki/ServletModule
-        // bind(CheckResource.class);
-        bind(Supervisor.class);
+        bind(CheckerResolver.class);
         bind(SettingsResource.class);
+        bind(ApiResource.class);
+        bind(ResultsResource.class);
+
+        bind(SupervisorInit.class);
         bind(ChecksResource.class);
 
         Map<String, String> params = new HashMap<String, String>();

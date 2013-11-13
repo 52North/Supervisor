@@ -77,9 +77,9 @@ public class SupervisorProperties {
 
     private static final String SEND_EMAILS = "supervisor.tasks.email.send";
 
-    private static final String USE_COMPILED_CHECKERS = "USE_COMPILED_CHECKERS";
+    private static final String USE_COMPILED_CHECKERS = "supervisor.checks.load.compiledFiles";
 
-    private static final String USE_CONFIG_CHECKERS = "USE_CONFIG_CHECKERS";
+    private static final String USE_CONFIG_CHECKERS = "supervisor.checks.load.configFile";
 
     /**
      * This methode provides the only instance of PropertiesManager.
@@ -132,8 +132,6 @@ public class SupervisorProperties {
     private boolean useConfigCheckers;
 
     private SupervisorProperties(Properties props) {
-        this.defaultCheckIntervalMillis = Long.parseLong(props.getProperty(DEFAULT_CHECK_INTERVAL_SECS)) * 1000;
-
         // the actual checks
         this.checkConfigurations = new ArrayList<String>();
         String checksString = props.getProperty(CHECKS);
@@ -179,10 +177,6 @@ public class SupervisorProperties {
         log.info("NEW " + this.toString());
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getAdminEmail() {
         return this.adminEmail;
     }

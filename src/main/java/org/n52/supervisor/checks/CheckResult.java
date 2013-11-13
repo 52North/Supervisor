@@ -13,83 +13,101 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.ICheckResult;
-
 /**
- * 
  * @author Daniel Nüst
- *
+ * 
  */
 @XmlRootElement
-public class CheckResult implements ICheckResult {
+public abstract class CheckResult {
 
-	private String checkIdentifier;
-	
-	private String result;
-	
-	private Date timeOfCheck;
-	
-	private ResultType type;
+    public static enum ResultType {
+        NEGATIVE, NEUTRAL, POSITIVE
+    }
 
-	/**
-	 * 
-	 * @param checkIdentifierP
-	 * @param resultP
-	 * @param typeP
-	 */
-	public CheckResult(String checkIdentifierP, String resultP, ResultType typeP) {
-		this.checkIdentifier = checkIdentifierP;
-		this.result = resultP;
-		this.type = typeP;
-		this.timeOfCheck = new Date();
-	}
+    private String checkIdentifier;
 
-	/* (non-Javadoc)
-	 * @see org.n52.owsSupervisor.checks.ICheckResult#getCheckIdentifier()
-	 */
-	@Override
-	public String getCheckIdentifier() {
-		return this.checkIdentifier;
-	}
+    private String result;
 
-	/* (non-Javadoc)
-	 * @see org.n52.owsSupervisor.checks.ICheckResult#getResult()
-	 */
-	@Override
-	public String getResult() {
-		return this.result;
-	}
+    private Date timeOfCheck;
 
-	/* (non-Javadoc)
-	 * @see org.n52.owsSupervisor.checks.ICheckResult#getTimeOfCheck()
-	 */
-	@Override
-	public Date getTimeOfCheck() {
-		return this.timeOfCheck;
-	}
+    private ResultType type;
 
-	/* (non-Javadoc)
-	 * @see org.n52.owsSupervisor.checks.ICheckResult#getType()
-	 */
-	@Override
-	public ResultType getType() {
-		return this.type;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-	    // TODO Auto-generated method stub
-	    return "CheckResult [identifier=" + this.checkIdentifier + ", type=" + this.type + ", time=" + this.timeOfCheck + ", result=" + this.result + "]";
-	}
+    public CheckResult() {
+        // required for jaxb
+    }
+
+    public CheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type) {
+        super();
+        this.checkIdentifier = checkIdentifier;
+        this.result = result;
+        this.timeOfCheck = timeOfCheck;
+        this.type = type;
+    }
+
+    public String getCheckIdentifier() {
+        return checkIdentifier;
+    }
+
+    public void setCheckIdentifier(String checkIdentifier) {
+        this.checkIdentifier = checkIdentifier;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public Date getTimeOfCheck() {
+        return timeOfCheck;
+    }
+
+    public void setTimeOfCheck(Date timeOfCheck) {
+        this.timeOfCheck = timeOfCheck;
+    }
+
+    public ResultType getType() {
+        return type;
+    }
+
+    public void setType(ResultType type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CheckResult [");
+        if (checkIdentifier != null) {
+            builder.append("checkIdentifier=");
+            builder.append(checkIdentifier);
+            builder.append(", ");
+        }
+        if (result != null) {
+            builder.append("result=");
+            builder.append(result);
+            builder.append(", ");
+        }
+        if (timeOfCheck != null) {
+            builder.append("timeOfCheck=");
+            builder.append(timeOfCheck);
+            builder.append(", ");
+        }
+        if (type != null) {
+            builder.append("type=");
+            builder.append(type);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 
 }

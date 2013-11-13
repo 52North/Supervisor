@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.tasks;
+package org.n52.supervisor.checks.ows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+/**
+ * @author Daniel Nüst
+ * 
+ */
+public class SosCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
-public class TaskModule extends AbstractModule {
+    private static Logger log = LoggerFactory.getLogger(SosCapabilitiesCheckRunner.class);
 
-    private static Logger log = LoggerFactory.getLogger(TaskModule.class);
+    private static final String SOS_SERVICE = "SOS";
+
+    public SosCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
+        super(check);
+
+        if ( !check.getServiceType().equals(SOS_SERVICE))
+            log.warn("Checking non-SOS {} with SOS runner: {}", check, this);
+    }
 
     @Override
-    protected void configure() {
-        // bind(TaskServlet.class);
-        bind(IJobScheduler.class).to(JobSchedulerImpl.class);
-
-        install(new FactoryModuleBuilder().implement(CheckTask.class, CheckTaskImpl.class).build(CheckTaskFactory.class));
-
-        log.info("Configured {}", this);
+    public boolean check() {
+        log.debug("Checking SOS Capabilities for " + this.c.getServiceUrl());
+        return runGetRequestParseDocCheck();
     }
 
 }

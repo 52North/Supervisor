@@ -13,15 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.supervisor;
 
-import org.junit.Test;
+package org.n52.supervisor.checks.util;
 
-public class CheckResult {
-    
-    @Test
-    public void checkResultEqualsTestFile() {
-        
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.n52.supervisor.checks.Check;
+
+/**
+ * 
+ * @author Daniel
+ * 
+ */
+@XmlRootElement
+public class CheckCollection extends Check {
+
+    protected String type = "CheckCollection";
+
+    public CheckCollection() {
+        super();
+    }
+
+    public CheckCollection(String identifier) {
+        super(identifier);
     }
 
 }

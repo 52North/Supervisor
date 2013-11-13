@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.n52.supervisor.checks.util;
 
-package org.n52.supervisor.ui;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import java.util.Collection;
-
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.Check;
 
 /**
- * @author Daniel Nüst (d.nuest@52north.org)
  * 
+ * @author Daniel
+ *
  */
-public interface INotification {
+@XmlRootElement
+public class HeapCheck extends Check {
 
-    public Collection<CheckResult> getResults();
+    protected String type = "HeapCheck";
+    
+    public HeapCheck() {
+        super();
+    }
+
+    public HeapCheck(String identifier) {
+        super(identifier);
+    }
 
 }
