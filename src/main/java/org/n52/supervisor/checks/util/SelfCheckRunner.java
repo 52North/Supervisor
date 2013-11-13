@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.checks;
+package org.n52.supervisor.checks.util;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
+import java.util.Date;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.n52.supervisor.ICheckResult;
-import org.n52.supervisor.Supervisor;
-import org.n52.supervisor.ICheckResult.ResultType;
+import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.checks.AbstractServiceCheckRunner;
+import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.CheckResult.ResultType;
+import org.n52.supervisor.checks.UnsupportedCheckException;
 import org.n52.supervisor.ui.EmailNotification;
 import org.n52.supervisor.ui.INotification;
 import org.slf4j.Logger;
@@ -37,25 +37,14 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
-@XmlRootElement
-public class SelfCheck extends AbstractServiceCheck {
+public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
     private static final long L1024_2 = 1024 * 1024;
 
-    private static Logger log = LoggerFactory.getLogger(SelfCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SelfCheckRunner.class);
 
-    private String message;
-
-    public SelfCheck(String serviceURL, String notifyEmail, String checkInterval) throws MalformedURLException {
-        this(notifyEmail, new URL(serviceURL), Long.valueOf(checkInterval).longValue());
-    }
-
-    public SelfCheck(String notifyEmail, URL serviceURL, long checkInterval) {
-        super(notifyEmail, serviceURL, checkInterval);
-    }
-    
-    public SelfCheck(String id, String notifyEmail, URL serviceURL, long checkInterval) {
-        super(id, notifyEmail, serviceURL, checkInterval);
+    public SelfCheckRunner(SelfCheck check) {
+        super(check);
     }
 
     @Override
@@ -68,9 +57,9 @@ public class SelfCheck extends AbstractServiceCheck {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Self check ran succesfully, service is most probably up and running.\n Go to <a href='");
-        sb.append(getServiceURL().toString());
+        sb.append(this.c.getServiceUrl());
         sb.append("' title='OwsSupervisor HTML Interface'>");
-        sb.append(getServiceURL().toString());
+        sb.append(this.c.getServiceUrl());
         sb.append("</a>");
         sb.append(" for the current check status.");
 
@@ -82,11 +71,12 @@ public class SelfCheck extends AbstractServiceCheck {
         sb.append(heapFreeSize / L1024_2);
         sb.append(".");
 
-        this.message = sb.toString();
-
         // TODO add currently running tasks and their last message
-
-        addResult(new ServiceCheckResult(getService(), this.message, ResultType.POSITIVE));
+        CheckResult result = new SelfCheckResult(this.c.getIdentifier(),
+                                                 sb.toString(),
+                                                 new Date(),
+                                                 ResultType.POSITIVE);
+        addResult(result);
 
         return true;
     }
@@ -98,42 +88,32 @@ public class SelfCheck extends AbstractServiceCheck {
 
     @Override
     public void notifySuccess() {
-        // send email
         if (log.isDebugEnabled())
             log.debug("Check SUCCESSFUL: " + this);
 
-        if (getEmail() == null) {
+        if (this.c.getNotificationEmail() == null) {
             log.error("Can not notify via email, is null!");
             return;
         }
 
-        Collection<ICheckResult> results = getResults();
+        Collection<CheckResult> results = getResults();
 
-        INotification noti = new EmailNotification(getServiceURL().toString(), getEmail(), results);
+        INotification noti = new EmailNotification(c, results);
         // append for email notification to queue
-        Supervisor.appendNotification(noti);
+        SupervisorInit.appendNotification(noti);
 
         if (log.isDebugEnabled())
             log.debug("Submitted email with " + results.size() + " successes.");
     }
 
     @Override
-    public String toString() {
-        return "SelfCheck [" + getServiceURL() + ", email=" + getEmail() + ", check interval="
-                + getCheckIntervalMillis();
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    @Override
-    public String getType() {
-        return "SelfCheck";
+    public void setCheck(Check c) throws UnsupportedCheckException {
+        if (c instanceof SelfCheck) {
+            SelfCheck sc = (SelfCheck) c;
+            this.c = sc;
+        }
+        else
+            throw new UnsupportedCheckException();
     }
 
 }

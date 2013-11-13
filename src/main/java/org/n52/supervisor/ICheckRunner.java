@@ -18,53 +18,29 @@ package org.n52.supervisor;
 
 import java.util.Collection;
 
+import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.UnsupportedCheckException;
+
 /**
  * @author Daniel Nüst
  * 
  */
-// @XmlJavaTypeAdapter(AnyTypeAdapter.class)
-// @XmlRootElement
-public interface IServiceChecker {
+public interface ICheckRunner {
 
-    /**
-     * add a result to the result list
-     */
-    public void addResult(ICheckResult r);
+    public void addResult(CheckResult r);
 
+    public void setCheck(Check c) throws UnsupportedCheckException;
+    
+    public Check getCheck();
+    
     public boolean check();
 
-    public long getCheckIntervalMillis();
+    public Collection<CheckResult> getResults();
 
-    public Collection<ICheckResult> getResults();
-
-    /**
-     * 
-     * @return the identifier of the checked service
-     */
-    public String getService();
-
-    /**
-     * notify about failure of (one ore more) of the contained checks
-     */
     public void notifyFailure();
 
-    /**
-     * notify about successful completition of the check/all checks
-     */
     public void notifySuccess();
 
-    /**
-     * 
-     * @return the identifier of the checker itself
-     */
-    public String getIdentifier();
-
-    public void setIdentifier(String id);
-
-    /**
-     * 
-     * @return the type of the checker
-     */
-    public String getType();
     
 }

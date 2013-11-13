@@ -17,7 +17,6 @@
 package org.n52.supervisor.checks;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
@@ -39,7 +38,7 @@ import net.opengis.swe.x101.TimeObjectPropertyType;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.supervisor.ICheckResult.ResultType;
+import org.n52.supervisor.checks.ows.SosLatestObservationCheck;
 import org.n52.supervisor.util.XmlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @XmlRootElement
-public class SosLatestObservationCheck extends AbstractServiceCheck {
+public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner {
 
     private static final String GET_OBS_RESPONSE_FORMAT = "text/xml;subtype=\"om/1.0.0\""; // text/xml;subtype="om/1.0.0
 
@@ -59,7 +58,7 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     private static final String LATEST_OBSERVATION_VALUE = "latest";
 
-    private static Logger log = LoggerFactory.getLogger(SosLatestObservationCheck.class);
+    private static Logger log = LoggerFactory.getLogger(SosLatestObservationCheckRunner.class);
 
     protected static final String NEGATIVE_TEXT = "Request for latest observation FAILED.";
 
@@ -71,45 +70,12 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     private static final String TEMP_OP_PROPERTY_NAME = "om:samplingTime";
 
-    private long checkInterval;
-
-    private long maximumAgeOfObservationMillis;
-
-    private String observedProp;
-
-    private String off;
-
-    private String proc;
-
-    public SosLatestObservationCheck(String serviceUrl,
-                                     String offering,
-                                     String observedProperty,
-                                     String procedure,
-                                     String maximumAgeMillis,
-                                     String notifyEmail,
-                                     String checkIntervalMillis) throws NumberFormatException, MalformedURLException {
-        this(new URL(serviceUrl),
-             offering,
-             observedProperty,
-             procedure,
-             Long.parseLong(maximumAgeMillis),
-             notifyEmail,
-             Long.parseLong(checkIntervalMillis));
+    public SosLatestObservationCheckRunner(SosLatestObservationCheck check) {
+        super(check);
     }
 
-    public SosLatestObservationCheck(URL serviceURL,
-                                     String offering,
-                                     String observedProperty,
-                                     String procedure,
-                                     long maximumAgeMillis,
-                                     String notifyEmail,
-                                     long checkIntervalMillis) {
-        super(notifyEmail, serviceURL);
-        this.off = offering;
-        this.observedProp = observedProperty;
-        this.checkInterval = checkIntervalMillis;
-        this.maximumAgeOfObservationMillis = maximumAgeMillis;
-        this.proc = procedure;
+    private SosLatestObservationCheck theCheck() {
+        return (SosLatestObservationCheck) this.c;
     }
 
     private GetObservationDocument buildRequest() {
@@ -149,10 +115,9 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
         }
         // binOp.set(tmEqDoc);
 
-        // rest
-        obs.addProcedure(this.proc);
-        obs.setOffering(this.off);
-        obs.addObservedProperty(this.observedProp);
+        obs.addProcedure(theCheck().getProcedure());
+        obs.setOffering(theCheck().getOffering());
+        obs.addObservedProperty(theCheck().getObservedProperty());
         obs.setService(SOS_SERVICE);
         obs.setVersion(SOS_VERSION);
         // obs.addNewFeatureOfInterest().addNewObjectID().setStringValue(foi);
@@ -164,13 +129,12 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
 
     @Override
     public boolean check() {
-        URL sUrl = getServiceURL();
+        URL sUrl = this.c.getServiceUrl();
 
         // max age
-        Date maxAge = new Date(System.currentTimeMillis() - this.maximumAgeOfObservationMillis);
+        Date maxAge = new Date(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
 
-        log.debug("Checking for latest observation " + this.off + "/" + this.observedProp + " which must be after "
-                + maxAge);
+        log.debug("Checking for latest observation with {}", theCheck());
 
         clearResults();
 
@@ -216,14 +180,21 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
                 Date timeToCheck = ISO8601LocalFormat.parse(timeString);
                 if (timeToCheck.after(maxAge)) {
                     // ALL OKAY - save the result
-                    addResult(new ServiceCheckResult(new Date(), getServiceURL().toString(), POSITIVE_TEXT
-                            + getObservationString(), ResultType.POSITIVE));
+                    ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+                                                                  POSITIVE_TEXT,
+                                                                  new Date(),
+                                                                  CheckResult.ResultType.POSITIVE,
+                                                                  this.c.getServiceIdentifier());
+                    addResult(r);
                     return true;
                 }
 
                 // to old!
-                return saveAndReturnNegativeResult(NEGATIVE_TEXT + " " + this.observedProp + " " + this.proc
-                        + " -- latest observation is too old (" + timeString + ")!");
+                return saveAndReturnNegativeResult(String.format("%s %s %s  -- latest observation is too old (%s)!",
+                                                                 NEGATIVE_TEXT,
+                                                                 theCheck().getOffering(),
+                                                                 theCheck().getProcedure(),
+                                                                 timeString));
             }
             catch (ParseException e) {
                 log.error("Could not parse sampling time " + timeString, e);
@@ -236,70 +207,22 @@ public class SosLatestObservationCheck extends AbstractServiceCheck {
                 + " -- Response did not contain TimeInstant as samplingTime!");
     }
 
-    @Override
-    public long getCheckIntervalMillis() {
-        return this.checkInterval;
-    }
-
     private String getObservationString() {
-        return " Offering: " + this.off + "; Observed property: " + this.observedProp + "; Procedure: " + this.proc
-                + ".";
+        SosLatestObservationCheck sloc = theCheck();
+        return String.format(" Offering: %s; Observed property: %s; Procedure: %s.",
+                             sloc.getOffering(),
+                             sloc.getObservedProperty(),
+                             sloc.getProcedure());
     }
 
     private boolean saveAndReturnNegativeResult(String text) {
-        addResult(new ServiceCheckResult(new Date(), getServiceURL().toString(), text, ResultType.NEGATIVE));
+        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+                                                      text,
+                                                      new Date(),
+                                                      CheckResult.ResultType.NEGATIVE,
+                                                      this.c.getServiceIdentifier());
+
+        addResult(r);
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return "SosLatestObservationCheck [" + getService() + ", check interval=" + getCheckIntervalMillis()
-                + ", offering=" + this.off + ", observed property=" + this.observedProp + ", procedure=" + this.proc
-                + ", maximum age=" + this.maximumAgeOfObservationMillis + "]";
-    }
-
-    public long getCheckInterval() {
-        return checkInterval;
-    }
-
-    public void setCheckInterval(long checkInterval) {
-        this.checkInterval = checkInterval;
-    }
-
-    public long getMaximumAgeOfObservationMillis() {
-        return maximumAgeOfObservationMillis;
-    }
-
-    public void setMaximumAgeOfObservationMillis(long maximumAgeOfObservationMillis) {
-        this.maximumAgeOfObservationMillis = maximumAgeOfObservationMillis;
-    }
-
-    public String getObservedProp() {
-        return observedProp;
-    }
-
-    public void setObservedProp(String observedProp) {
-        this.observedProp = observedProp;
-    }
-
-    public String getOff() {
-        return off;
-    }
-
-    public void setOff(String off) {
-        this.off = off;
-    }
-
-    public String getProc() {
-        return proc;
-    }
-
-    public void setProc(String proc) {
-        this.proc = proc;
-    }
-    
-    @Override
-    public String getType() {
-        return "SosLatestObservationCheck";
     }
 }

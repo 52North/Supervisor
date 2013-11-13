@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.ui;
+package org.n52.supervisor.checks.ows;
 
-import java.util.Collection;
-
-import org.n52.supervisor.checks.CheckResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author Daniel Nüst (d.nuest@52north.org)
+ * @author Daniel Nüst
  * 
  */
-public interface INotification {
+public class SorCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
-    public Collection<CheckResult> getResults();
+    private static Logger log = LoggerFactory.getLogger(SorCapabilitiesCheckRunner.class);
+
+    public SorCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
+        super(check);
+    }
+
+    @Override
+    public boolean check() {
+        log.debug("Checking SOR Capabilities for {}", this.c.getServiceUrl());
+
+        clearResults();
+
+        return runGetRequestParseDocCheck();
+    }
 
 }

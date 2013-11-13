@@ -19,104 +19,40 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.ICheckResult;
-
 /**
  * @author Daniel Nüst
  * 
  */
 @XmlRootElement
-public class ServiceCheckResult implements ICheckResult {
-
-	private String result;
+public class ServiceCheckResult extends CheckResult {
 
 	private String serviceIdentifier;
+	
+	public ServiceCheckResult() {
+        super();
+        //
+    }
 
-	private Date time;
+    public ServiceCheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type, String serviceIdentifier) {
+        super(checkIdentifier, result, timeOfCheck, type);
+        this.serviceIdentifier = serviceIdentifier;
+    }
 
-	private ResultType type;
-
-	/**
-	 * 
-	 * @param timeP
-	 * @param serviceP
-	 * @param resultP
-	 * @param typeP
-	 */
-	public ServiceCheckResult(Date timeP, String serviceP, String resultP,
-			ResultType typeP) {
-		this.time = timeP;
-		this.serviceIdentifier = serviceP;
-		this.result = resultP;
-		this.type = typeP;
-	}
-
-	/**
-	 * 
-	 * @param serviceP
-	 * @param resultP
-	 * @param typeP
-	 */
-	public ServiceCheckResult(String serviceP, String resultP, ResultType typeP) {
-		this(new Date(), serviceP, resultP, typeP);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.n52.owsSupervisor.ICheckResult#getCheckIdentifier()
-	 */
-	@Override
-	public String getCheckIdentifier() {
-		return getServiceIdentifier();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.ICheckResult#getResult()
-	 */
-	@Override
-	public String getResult() {
-		return this.result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.ICheckResult#getServiceIdentifier()
-	 */
 	public String getServiceIdentifier() {
 		return this.serviceIdentifier;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.ICheckResult#getTimeOfCheck()
-	 */
-	@Override
-	public Date getTimeOfCheck() {
-		return this.time;
-	}
+    public void setServiceIdentifier(String serviceIdentifier) {
+        this.serviceIdentifier = serviceIdentifier;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.n52.owsSupervisor.ICheckResult#getType()
-	 */
-	@Override
-	public ResultType getType() {
-		return this.type;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "[" + getType().name() + "] " + this.time + ": "
-				+ this.serviceIdentifier + " - " + this.result;
-	}
-
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ServiceCheckResult [serviceIdentifier=");
+        builder.append(serviceIdentifier);
+        builder.append("]");
+        return builder.toString();
+    }
+    
 }

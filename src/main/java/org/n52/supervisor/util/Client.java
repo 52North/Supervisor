@@ -35,10 +35,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * A simple client to connect to a SOR. It sends the given request string to the url defined
- * 
- * @author Jan Schulte, Daniel Nüst
- * 
+ * @author Daniel
+ *
  */
 public class Client {
 
@@ -48,14 +46,6 @@ public class Client {
 
     private static final String POST_METHOD = "POST";
 
-    /**
-     * @param requestContent
-     * @param requestUrl
-     * @return
-     * @throws UnsupportedEncodingException
-     * @throws IOException
-     * @throws HttpException
-     */
     private XmlObject doSend(String requestUrl, String requestContent, String requestMethod) throws UnsupportedEncodingException,
             IOException {
         if (log.isDebugEnabled())
@@ -101,14 +91,6 @@ public class Client {
         return xmlResponse;
     }
 
-    /**
-     * 
-     * @param request
-     * @return
-     * @throws UnsupportedEncodingException
-     * @throws HttpException
-     * @throws IOException
-     */
     public String sendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException, IOException {
         if (request.isEmpty()) {
             return "The request is empty!";
@@ -116,13 +98,6 @@ public class Client {
         return xSendGetRequest(requestUrl, request).xmlText();
     }
 
-    /**
-     * 
-     * @param requestUrl
-     * @param request
-     * @return
-     * @throws IOException
-     */
     public String sendPostRequest(String requestUrl, String request) throws IOException {
         if (request.isEmpty()) {
             return "The request is empty!";
@@ -131,28 +106,12 @@ public class Client {
         return response.toString();
     }
 
-    /**
-     * 
-     * @param request
-     * @param requestUrl
-     * @return
-     * @throws UnsupportedEncodingException
-     * @throws HttpException
-     * @throws IOException
-     */
     public XmlObject xSendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException,
             IOException {
         XmlObject response = doSend(requestUrl, request, GET_METHOD);
         return response;
     }
 
-    /**
-     * 
-     * @param requestUrl
-     * @param request
-     * @return
-     * @throws IOException
-     */
     public XmlObject xSendPostRequest(String requestUrl, XmlObject request) throws IOException {
         XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
         return response;

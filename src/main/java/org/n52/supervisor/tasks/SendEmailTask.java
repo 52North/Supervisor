@@ -33,11 +33,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.n52.supervisor.ICheckResult;
-import org.n52.supervisor.Supervisor;
+import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.SupervisorProperties;
-import org.n52.supervisor.ICheckResult.ResultType;
 import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.util.DebugCheckResult;
+import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
 import org.n52.supervisor.ui.INotification;
 import org.slf4j.Logger;
@@ -55,19 +55,10 @@ public class SendEmailTask extends TimerTask {
     private class PropertyAuthenticator extends Authenticator {
         private Properties p;
 
-        /**
-         * 
-         * @param sp
-         */
         public PropertyAuthenticator(Properties sp) {
             this.p = sp;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see javax.mail.Authenticator#getPasswordAuthentication()
-         */
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             String userName = this.p.getProperty(SupervisorProperties.MAIL_USER_PROPERTY);
@@ -86,18 +77,19 @@ public class SendEmailTask extends TimerTask {
 
     private static Logger log = LoggerFactory.getLogger(SendEmailTask.class);
 
-    private static final String RESULT_IDENTIFIER = "Send Email Task";
-
     private String adminEmail = null;
 
     // FIXME need to get notifications here
     private Collection<INotification> notifications;
 
+    private ResultDatabase rd;
+
     @Inject
     public SendEmailTask(@Named("supervisor.admin.email")
-    String adminEmail) {
+    String adminEmail, ResultDatabase rd) {
         this.adminEmail = adminEmail;
-        
+        this.rd = rd;
+
         log.info("NEW " + this.toString());
     }
 
@@ -134,8 +126,8 @@ public class SendEmailTask extends TimerTask {
 
             int failureCount = 0;
             for (EmailNotification noti : email.getValue()) {
-                for (ICheckResult r : noti.getResults()) {
-                    if (r.getType().equals(ResultType.NEGATIVE)) {
+                for (CheckResult r : noti.getResults()) {
+                    if (r.getType().equals(CheckResult.ResultType.NEGATIVE)) {
                         sb.append(r.toString());
                         sb.append(EMAIL_RESULT_DELIMITER_TEXT);
 
@@ -145,8 +137,8 @@ public class SendEmailTask extends TimerTask {
             }
             for (EmailNotification noti : email.getValue()) {
                 sb.append("\n");
-                for (ICheckResult r : noti.getResults()) {
-                    if (r.getType().equals(ResultType.NEUTRAL)) {
+                for (CheckResult r : noti.getResults()) {
+                    if (r.getType().equals(CheckResult.ResultType.NEUTRAL)) {
                         sb.append(r.toString());
                         sb.append(EMAIL_RESULT_DELIMITER_TEXT);
                     }
@@ -154,8 +146,8 @@ public class SendEmailTask extends TimerTask {
             }
             for (EmailNotification noti : email.getValue()) {
                 sb.append("\n");
-                for (ICheckResult r : noti.getResults()) {
-                    if (r.getType().equals(ResultType.POSITIVE)) {
+                for (CheckResult r : noti.getResults()) {
+                    if (r.getType().equals(CheckResult.ResultType.POSITIVE)) {
                         sb.append(r.toString());
                         sb.append(EMAIL_RESULT_DELIMITER_TEXT);
                     }
@@ -173,16 +165,17 @@ public class SendEmailTask extends TimerTask {
             catch (MessagingException e) {
                 log.error("Could not send email to " + email.getKey(), e);
 
-                ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "FAILED to send email to " + email.getKey()
-                        + ": " + e.getMessage(), ResultType.NEGATIVE);
-                Supervisor.appendLatestResult(result);
+                String text = String.format("FAILED to send email to %s : %s", email.getKey(), e.getMessage());
+                CheckResult result = new DebugCheckResult(text);
+                this.rd.appendResult(result);
                 noError = false;
             }
         } // loop over all email addresses
 
-        ICheckResult result = new CheckResult(RESULT_IDENTIFIER, "Sent " + overallEmailCounter + " email(s) with "
-                + overallFailureCounter + " failure(s).", ResultType.NEUTRAL);
-        Supervisor.appendLatestResult(result);
+        String text = String.format("Sent %s email(s) with %s failure(s).", overallEmailCounter, overallFailureCounter);
+
+        CheckResult result = new DebugCheckResult(text);
+        this.rd.appendResult(result);
 
         return noError;
     }
@@ -200,7 +193,7 @@ public class SendEmailTask extends TimerTask {
 
             // all went ok, clear notifications
             if (noError)
-                Supervisor.removeAllNotifications(notifications);
+                SupervisorInit.removeAllNotifications(notifications);
             else
                 log.error("** Error sending emails.");
         }

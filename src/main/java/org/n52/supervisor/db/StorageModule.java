@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.n52.supervisor.db;
 
-package org.n52.supervisor.ui;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-
-import org.n52.supervisor.checks.CheckResult;
+import com.google.inject.AbstractModule;
 
 /**
- * @author Daniel Nüst (d.nuest@52north.org)
+ * 
+ * @author Daniel
  * 
  */
-public interface INotification {
+public class StorageModule extends AbstractModule {
 
-    public Collection<CheckResult> getResults();
+    private static Logger log = LoggerFactory.getLogger(StorageModule.class);
+
+    @Override
+    public void configure() {
+        bind(CheckDatabase.class);
+        bind(ResultDatabase.class);
+
+        log.info("Configured {}", this);
+    }
 
 }
