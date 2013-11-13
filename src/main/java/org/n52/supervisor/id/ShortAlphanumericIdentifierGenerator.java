@@ -22,6 +22,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author Daniel
+ * 
+ */
 public class ShortAlphanumericIdentifierGenerator implements IdentifierGenerator {
 
     private static Logger log = LoggerFactory.getLogger(ShortAlphanumericIdentifierGenerator.class);

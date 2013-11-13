@@ -16,7 +16,7 @@
 
 package org.n52.supervisor.tasks;
 
-import org.n52.supervisor.IServiceChecker;
+import org.n52.supervisor.ICheckRunner;
 
 /**
  * 
@@ -39,7 +39,7 @@ public interface IJobScheduler {
      * @param checker
      * @return the id
      */
-    public abstract String submit(IServiceChecker checker);
+    public abstract String submit(ICheckRunner checker);
 
     /**
      * 
@@ -48,6 +48,6 @@ public interface IJobScheduler {
      *        delay in milliseconds after which the task is executed the first time
      * @return
      */
-    public abstract String submit(IServiceChecker checker, long delay);
+    public abstract String submit(ICheckRunner checker, long delay);
 
 }

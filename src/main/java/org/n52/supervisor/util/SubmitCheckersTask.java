@@ -19,7 +19,7 @@ package org.n52.supervisor.util;
 import java.util.Collection;
 import java.util.TimerTask;
 
-import org.n52.supervisor.IServiceChecker;
+import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.tasks.IJobScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +32,11 @@ public class SubmitCheckersTask extends TimerTask {
 
     private static Logger log = LoggerFactory.getLogger(SubmitCheckersTask.class);
 
-    private Collection<IServiceChecker> checkers;
+    private Collection<ICheckRunner> checkers;
 
     private IJobScheduler scheduler;
 
-    public SubmitCheckersTask(IJobScheduler schedulerP, Collection<IServiceChecker> checkersP) {
+    public SubmitCheckersTask(IJobScheduler schedulerP, Collection<ICheckRunner> checkersP) {
         this.checkers = checkersP;
         this.scheduler = schedulerP;
 
@@ -47,7 +47,7 @@ public class SubmitCheckersTask extends TimerTask {
     public void run() {
         log.info("Submitting checkers.");
 
-        for (IServiceChecker c : this.checkers) {
+        for (ICheckRunner c : this.checkers) {
             this.scheduler.submit(c);
         }
     }

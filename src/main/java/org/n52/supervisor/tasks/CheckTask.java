@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.n52.supervisor.ui;
+package org.n52.supervisor.tasks;
 
 import java.util.Collection;
 
+import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.checks.CheckResult;
 
 /**
- * @author Daniel Nüst (d.nuest@52north.org)
+ * 
+ * @author Daniel
  * 
  */
-public interface INotification {
+public interface CheckTask {
 
-    public Collection<CheckResult> getResults();
+    public Collection<CheckResult> checkIt(ICheckRunner c);
 
 }

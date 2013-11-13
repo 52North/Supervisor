@@ -13,32 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.n52.supervisor.checks.util;
 
-package org.n52.supervisor;
+import java.util.Date;
 
-import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.n52.supervisor.checks.CheckResult;
 
 /**
  * 
- * @author Daniel Nüst (d.nuest@52north.org)
- * 
+ * @author Daniel
+ *
  */
-public interface ICheckerFactory {
+@XmlRootElement
+public class SelfCheckResult extends CheckResult {
 
-    public static final long EVERY_12_HOURS = 1000 * 60 * 60 * 12;
+    public SelfCheckResult() {
+        super();
+        // for jaxb
+    }
 
-    public static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
+    public SelfCheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type) {
+        super(checkIdentifier, result, timeOfCheck, type);
+    }
 
-    public static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
-
-    public static final long EVERY_HOUR = 1000 * 60 * 60;
-
-    public static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
-
-    /**
-     * 
-     * @return
-     */
-    public abstract Collection<IServiceChecker> getCheckers();
-
+    
 }

@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.ui;
-
-import java.util.Collection;
-
-import org.n52.supervisor.checks.CheckResult;
+package org.n52.supervisor.checks;
 
 /**
- * @author Daniel Nüst (d.nuest@52north.org)
+ * 
+ * @author Daniel
  * 
  */
-public interface INotification {
+public class UnsupportedCheckException extends Exception {
 
-    public Collection<CheckResult> getResults();
+    private static final long serialVersionUID = -5446103004242014271L;
+
+    public UnsupportedCheckException() {
+        super();
+    }
+    
+    public UnsupportedCheckException(String message) {
+        super(message);
+    }
 
 }
