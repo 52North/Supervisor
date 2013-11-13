@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.n52.supervisor;
+package org.n52.supervisor.checks.util;
 
 import java.util.Date;
 
-/**
- * @author Daniel Nüst
- * 
- */
-public interface ICheckResult {
+import javax.xml.bind.annotation.XmlRootElement;
 
-    public static enum ResultType {
-        NEGATIVE, NEUTRAL, POSITIVE
+import org.n52.supervisor.checks.CheckResult;
+
+/**
+ * 
+ * @author Daniel
+ *
+ */
+@XmlRootElement
+public class HeapCheckResult extends CheckResult {
+
+    public HeapCheckResult() {
+        super();
     }
 
-    public String getCheckIdentifier();
-
-    public String getResult();
-
-    public Date getTimeOfCheck();
-
-    public ResultType getType();
+    public HeapCheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type) {
+        super(checkIdentifier, result, timeOfCheck, type);
+    }
 
 }

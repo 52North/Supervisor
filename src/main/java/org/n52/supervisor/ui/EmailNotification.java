@@ -18,7 +18,8 @@ package org.n52.supervisor.ui;
 
 import java.util.Collection;
 
-import org.n52.supervisor.ICheckResult;
+import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.checks.CheckResult;
 
 /**
  * @author Daniel Nüst
@@ -26,16 +27,16 @@ import org.n52.supervisor.ICheckResult;
  */
 public class EmailNotification implements INotification {
 
-    private Collection<ICheckResult> results;
+    private Collection<CheckResult> results;
 
     private String recipientEmail;
 
-    private String serviceUrl;
+    private Check c;
 
-    public EmailNotification(String serviceUrlP, String recipientEmailP, Collection<ICheckResult> resultsP) {
+    public EmailNotification(Check c, Collection<CheckResult> resultsP) {
         this.results = resultsP;
-        this.recipientEmail = recipientEmailP;
-        this.serviceUrl = serviceUrlP;
+        this.recipientEmail = c.getNotificationEmail();
+        this.c = c;
     }
 
     public String getRecipientEmail() {
@@ -43,13 +44,8 @@ public class EmailNotification implements INotification {
     }
 
     @Override
-    public Collection<ICheckResult> getResults() {
+    public Collection<CheckResult> getResults() {
         return this.results;
-    }
-
-    @Override
-    public String getServiceUrl() {
-        return this.serviceUrl;
     }
 
     @Override
@@ -66,12 +62,12 @@ public class EmailNotification implements INotification {
             builder.append(recipientEmail);
             builder.append(", ");
         }
-        if (serviceUrl != null) {
-            builder.append("serviceUrl=");
-            builder.append(serviceUrl);
+        if (c != null) {
+            builder.append("Check=");
+            builder.append(c);
+            builder.append(", ");
         }
         builder.append("]");
         return builder.toString();
     }
-
 }

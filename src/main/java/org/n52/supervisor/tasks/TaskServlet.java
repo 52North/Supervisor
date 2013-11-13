@@ -33,6 +33,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
 
+import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,7 @@ public class TaskServlet extends GenericServlet {
 
     private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
 
-    private static ScheduledThreadPoolExecutor executor;
+    private ScheduledThreadPoolExecutor executor;
 
     private static final String INIT_PARAM_CONFIG_FILE = "configFile";
 
@@ -119,6 +120,8 @@ public class TaskServlet extends GenericServlet {
     private ArrayList<TaskElement> tasks = new ArrayList<TaskServlet.TaskElement>();
 
     @Inject
+    private ResultDatabase rd;
+
     public TaskServlet() {
         log.info("NEW {}", this);
     }
@@ -182,7 +185,7 @@ public class TaskServlet extends GenericServlet {
             long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
             if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
                 log.info("Found admin email address for send email task.");
-                SendEmailTask set = new SendEmailTask(adminEmail);
+                SendEmailTask set = new SendEmailTask(adminEmail, this.rd);
                 submit(EMAIL_SENDER_TASK_ID, set, emailSendInterval, emailSendInterval);
             }
         }
@@ -212,7 +215,7 @@ public class TaskServlet extends GenericServlet {
         if (log.isDebugEnabled()) {
             log.debug("Submitted: " + task + " with delay = " + delay);
         }
-        
+
         this.tasks.add(new TaskElement(identifier, task, delay, 0l));
     }
 
@@ -227,12 +230,14 @@ public class TaskServlet extends GenericServlet {
      * @param period
      */
     public void submit(String identifier, TimerTask task, long delay, long period) {
-        executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
-        
-        this.tasks.add(new TaskElement(identifier, task, delay, period));
-        
-        if (log.isDebugEnabled()) {
-            log.debug("Submitted: " + task + " with period = " + period + ", delay = " + delay);
+        if (executor == null)
+            log.error("Executor is NULL.");
+        else {
+            executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
+
+            this.tasks.add(new TaskElement(identifier, task, delay, period));
+
+            log.debug("Submitted: {} with period = {}, delay = {}", task, period, delay);
         }
     }
 

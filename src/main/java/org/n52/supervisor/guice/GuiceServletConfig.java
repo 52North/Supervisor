@@ -16,6 +16,10 @@
 
 package org.n52.supervisor.guice;
 
+import java.util.concurrent.Executors;
+
+import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.db.StorageModule;
 import org.n52.supervisor.id.IdentificationModule;
 import org.n52.supervisor.tasks.TaskModule;
 
@@ -30,6 +34,31 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 
     @Override
     protected Injector getInjector() {
-        return Guice.createInjector(new IdentificationModule(), new ConfigModule(), new SupervisorModule(), new TaskModule());
+        Injector injector = Guice.createInjector(new IdentificationModule(),
+                                                 new ConfigModule(),
+                                                 new StorageModule(),
+                                                 new SupervisorModule(),
+                                                 new TaskModule());
+
+        // FIXME remove the hack to create an instance!
+        Executors.newSingleThreadExecutor().submit(new InitThread(injector));
+
+        return injector;
+    }
+
+    private class InitThread extends Thread {
+
+        private Injector i;
+
+        public InitThread(Injector i) {
+            this.i = i;
+        }
+
+        @Override
+        public void run() {
+            SupervisorInit instance = this.i.getInstance(SupervisorInit.class);
+            System.out.println(instance);
+        }
+
     }
 }

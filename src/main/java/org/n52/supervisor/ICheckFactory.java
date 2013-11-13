@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.ui;
+package org.n52.supervisor;
 
 import java.util.Collection;
 
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.Check;
 
 /**
+ * 
  * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
-public interface INotification {
+public interface ICheckFactory {
 
-    public Collection<CheckResult> getResults();
+    public static final long EVERY_12_HOURS = 1000 * 60 * 60 * 12;
+
+    public static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
+
+    public static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
+
+    public static final long EVERY_HOUR = 1000 * 60 * 60;
+
+    public static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
+
+    public abstract Collection<Check> getChecks();
 
 }

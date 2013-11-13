@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.checks;
+package org.n52.supervisor.checks.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.ICheckResult;
-import org.n52.supervisor.IServiceChecker;
-import org.n52.supervisor.ICheckResult.ResultType;
+import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.UnsupportedCheckException;
+import org.n52.supervisor.checks.CheckResult.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,31 +35,24 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @XmlRootElement
-public class HeapCheck implements IServiceChecker {
+public class HeapCheckRunner implements ICheckRunner {
 
     private static final long L1024_2 = 1024 * 1024;
 
-    private static Logger log = LoggerFactory.getLogger(HeapCheck.class);
-
-    private long interval;
+    private static Logger log = LoggerFactory.getLogger(HeapCheckRunner.class);
 
     private String lastCheckString = "";
 
-    private ICheckResult result;
+    private CheckResult result;
 
-    private String identifier;
+    private HeapCheck c;
 
-    public HeapCheck(long intervalMillis) {
-        this.interval = intervalMillis;
-    }
-    
-    public HeapCheck(String identifier, long intervalMillis) {
-        this(intervalMillis);
-        this.identifier = identifier;
+    public HeapCheckRunner(HeapCheck c) {
+        this.c = c;
     }
 
     @Override
-    public void addResult(ICheckResult r) {
+    public void addResult(CheckResult r) {
         if (this.result != null)
             log.debug("Overriding old result!");
 
@@ -68,8 +64,8 @@ public class HeapCheck implements IServiceChecker {
         long heapSize = Runtime.getRuntime().totalMemory();
         long heapMaxSize = Runtime.getRuntime().maxMemory();
         long heapFreeSize = Runtime.getRuntime().freeMemory();
-        this.lastCheckString = "Size (Mb) is " + heapSize / L1024_2 + " of " + heapMaxSize / L1024_2 + " leaving "
-                + heapFreeSize / L1024_2 + ".";
+        this.lastCheckString = String.format("Size is %s Mb of Mb %s leaving %s Mb.", heapSize / L1024_2, heapMaxSize
+                / L1024_2, heapFreeSize / L1024_2);
 
         notifySuccess();
 
@@ -77,20 +73,10 @@ public class HeapCheck implements IServiceChecker {
     }
 
     @Override
-    public long getCheckIntervalMillis() {
-        return this.interval;
-    }
-
-    @Override
-    public Collection<ICheckResult> getResults() {
-        ArrayList<ICheckResult> l = new ArrayList<ICheckResult>();
+    public Collection<CheckResult> getResults() {
+        ArrayList<CheckResult> l = new ArrayList<CheckResult>();
         l.add(this.result);
         return l;
-    }
-
-    @Override
-    public String getService() {
-        return null;
     }
 
     @Override
@@ -104,22 +90,25 @@ public class HeapCheck implements IServiceChecker {
             log.debug(this.lastCheckString);
         }
 
-        addResult(new CheckResult("Internal Heap Checker", this.lastCheckString, ResultType.POSITIVE));
+        addResult(new HeapCheckResult(this.c.getIdentifier(),
+                                      this.lastCheckString,
+                                      new Date(),
+                                      CheckResult.ResultType.POSITIVE));
     }
 
     @Override
-    public String getIdentifier() {
-        return this.identifier;
+    public void setCheck(Check c) throws UnsupportedCheckException {
+        if (c instanceof HeapCheck) {
+            HeapCheck hc = (HeapCheck) c;
+            this.c = hc;
+        }
+        else
+            throw new UnsupportedCheckException();
     }
 
     @Override
-    public void setIdentifier(String id) {
-        this.identifier = id;
-    }
-
-    @Override
-    public String getType() {
-        return "HeapCheck";
+    public Check getCheck() {
+        return this.c;
     }
 
 }

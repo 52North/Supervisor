@@ -16,13 +16,9 @@
 
 package org.n52.supervisor.tasks;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.TimerTask;
 
-import net.opengis.sensorML.x101.ArrayLinkDocument.ArrayLink;
-
-import org.n52.supervisor.IServiceChecker;
+import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.id.IdentifierGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +43,9 @@ public class JobSchedulerImpl implements IJobScheduler {
     private IdentifierGenerator idGen;
 
     @Inject
+    private CheckTaskFactory taskFactory;
+
+    @Inject
     protected JobSchedulerImpl(TaskServlet timer, IdentifierGenerator idGen) {
         this.timerServlet = timer;
         this.idGen = idGen;
@@ -62,26 +61,29 @@ public class JobSchedulerImpl implements IJobScheduler {
     }
 
     @Override
-    public String submit(IServiceChecker checker) {
+    public String submit(ICheckRunner checker) {
         return submit(checker, DEFAULT_DELAY_MILLISECS);
     }
 
     @Override
-    public String submit(IServiceChecker checker, long delay) {
-        log.debug("Added " + checker);
+    public String submit(ICheckRunner checker, long delay) {
+        log.debug("Added checker {} with delay {}", checker, delay);
 
-        String id = this.idGen.generate();
-        submit(id, new CheckServiceTask(id, checker), delay, checker.getCheckIntervalMillis());
+        String id = "task_" + this.idGen.generate();
+        CheckTask t = this.taskFactory.create(checker);
+        submit(id, t, delay, checker.getCheck().getIntervalSeconds() * 1000);
 
         return id;
     }
 
-    private void submit(String identifier, TimerTask task, long delay, long period) {
-        if (log.isDebugEnabled()) {
-            log.debug("Scheduling Task: " + task + " for execution now and with period of " + period
-                    + "ms after a delay of " + delay + "ms.");
-        }
-        this.timerServlet.submit(identifier, task, delay, period);
+    private void submit(String identifier, CheckTask task, long delay, long period) {
+        log.debug("Scheduling Task: {} for execution now, and with period of {} ms after a delay of {} ms.",
+                  task,
+                  period,
+                  delay);
+
+        TimerTask t = (TimerTask) task;
+        this.timerServlet.submit(identifier, t, delay, period);
     }
 
     @Override

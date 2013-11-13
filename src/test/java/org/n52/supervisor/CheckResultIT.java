@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.n52.supervisor;
 
-package org.n52.supervisor.ui;
+import org.junit.Test;
 
-import java.util.Collection;
-
-import org.n52.supervisor.checks.CheckResult;
-
-/**
- * @author Daniel Nüst (d.nuest@52north.org)
- * 
- */
-public interface INotification {
-
-    public Collection<CheckResult> getResults();
+public class CheckResultIT {
+    
+    @Test
+    public void checkResultEqualsTestFile() {
+        
+    }
 
 }
