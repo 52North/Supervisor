@@ -16,19 +16,11 @@
 
 package org.n52.supervisor.data;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.n52.supervisor.ICheckFactory;
-import org.n52.supervisor.ICheckRunner;
 import org.n52.supervisor.checks.Check;
-import org.n52.supervisor.checks.SosLatestObservationCheckRunner;
-import org.n52.supervisor.checks.ows.SirCapabilitiesCheckRunner;
-import org.n52.supervisor.checks.ows.SorCapabilitiesCheckRunner;
-import org.n52.supervisor.checks.ows.SosCapabilitiesCheckRunner;
-import org.n52.supervisor.checks.ows.WpsCapabilitiesCheckRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

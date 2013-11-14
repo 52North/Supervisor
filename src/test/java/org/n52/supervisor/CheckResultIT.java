@@ -21,7 +21,7 @@ public class CheckResultIT {
     
     @Test
     public void checkResultEqualsTestFile() {
-        
+        //
     }
 
 }

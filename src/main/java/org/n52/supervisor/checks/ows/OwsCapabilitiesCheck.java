@@ -88,24 +88,24 @@ public class OwsCapabilitiesCheck extends ServiceCheck {
         return owsVersion;
     }
 
-    public void setOwsVersion(String owsVersion) {
-        this.owsVersion = owsVersion;
+    public String getServiceType() {
+        return serviceType;
     }
 
     public String getServiceVersion() {
         return serviceVersion;
     }
 
-    public void setServiceVersion(String serviceVersion) {
-        this.serviceVersion = serviceVersion;
-    }
-
-    public String getServiceType() {
-        return serviceType;
+    public void setOwsVersion(String owsVersion) {
+        this.owsVersion = owsVersion;
     }
 
     public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
     }
 
     @Override

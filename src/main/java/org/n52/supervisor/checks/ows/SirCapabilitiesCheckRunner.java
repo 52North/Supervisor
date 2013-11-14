@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SirCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
+    private static Logger log = LoggerFactory.getLogger(SirCapabilitiesCheckRunner.class);
+
     public SirCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
         super(check);
     }
-
-    private static Logger log = LoggerFactory.getLogger(SirCapabilitiesCheckRunner.class);
 
     @Override
     public boolean check() {

@@ -64,32 +64,32 @@ public abstract class Check {
         return identifier;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
     public long getIntervalSeconds() {
         return intervalSeconds;
-    }
-
-    public void setIntervalSeconds(long intervalMillis) {
-        this.intervalSeconds = intervalMillis;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getNotificationEmail() {
         return notificationEmail;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public void setIntervalSeconds(long intervalMillis) {
+        this.intervalSeconds = intervalMillis;
+    }
+
     public void setNotificationEmail(String notificationEmail) {
         this.notificationEmail = notificationEmail;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
 }
