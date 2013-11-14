@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.n52.supervisor.ICheckRunner;
@@ -69,6 +70,20 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
         this.results.clear();
     }
 
+    protected ServiceCheckResult createNegativeResult(String text) {
+        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+                                                      text,
+                                                      new Date(),
+                                                      CheckResult.ResultType.NEGATIVE,
+                                                      this.c.getServiceIdentifier());
+        return r;
+    }
+
+    @Override
+    public Check getCheck() {
+        return this.c;
+    }
+
     @Override
     public Collection<CheckResult> getResults() {
         return this.results;
@@ -105,9 +120,10 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
             this.rd.appendResults(getResults());
     }
 
-    @Override
-    public Check getCheck() {
-        return this.c;
+    protected boolean saveAndReturnNegativeResult(String text) {
+        ServiceCheckResult r = createNegativeResult(text);
+        addResult(r);
+        return false;
     }
 
     @Override

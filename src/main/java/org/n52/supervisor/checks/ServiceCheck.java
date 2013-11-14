@@ -42,12 +42,6 @@ public class ServiceCheck extends Check {
         this.type = "ServiceCheck";
     }
 
-    public ServiceCheck(String notificationEmail, long intervalSeconds, URL serviceUrl) {
-        super(notificationEmail, intervalSeconds);
-        this.serviceIdentifier = serviceUrl.toString();
-        this.serviceUrl = serviceUrl;
-    }
-
     public ServiceCheck(String notificationEmail,
                         long intervalSeconds,
                         String serviceIdentifier,
@@ -57,16 +51,22 @@ public class ServiceCheck extends Check {
         this.serviceUrl = serviceUrl;
     }
 
+    public ServiceCheck(String notificationEmail, long intervalSeconds, URL serviceUrl) {
+        super(notificationEmail, intervalSeconds);
+        this.serviceIdentifier = serviceUrl.toString();
+        this.serviceUrl = serviceUrl;
+    }
+
     public String getServiceIdentifier() {
         return serviceIdentifier;
     }
 
-    public void setServiceIdentifier(String service) {
-        this.serviceIdentifier = service;
-    }
-
     public URL getServiceUrl() {
         return serviceUrl;
+    }
+
+    public void setServiceIdentifier(String service) {
+        this.serviceIdentifier = service;
     }
 
     public void setServiceUrl(URL serviceUrl) {

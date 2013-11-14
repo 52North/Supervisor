@@ -57,6 +57,30 @@ public class ResultsResource {
         log.info("NEW {}", this);
     }
 
+    private List<CheckResult> filterResultsWithCheckId(List<CheckResult> results, String id) {
+        ArrayList<CheckResult> filtered = new ArrayList<>();
+
+        for (CheckResult cr : results) {
+            if (cr.getCheckIdentifier().equals(id))
+                filtered.add(cr);
+        }
+
+        return filtered;
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCheckResults(@PathParam("id")
+    String id) {
+        if (id != null)
+            return Response.serverError().entity("not implemented yet").build();
+
+        CheckResult latestResult = this.db.getResult(id);
+
+        return Response.ok().entity(latestResult).build();
+    }
+
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
@@ -91,30 +115,6 @@ public class ResultsResource {
         return Response.ok(sb.toString()).build();
 
         // return Response.ok(entity).build();
-    }
-
-    private List<CheckResult> filterResultsWithCheckId(List<CheckResult> results, String id) {
-        ArrayList<CheckResult> filtered = new ArrayList<>();
-
-        for (CheckResult cr : results) {
-            if (cr.getCheckIdentifier().equals(id))
-                filtered.add(cr);
-        }
-
-        return filtered;
-    }
-
-    @GET
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCheckResults(@PathParam("id")
-    String id) {
-        if (id != null)
-            return Response.serverError().entity("not implemented yet").build();
-
-        CheckResult latestResult = this.db.getResult(id);
-
-        return Response.ok().entity(latestResult).build();
     }
 
 }

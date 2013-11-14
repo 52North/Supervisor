@@ -79,6 +79,21 @@ public class ChecksResource {
     }
 
     @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCheck(@PathParam("id")
+    String id) {
+        log.debug("Requesting checker with id {}", id);
+
+        Check c = this.cd.getCheck(id);
+
+        if (c != null)
+            return Response.ok().entity(c).build();
+
+        return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
+    }
+
+    @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getChecks(@Context
@@ -105,21 +120,6 @@ public class ChecksResource {
         return Response.ok(sb.toString()).build();
 
         // return Response.ok(entity).build();
-    }
-
-    @GET
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCheck(@PathParam("id")
-    String id) {
-        log.debug("Requesting checker with id {}", id);
-
-        Check c = this.cd.getCheck(id);
-
-        if (c != null)
-            return Response.ok().entity(c).build();
-
-        return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
     }
 
     @GET
