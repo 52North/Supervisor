@@ -28,7 +28,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.ServiceCheckResult;
-import org.n52.supervisor.checks.CheckResult.ResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
