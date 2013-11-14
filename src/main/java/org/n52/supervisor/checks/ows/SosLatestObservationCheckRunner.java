@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.checks;
+package org.n52.supervisor.checks.ows;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,7 +38,9 @@ import net.opengis.swe.x101.TimeObjectPropertyType;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.supervisor.checks.ows.SosLatestObservationCheck;
+import org.n52.supervisor.checks.AbstractServiceCheckRunner;
+import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.checks.ServiceCheckResult;
 import org.n52.supervisor.util.XmlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,14 +217,4 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
                              sloc.getProcedure());
     }
 
-    private boolean saveAndReturnNegativeResult(String text) {
-        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
-                                                      text,
-                                                      new Date(),
-                                                      CheckResult.ResultType.NEGATIVE,
-                                                      this.c.getServiceIdentifier());
-
-        addResult(r);
-        return false;
-    }
 }

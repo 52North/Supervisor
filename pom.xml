@@ -182,6 +182,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.n52.sensorweb</groupId>
+			<artifactId>52n-xml-sos-v20</artifactId>
+			<version>${n52.xml-common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.n52.sensorweb</groupId>
 			<artifactId>52n-xml-sir-v032</artifactId>
 			<version>${n52.xml-common.version}</version>
 		</dependency>

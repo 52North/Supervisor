@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.n52.supervisor.ICheckRunner;
@@ -123,6 +124,21 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
     @Override
     public void setResultDatabase(ResultDatabase rd) {
         this.rd = rd;
+    }
+
+    protected boolean saveAndReturnNegativeResult(String text) {
+        ServiceCheckResult r = createNegativeResult(text);
+        addResult(r);
+        return false;
+    }
+
+    protected ServiceCheckResult createNegativeResult(String text) {
+        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+                                                      text,
+                                                      new Date(),
+                                                      CheckResult.ResultType.NEGATIVE,
+                                                      this.c.getServiceIdentifier());
+        return r;
     }
 
 }
