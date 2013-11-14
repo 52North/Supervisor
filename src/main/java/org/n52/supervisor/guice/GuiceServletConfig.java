@@ -32,20 +32,6 @@ import com.google.inject.servlet.GuiceServletContextListener;
  */
 public class GuiceServletConfig extends GuiceServletContextListener {
 
-    @Override
-    protected Injector getInjector() {
-        Injector injector = Guice.createInjector(new IdentificationModule(),
-                                                 new ConfigModule(),
-                                                 new StorageModule(),
-                                                 new SupervisorModule(),
-                                                 new TaskModule());
-
-        // FIXME remove the hack to create an instance!
-        Executors.newSingleThreadExecutor().submit(new InitThread(injector));
-
-        return injector;
-    }
-
     private class InitThread extends Thread {
 
         private Injector i;
@@ -60,5 +46,19 @@ public class GuiceServletConfig extends GuiceServletContextListener {
             System.out.println(instance);
         }
 
+    }
+
+    @Override
+    protected Injector getInjector() {
+        Injector injector = Guice.createInjector(new IdentificationModule(),
+                                                 new ConfigModule(),
+                                                 new StorageModule(),
+                                                 new SupervisorModule(),
+                                                 new TaskModule());
+
+        // FIXME remove the hack to create an instance!
+        Executors.newSingleThreadExecutor().submit(new InitThread(injector));
+
+        return injector;
     }
 }

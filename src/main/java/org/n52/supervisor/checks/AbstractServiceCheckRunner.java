@@ -70,6 +70,20 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
         this.results.clear();
     }
 
+    protected ServiceCheckResult createNegativeResult(String text) {
+        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+                                                      text,
+                                                      new Date(),
+                                                      CheckResult.ResultType.NEGATIVE,
+                                                      this.c.getServiceIdentifier());
+        return r;
+    }
+
+    @Override
+    public Check getCheck() {
+        return this.c;
+    }
+
     @Override
     public Collection<CheckResult> getResults() {
         return this.results;
@@ -106,9 +120,10 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
             this.rd.appendResults(getResults());
     }
 
-    @Override
-    public Check getCheck() {
-        return this.c;
+    protected boolean saveAndReturnNegativeResult(String text) {
+        ServiceCheckResult r = createNegativeResult(text);
+        addResult(r);
+        return false;
     }
 
     @Override
@@ -124,21 +139,6 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
     @Override
     public void setResultDatabase(ResultDatabase rd) {
         this.rd = rd;
-    }
-
-    protected boolean saveAndReturnNegativeResult(String text) {
-        ServiceCheckResult r = createNegativeResult(text);
-        addResult(r);
-        return false;
-    }
-
-    protected ServiceCheckResult createNegativeResult(String text) {
-        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
-                                                      text,
-                                                      new Date(),
-                                                      CheckResult.ResultType.NEGATIVE,
-                                                      this.c.getServiceIdentifier());
-        return r;
     }
 
 }

@@ -78,36 +78,36 @@ public class SosLatestObservationCheck extends ServiceCheck {
              Long.valueOf(maximumAgeSeconds).longValue());
     }
 
-    public String getOffering() {
-        return offering;
-    }
-
-    public void setOffering(String offering) {
-        this.offering = offering;
+    public long getMaximumAgeSeconds() {
+        return maximumAgeSeconds;
     }
 
     public String getObservedProperty() {
         return observedProperty;
     }
 
-    public void setObservedProperty(String observedProperty) {
-        this.observedProperty = observedProperty;
+    public String getOffering() {
+        return offering;
     }
 
     public String getProcedure() {
         return procedure;
     }
 
-    public void setProcedure(String procedure) {
-        this.procedure = procedure;
-    }
-
-    public long getMaximumAgeSeconds() {
-        return maximumAgeSeconds;
-    }
-
     public void setMaximumAgeSeconds(long maximumAgeSeconds) {
         this.maximumAgeSeconds = maximumAgeSeconds;
+    }
+
+    public void setObservedProperty(String observedProperty) {
+        this.observedProperty = observedProperty;
+    }
+
+    public void setOffering(String offering) {
+        this.offering = offering;
+    }
+
+    public void setProcedure(String procedure) {
+        this.procedure = procedure;
     }
 
     @Override

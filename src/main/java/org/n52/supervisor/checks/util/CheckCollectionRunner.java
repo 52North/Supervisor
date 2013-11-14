@@ -88,6 +88,11 @@ public class CheckCollectionRunner implements ICheckRunner {
     }
 
     @Override
+    public Check getCheck() {
+        return null;
+    }
+
+    @Override
     public Collection<CheckResult> getResults() {
         ArrayList<CheckResult> results = new ArrayList<CheckResult>();
         for (ICheckRunner c : this.checks.keys()) {
@@ -113,11 +118,6 @@ public class CheckCollectionRunner implements ICheckRunner {
     @Override
     public void setCheck(Check c) throws UnsupportedCheckException {
         throw new UnsupportedCheckException("must use collection of checks");
-    }
-
-    @Override
-    public Check getCheck() {
-        return null;
     }
 
     @Override

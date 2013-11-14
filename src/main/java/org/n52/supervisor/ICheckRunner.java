@@ -31,17 +31,17 @@ public interface ICheckRunner {
 
     public void addResult(CheckResult r);
 
-    public void setCheck(Check c) throws UnsupportedCheckException;
+    public boolean check();
 
     public Check getCheck();
-
-    public boolean check();
 
     public Collection<CheckResult> getResults();
 
     public void notifyFailure();
 
     public void notifySuccess();
+
+    public void setCheck(Check c) throws UnsupportedCheckException;
 
     /**
      * @param rd

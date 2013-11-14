@@ -46,10 +46,8 @@ public class SelfCheck extends ServiceCheck {
         super();
     }
 
-    public SelfCheck(String notificationEmail, String intervalSeconds, String serviceUrl) throws NumberFormatException,
-            MalformedURLException {
-        this(notificationEmail, Long.valueOf(intervalSeconds).longValue(), new URL(serviceUrl));
-
+    public SelfCheck(String identifier) {
+        super(identifier);
     }
 
     public SelfCheck(String notificationEmail, long intervalSeconds, URL serviceUrl) {
@@ -79,8 +77,10 @@ public class SelfCheck extends ServiceCheck {
         }
     }
 
-    public SelfCheck(String identifier) {
-        super(identifier);
+    public SelfCheck(String notificationEmail, String intervalSeconds, String serviceUrl) throws NumberFormatException,
+            MalformedURLException {
+        this(notificationEmail, Long.valueOf(intervalSeconds).longValue(), new URL(serviceUrl));
+
     }
 
     @Override

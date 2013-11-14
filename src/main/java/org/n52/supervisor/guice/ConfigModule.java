@@ -31,21 +31,6 @@ public class ConfigModule extends AbstractModule {
 
     private static Logger log = LoggerFactory.getLogger(ConfigModule.class);
 
-    @Override
-    protected void configure() {
-        Properties appProps = loadProperties("/app.properties");
-        Names.bindProperties(binder(), appProps);
-
-        Properties supervisorProps = loadProperties("/supervisor.properties");
-        Names.bindProperties(binder(), supervisorProps);
-
-        // FIXME remove manual instantiation of property manager
-        SupervisorProperties sp = SupervisorProperties.getInstance(supervisorProps);
-        log.warn("Instantiated property manager manually: {}", sp);
-        
-        log.info("Configured {}", this);
-    }
-
     private static Properties loadProperties(String name) {
         URL url = ConfigModule.class.getResource(name);
         log.trace("Loading properties for {} from {}", name, url);
@@ -60,5 +45,20 @@ public class ConfigModule extends AbstractModule {
         }
 
         return properties;
+    }
+
+    @Override
+    protected void configure() {
+        Properties appProps = loadProperties("/app.properties");
+        Names.bindProperties(binder(), appProps);
+
+        Properties supervisorProps = loadProperties("/supervisor.properties");
+        Names.bindProperties(binder(), supervisorProps);
+
+        // FIXME remove manual instantiation of property manager
+        SupervisorProperties sp = SupervisorProperties.getInstance(supervisorProps);
+        log.warn("Instantiated property manager manually: {}", sp);
+        
+        log.info("Configured {}", this);
     }
 }

@@ -76,10 +76,6 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
         super(check);
     }
 
-    private SosLatestObservationCheck theCheck() {
-        return (SosLatestObservationCheck) this.c;
-    }
-
     private GetObservationDocument buildRequest() {
         // build the request
         GetObservationDocument getObs = GetObservationDocument.Factory.newInstance();
@@ -215,6 +211,10 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
                              sloc.getOffering(),
                              sloc.getObservedProperty(),
                              sloc.getProcedure());
+    }
+
+    private SosLatestObservationCheck theCheck() {
+        return (SosLatestObservationCheck) this.c;
     }
 
 }

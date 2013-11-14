@@ -42,15 +42,15 @@ public class CheckDatabase {
         log.info("NEW {}", this);
     }
 
+    public void addAll(Collection<Check> checks) {
+        this.internalDatabase.addAll(checks);
+    }
+
     public void close() {
         log.info("Closing ...");
 
         this.internalDatabase.clear();
         this.internalDatabase = null;
-    }
-
-    public void addAll(Collection<Check> checks) {
-        this.internalDatabase.addAll(checks);
     }
 
     public List<Check> getAllChecks() {
