@@ -41,11 +41,11 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement
 public class WpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
+    private static Logger log = LoggerFactory.getLogger(WpsCapabilitiesCheckRunner.class);
+
     public WpsCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
         super(check);
     }
-
-    private static Logger log = LoggerFactory.getLogger(WpsCapabilitiesCheckRunner.class);
 
     @Override
     public boolean check() {

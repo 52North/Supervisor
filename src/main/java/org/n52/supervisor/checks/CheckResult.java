@@ -55,28 +55,28 @@ public abstract class CheckResult {
         return checkIdentifier;
     }
 
-    public void setCheckIdentifier(String checkIdentifier) {
-        this.checkIdentifier = checkIdentifier;
-    }
-
     public String getResult() {
         return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
     }
 
     public Date getTimeOfCheck() {
         return timeOfCheck;
     }
 
-    public void setTimeOfCheck(Date timeOfCheck) {
-        this.timeOfCheck = timeOfCheck;
-    }
-
     public ResultType getType() {
         return type;
+    }
+
+    public void setCheckIdentifier(String checkIdentifier) {
+        this.checkIdentifier = checkIdentifier;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public void setTimeOfCheck(Date timeOfCheck) {
+        this.timeOfCheck = timeOfCheck;
     }
 
     public void setType(ResultType type) {

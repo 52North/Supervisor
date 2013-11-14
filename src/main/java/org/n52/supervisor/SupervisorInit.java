@@ -47,6 +47,44 @@ import com.google.inject.name.Named;
 @Singleton
 public class SupervisorInit {
 
+    private class DelayedStartThread extends Thread {
+
+        private long sleep;
+        private Collection<Check> checks;
+        private IJobScheduler scheduler;
+        private long submitDelaySecs;
+        private CheckerResolver cr;
+
+        public DelayedStartThread(long sleep,
+                                  Collection<Check> checks,
+                                  CheckerResolver cr,
+                                  IJobScheduler scheduler,
+                                  long submitDelaySecs) {
+            this.sleep = sleep;
+            this.checks = checks;
+            this.scheduler = scheduler;
+            this.submitDelaySecs = submitDelaySecs;
+            this.cr = cr;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(this.sleep);
+            }
+            catch (InterruptedException e) {
+                log.error("Error delaying startup thread...", e);
+            }
+
+            for (Check c : this.checks) {
+                ICheckRunner runner = this.cr.getRunner(c);
+                String id = this.scheduler.submit(runner, this.submitDelaySecs * 1000);
+
+                log.debug("Submitted check with id {} : {} \n\t and runner: {}", id, c, runner);
+            }
+        }
+    }
+
     private static Logger log = LoggerFactory.getLogger(SupervisorInit.class);
 
     private static Queue<INotification> notifications;
@@ -62,10 +100,6 @@ public class SupervisorInit {
     public static void clearNotifications() {
         log.info("Clearing notifications!");
         notifications.clear();
-    }
-
-    public Collection<INotification> getCurrentNotificationsCopy() {
-        return new ArrayList<INotification>(notifications);
     }
 
     public static synchronized boolean removeAllNotifications(Collection<INotification> c) {
@@ -109,14 +143,8 @@ public class SupervisorInit {
         log.info(" ***** NEW {} *****", this);
     }
 
-    @PreDestroy
-    protected void shutdown() throws Throwable {
-        log.info("SHUTDOWN called...");
-
-        this.db.close();
-        this.rd.close();
-        notifications.clear();
-        notifications = null;
+    public Collection<INotification> getCurrentNotificationsCopy() {
+        return new ArrayList<INotification>(notifications);
     }
 
     public void init(String basepath) {
@@ -143,44 +171,6 @@ public class SupervisorInit {
         }
 
         log.trace("InitializED {}", this);
-    }
-
-    private class DelayedStartThread extends Thread {
-
-        private long sleep;
-        private Collection<Check> checks;
-        private IJobScheduler scheduler;
-        private long submitDelaySecs;
-        private CheckerResolver cr;
-
-        public DelayedStartThread(long sleep,
-                                  Collection<Check> checks,
-                                  CheckerResolver cr,
-                                  IJobScheduler scheduler,
-                                  long submitDelaySecs) {
-            this.sleep = sleep;
-            this.checks = checks;
-            this.scheduler = scheduler;
-            this.submitDelaySecs = submitDelaySecs;
-            this.cr = cr;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(this.sleep);
-            }
-            catch (InterruptedException e) {
-                log.error("Error delaying startup thread...", e);
-            }
-
-            for (Check c : this.checks) {
-                ICheckRunner runner = this.cr.getRunner(c);
-                String id = this.scheduler.submit(runner, this.submitDelaySecs * 1000);
-
-                log.debug("Submitted check with id {} : {} \n\t and runner: {}", id, c, runner);
-            }
-        }
     }
 
     private Collection<Check> loadCheckers(SupervisorProperties sp) {
@@ -308,6 +298,16 @@ public class SupervisorInit {
         }
 
         return checks;
+    }
+
+    @PreDestroy
+    protected void shutdown() throws Throwable {
+        log.info("SHUTDOWN called...");
+
+        this.db.close();
+        this.rd.close();
+        notifications.clear();
+        notifications = null;
     }
 
 }

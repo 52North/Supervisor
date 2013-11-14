@@ -63,10 +63,6 @@ public class SosV2LatestObservationCheckRunner extends AbstractServiceCheckRunne
         super(check);
     }
 
-    private SosLatestObservationCheck theCheck() {
-        return (SosLatestObservationCheck) this.c;
-    }
-
     private GetObservationDocument buildRequest() {
         // TODO build the request - use OX-F here?
         return null;
@@ -109,6 +105,10 @@ public class SosV2LatestObservationCheckRunner extends AbstractServiceCheckRunne
     private boolean checkObservationCollection(Date maxAge, ObservationCollectionDocument obsColl) {
         // implement metho
         return false;
+    }
+
+    private SosLatestObservationCheck theCheck() {
+        return (SosLatestObservationCheck) this.c;
     }
 
 }

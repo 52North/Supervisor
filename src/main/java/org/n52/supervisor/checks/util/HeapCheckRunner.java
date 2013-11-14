@@ -75,6 +75,11 @@ public class HeapCheckRunner implements ICheckRunner {
     }
 
     @Override
+    public Check getCheck() {
+        return this.c;
+    }
+
+    @Override
     public Collection<CheckResult> getResults() {
         ArrayList<CheckResult> l = new ArrayList<CheckResult>();
         l.add(this.result);
@@ -112,11 +117,6 @@ public class HeapCheckRunner implements ICheckRunner {
         }
         else
             throw new UnsupportedCheckException();
-    }
-
-    @Override
-    public Check getCheck() {
-        return this.c;
     }
 
     @Override
