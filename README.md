@@ -6,7 +6,17 @@ See https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor
 
 ## License
 
-See LICENSE and NOTICE files.
+Supervisor is published under The Apache Software License, Version 2.0.
+
+### Java libraries
+
+See the NOTICE file.
+
+### Javascript libraries
+
+* jQuery, https://jquery.org/license/ - MIT License
+* AngularJS, https://github.com/angular/angular.js/blob/master/LICENSE - MIT License
+* Bootstrap, https://github.com/twbs/bootstrap/blob/master/LICENSE - MIT License
 
 ## Contact
 
