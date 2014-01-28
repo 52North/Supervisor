@@ -28,7 +28,7 @@ public class TaskModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // bind(TaskServlet.class);
+        bind(TaskServlet.class);
         bind(IJobScheduler.class).to(JobSchedulerImpl.class);
 
         install(new FactoryModuleBuilder().implement(CheckTask.class, CheckTaskImpl.class).build(CheckTaskFactory.class));
