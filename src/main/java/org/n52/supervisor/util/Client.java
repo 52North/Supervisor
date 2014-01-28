@@ -45,7 +45,7 @@ public class Client {
 
     private static final String POST_METHOD = "POST";
 
-    private XmlObject doSend(String requestUrl, String requestContent, String requestMethod) throws UnsupportedEncodingException,
+    private synchronized XmlObject doSend(String requestUrl, String requestContent, String requestMethod) throws UnsupportedEncodingException,
             IOException,
             IllegalStateException,
             XmlException {
@@ -60,7 +60,13 @@ public class Client {
             if (log.isDebugEnabled())
                 log.debug("Client connecting via GET to " + requestUrl);
 
-            HttpGet httpget = new HttpGet(requestUrl + requestContent);
+            StringBuilder fullUrl = new StringBuilder();
+            fullUrl.append(requestUrl);
+            if ( !requestUrl.endsWith("?"))
+                fullUrl.append("?");
+            fullUrl.append(requestContent);
+
+            HttpGet httpget = new HttpGet(fullUrl.toString());
             request = httpget;
         }
         else if (requestMethod.equals(POST_METHOD)) {
@@ -73,13 +79,16 @@ public class Client {
             httppost.setEntity(e);
             request = httppost;
         }
-        else {
+        else
             throw new IllegalArgumentException("requestMethod not supported!");
-        }
+
+        log.debug("Sending request: {}", request);
 
         XmlObject xmlResponse = null;
         HttpResponse response = httpClient.execute(request);
         xmlResponse = XmlObject.Factory.parse(response.getEntity().getContent());
+
+        log.debug("Got response: {}", xmlResponse);
 
         return xmlResponse;
     }

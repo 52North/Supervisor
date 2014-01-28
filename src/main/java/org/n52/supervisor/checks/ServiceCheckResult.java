@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.n52.supervisor.checks;
 
 import java.util.Date;
@@ -26,21 +27,45 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class ServiceCheckResult extends CheckResult {
 
-	private String serviceIdentifier;
-	
-	public ServiceCheckResult() {
+    private String serviceIdentifier;
+
+    public ServiceCheckResult() {
         super();
         //
     }
 
-    public ServiceCheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type, String serviceIdentifier) {
+    public ServiceCheckResult(Exception e, Check c, String message) {
+        this(c.getIdentifier(), String.format("%s -- ERROR: %s occured for %s",
+                                              message,
+                                              e.getMessage(),
+                                              c.getIdentifier()), new Date(), CheckResult.ResultType.NEGATIVE, null);
+    }
+
+    public ServiceCheckResult(Exception e, ServiceCheck c, String message) {
+        this(c.getIdentifier(),
+             String.format("%s : %s occured for %s @ %s [%s]",
+                           message,
+                           e.getMessage(),
+                           c.getIdentifier(),
+                           c.getServiceUrl(),
+                           c.getType()),
+             new Date(),
+             CheckResult.ResultType.NEGATIVE,
+             c.getServiceIdentifier());
+    }
+
+    public ServiceCheckResult(String checkIdentifier,
+                              String result,
+                              Date timeOfCheck,
+                              ResultType type,
+                              String serviceIdentifier) {
         super(checkIdentifier, result, timeOfCheck, type);
         this.serviceIdentifier = serviceIdentifier;
     }
 
-	public String getServiceIdentifier() {
-		return this.serviceIdentifier;
-	}
+    public String getServiceIdentifier() {
+        return this.serviceIdentifier;
+    }
 
     public void setServiceIdentifier(String serviceIdentifier) {
         this.serviceIdentifier = serviceIdentifier;
@@ -54,5 +79,5 @@ public class ServiceCheckResult extends CheckResult {
         builder.append("]");
         return builder.toString();
     }
-    
+
 }
