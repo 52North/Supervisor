@@ -1,8 +1,13 @@
-Supervisor
-==========
+# Supervisor
 
-Website: https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor
+## Documentation
 
-License: See LICENSE file and code file headers.
+See https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor
 
-Contact: Daniel Nüst <d.nuest@52north.org>
+## License
+
+See LICENSE and NOTICE files.
+
+## Contact
+
+Daniel Nüst <d.nuest@52north.org>
