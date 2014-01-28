@@ -2,7 +2,7 @@
 
 ## Documentation
 
-See https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor
+See https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor
 
 ## License
 
