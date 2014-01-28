@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author Daniel
- *
+ * 
  */
 public class Client {
 
@@ -46,7 +46,9 @@ public class Client {
     private static final String POST_METHOD = "POST";
 
     private XmlObject doSend(String requestUrl, String requestContent, String requestMethod) throws UnsupportedEncodingException,
-            IOException {
+            IOException,
+            IllegalStateException,
+            XmlException {
         if (log.isDebugEnabled())
             log.debug("Sending request (first 100 characters): "
                     + requestContent.substring(0, Math.min(requestContent.length(), 100)));
@@ -66,9 +68,9 @@ public class Client {
                 log.debug("Client connecting via POST to " + requestUrl);
             HttpPost httppost = new HttpPost(requestUrl);
 
-            httppost.setEntity(new StringEntity(requestContent,
-                                                SupervisorProperties.getInstance().getClientRequestContentType(),
-                                                SupervisorProperties.getInstance().getClientRequestEncoding()));
+            StringEntity e = new StringEntity(requestContent,
+                                              SupervisorProperties.getInstance().getClientRequestContentType());
+            httppost.setEntity(e);
             request = httppost;
         }
         else {
@@ -76,28 +78,25 @@ public class Client {
         }
 
         XmlObject xmlResponse = null;
-        try {
-            HttpResponse response = httpClient.execute(request);
-            xmlResponse = XmlObject.Factory.parse(response.getEntity().getContent());
-        }
-        catch (XmlException e) {
-            log.error("Error parsing response: " + e.getMessage());
-        }
-        catch (Exception e) {
-            log.error("Could not execute request.", e);
-        }
+        HttpResponse response = httpClient.execute(request);
+        xmlResponse = XmlObject.Factory.parse(response.getEntity().getContent());
 
         return xmlResponse;
     }
 
-    public String sendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException, IOException {
+    public String sendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException,
+            IOException,
+            IllegalStateException,
+            XmlException {
         if (request.isEmpty()) {
             return "The request is empty!";
         }
         return xSendGetRequest(requestUrl, request).xmlText();
     }
 
-    public String sendPostRequest(String requestUrl, String request) throws IOException {
+    public String sendPostRequest(String requestUrl, String request) throws IOException,
+            IllegalStateException,
+            XmlException {
         if (request.isEmpty()) {
             return "The request is empty!";
         }
@@ -106,12 +105,16 @@ public class Client {
     }
 
     public XmlObject xSendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException,
-            IOException {
+            IOException,
+            IllegalStateException,
+            XmlException {
         XmlObject response = doSend(requestUrl, request, GET_METHOD);
         return response;
     }
 
-    public XmlObject xSendPostRequest(String requestUrl, XmlObject request) throws IOException {
+    public XmlObject xSendPostRequest(String requestUrl, XmlObject request) throws IOException,
+            IllegalStateException,
+            XmlException {
         XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
         return response;
     }

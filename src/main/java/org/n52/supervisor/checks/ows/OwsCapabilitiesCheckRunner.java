@@ -155,11 +155,12 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
             addResult(r);
             return rb;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
-                                                          String.format("%s ... Could not send request or parse response: %s",
+                                                          String.format("%s ERROR: %s occured in %s",
                                                                         NEGATIVE_TEXT,
-                                                                        e.getMessage()),
+                                                                        e.getMessage(),
+                                                                        this.getClass().getCanonicalName()),
                                                           new Date(),
                                                           CheckResult.ResultType.NEGATIVE,
                                                           this.c.getServiceIdentifier());

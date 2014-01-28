@@ -96,8 +96,6 @@ public class TaskServlet {
 
     private ScheduledThreadPoolExecutor executor;
 
-    private static final String INIT_PARAM_CONFIG_FILE = "configFile";
-
     private static Logger log = LoggerFactory.getLogger(TaskServlet.class);
 
     private static final String EMAIL_SEND_PERIOD_MINDS = "supervisor.tasks.email.sendPeriodMins";
