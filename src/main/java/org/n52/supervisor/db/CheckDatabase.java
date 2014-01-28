@@ -66,4 +66,16 @@ public class CheckDatabase {
         return null;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CheckDatabase [");
+        if (internalDatabase != null) {
+            builder.append("check count=");
+            builder.append(internalDatabase.size());
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -159,11 +160,9 @@ public class SupervisorInit {
             db.addAll(loadCheckers(sp));// SWSL.checkers;
 
             // submit checkers delayed
-            Executors.newSingleThreadExecutor().submit(new DelayedStartThread(5 * 1000,
-                                                                              db.getAllChecks(),
-                                                                              this.cr,
-                                                                              scheduler,
-                                                                              1));
+            DelayedStartThread dst = new DelayedStartThread(5 * 1000, db.getAllChecks(), this.cr, scheduler, 1);
+            ExecutorService exec = Executors.newSingleThreadExecutor();
+            exec.submit(dst);
 
         }
         catch (Exception e) {
