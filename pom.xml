@@ -6,7 +6,7 @@
 	<packaging>war</packaging>
 
 	<!-- http://semver.org/ -->
-	<version>0.2</version>
+	<version>0.2.1</version>
 
 	<name>Supervisor</name>
 	<description>Web application for supervision of standardizd OGC Web Services</description>
