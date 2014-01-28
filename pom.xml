@@ -349,18 +349,14 @@
 					<header>src/main/resources/license_header.txt</header>
 					<excludes>
 						<exclude>**/logback*</exclude>
-						<exclude>**/log4j*</exclude>
-						<exclude>**/bootstrap*</exclude>
 						<exclude>**/js/lib/**</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
 						<include>**/*.properties</include>
 						<include>**/*.js</include>
-						<include>**/*.css</include>
 						<include>**/*.xml</include>
 						<include>**/*.xsl</include>
-						<!-- <include>**/*.html</include> -->
 					</includes>
 					<strictCheck>true</strictCheck>
 					<properties>
