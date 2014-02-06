@@ -28,6 +28,13 @@
 			<timezone>GMT+1</timezone>
 			<id>DanielNuest</id>
 		</developer>
+		<developer>
+            <name>Jürrens, Eike Hinderk</name>
+            <email>e.h.juerrens@52north.org</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+            <timezone>GMT+1</timezone>
+        </developer>
 	</developers>
 
 	<mailingLists>
