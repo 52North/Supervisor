@@ -59,7 +59,7 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
         final URL sUrl = owsCheck.getServiceUrl();
         log.debug("Checking Capabilities for {}", sUrl);
 
-        if (owsCheck.getOwsVersion() != "1.1") {
+        if (!owsCheck.getOwsVersion().equals("1.1")) {
             log.error("OWS Version not supported: " + owsCheck.getOwsVersion());
             final String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, owsCheck.getOwsVersion());
             final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
