@@ -16,8 +16,8 @@
 <link href="css/styles.css" rel="stylesheet">
 
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/angular.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/lib/angular/angular.js"></script>
 <script src="js/lib/angular/angular-route.js"></script>
 <script src="js/app.js"></script>
 <script src="js/controllers.js"></script>
@@ -49,12 +49,13 @@
 							class="icon-bar"></span> <span class="icon-bar"></span> <span
 							class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/${project.name}">Supervisor</a>
+					<span class="navbar-brand">Supervisor</span>
 				</div>
 				<div class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="#checks" data-toggle="tab">Checks</a></li>
 						<li><a href="#about" data-toggle="tab">About</a></li>
+						<!-- TODO: add menu items for admin backend... -->
 						<!-- 						<li class="dropdown"><a href="#" class="dropdown-toggle" -->
 						<!-- 							data-toggle="dropdown">Dropdown <b class="caret"></b></a> -->
 						<!-- 							<ul class="dropdown-menu"> -->
@@ -77,7 +78,7 @@
 			<section class="tab-content">
 				<article class="tab-pane active" id="checks">
 					<div class="page-header">
-						<h1>Latest Check Results</h1>
+						<h1>Check Results</h1>
 
 						<button type="button" id="btRunNow" class="btn btn-sm btn-primary">Run
 							checks now!</button>
@@ -86,7 +87,7 @@
 						<button type="button" id="btClear" class="btn btn-sm btn-default">Clear
 							results</button>
 						<span id="filters" class="text-muted"
-							style="margin-top: 8px; float: right;">Search: <input
+							style="margin-top: 8px; float: right;">Filter: <input
 							ng-model="query"> Sort by: <select ng-model="orderProp">
 								<option value="type">Type</option>
 								<option value="checkTime">Newest</option>
@@ -96,7 +97,7 @@
 						</select>
 						</span>
 					</div>
-					
+
 					<div ng-view></div>
 
 				</article>
@@ -104,12 +105,24 @@
 					<div class="page-header">
 						<h1>About</h1>
 					</div>
+					<h2>Project</h2>
+					<p>
+						The Supervisor is a small web service to supervise web services,
+						mainly standardized OGC web services. Details can be found in the
+						52&degNorth Wiki: <a
+							href="https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor"
+							title="Supervisor @ 52°North Wiki">https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor</a>.
+					</p>
+					<p>
+						The project is open source and on GitHub: <a
+							href="https://github.com/52North/Supervisor/"
+							title="Supervisor @ GitHub">https://github.com/52North/Supervisor/</a>
+					</p>
 					<h2>API</h2>
 					<p>
 						Endpoint: <a href="api/">api/</a>
 					</p>
-					<p>Documentation: [...]</p>
-
+					<p>The API contains two resources, one for checks and one for check results.</p>
 				</article>
 			</section>
 		</div>
@@ -120,9 +133,9 @@
 		<div class="container">
 			<p class="text-muted credit">
 				52&deg; North Supervisor | More information: <a
-					href="https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor"
-					title="OwsSupervisor @ 52&deg;North Wiki">52&deg;North Wiki:
-					Supervisor</a> | Build: #${build-commit-abbrev} @ ${buildTimestamp}.
+					href="https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor"
+					title="Supervisor @ 52&deg;North Wiki">52&deg;North Wiki:
+					Supervisor</a> | Build: #${build-commit-abbrev}
 			</p>
 		</div>
 	</div>

@@ -61,7 +61,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
         sb.append("Self check ran succesfully, service is most probably up and running. Go to <a href='");
         sb.append(this.c.getServiceUrl());
-        sb.append("' title='OwsSupervisor HTML Interface'>");
+        sb.append("' title='Supervisor HTML Interface'>");
         sb.append(this.c.getServiceUrl());
         sb.append("</a>");
         sb.append(" for the current check status.");
