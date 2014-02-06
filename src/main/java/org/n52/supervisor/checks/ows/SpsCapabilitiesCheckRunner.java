@@ -13,41 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.n52.supervisor.checks.ows;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Daniel Nüst
- * 
+ * @author <a href="mailto:e.h.juerrens@52north.org">J&uuml;rrens, Eike Hinderk</a>
  */
-public class SosCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
+public class SpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
+	
+	private static final Logger log = LoggerFactory.getLogger(SpsCapabilitiesCheckRunner.class);
+	
+	private static final String SPS_SERVICE = "SPS";
 
-    private static Logger log = LoggerFactory.getLogger(SosCapabilitiesCheckRunner.class);
-
-    private static final String SOS_SERVICE = "SOS";
-
-    public SosCapabilitiesCheckRunner(final OwsCapabilitiesCheck check) {
-        super(check);
-
-        if ( !check.getServiceType().equals(SOS_SERVICE)) {
-			log.warn("Checking non-SOS {} with SOS runner: {}", check, this);
+	public SpsCapabilitiesCheckRunner(final OwsCapabilitiesCheck check) {
+		super(check);
+		// TODO move this check and log statement to superclass
+		if ( !check.getServiceType().equals(SPS_SERVICE)) {
+			log.warn("Checking non-SPS {} with SPS runner: {}", check, this);
 		}
-    }
-
-    @Override
+	}
+	
+	@Override
     public boolean check() {
         log.debug("Checking SOS Capabilities for " + check.getServiceUrl());
         return runGetRequestParseDocCheck();
     }
-    
-    @Override
+	
+	@Override
     protected String buildGetRequest() {
-    	final String kvpRequest = super.buildGetRequest();
-    	// the parameter 'serviceVersion' is not supported by 52North implementation but 'AcceptVersions' is!
-    	return kvpRequest.replaceFirst("serviceVersion", "AcceptVersions");
+    	return super.buildGetRequest();
     }
 
 }

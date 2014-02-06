@@ -6,7 +6,7 @@
 	<packaging>war</packaging>
 
 	<!-- http://semver.org/ -->
-	<version>0.2.1</version>
+	<version>0.3-SNAPSHOT</version>
 
 	<name>Supervisor</name>
 	<description>Web application for supervision of standardizd OGC Web Services</description>
@@ -28,6 +28,13 @@
 			<timezone>GMT+1</timezone>
 			<id>DanielNuest</id>
 		</developer>
+		<developer>
+            <name>Jürrens, Eike Hinderk</name>
+            <email>e.h.juerrens@52north.org</email>
+            <organization>${project.organization.name}</organization>
+            <organizationUrl>${project.organization.url}</organizationUrl>
+            <timezone>GMT+1</timezone>
+        </developer>
 	</developers>
 
 	<mailingLists>
@@ -46,6 +53,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/52North/Supervisor.git</connection>
 		<url>scm:git:git://github.com/52North/Supervisor</url>
+		<developerConnection>scm:git:ssh://git@github.com/52North/Supervisor.git</developerConnection>
 	</scm>
 
 	<issueManagement>
@@ -63,6 +71,7 @@
 	</licenses>
 
 	<properties>
+	   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
@@ -350,6 +359,7 @@
 					<excludes>
 						<exclude>**/logback*</exclude>
 						<exclude>**/js/lib/**</exclude>
+						<exclude>**/*.properties</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
@@ -379,12 +389,18 @@
 				<version>1.0.5</version>
 				<configuration>
 					<noticeTemplate>src/main/resources/NOTICE.template</noticeTemplate>
-					<licenseMapping>
-						<param>src/main/resources/license-mappings.xml</param>
-					</licenseMapping>
+                    <!-- backup offline solution -->
+                    <!--
+                    <licenseMapping>
+                        <param>src/main/resources/license-mappings.xml</param>
+                    </licenseMapping>
+                    -->
+            <!-- optional or might be better approach using the github cdn version -->
+                    <licenseMapping>
+                        <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
+                    </licenseMapping>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>com.code54.mojo</groupId>
 				<artifactId>buildversion-plugin</artifactId>

@@ -27,7 +27,7 @@ import org.n52.supervisor.checks.CheckResult.ResultType;
 import org.n52.supervisor.checks.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
-import org.n52.supervisor.ui.INotification;
+import org.n52.supervisor.ui.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,9 +60,9 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Self check ran succesfully, service is most probably up and running. Go to <a href='");
-        sb.append(this.c.getServiceUrl());
+        sb.append(this.check.getServiceUrl());
         sb.append("' title='Supervisor HTML Interface'>");
-        sb.append(this.c.getServiceUrl());
+        sb.append(this.check.getServiceUrl());
         sb.append("</a>");
         sb.append(" for the current check status.");
 
@@ -75,7 +75,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         sb.append(".");
 
         // TODO add currently running tasks and their last message
-        CheckResult result = new SelfCheckResult(this.c.getIdentifier(), sb.toString(), new Date(), ResultType.POSITIVE);
+        CheckResult result = new SelfCheckResult(this.check.getIdentifier(), sb.toString(), new Date(), ResultType.POSITIVE);
         addResult(result);
 
         return true;
@@ -94,10 +94,10 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
         Collection<CheckResult> results = getResults();
 
-        if (this.c.getNotificationEmail() == null)
+        if (this.check.getNotificationEmail() == null)
             log.error("Can not notify via email, is null!");
         else {
-            INotification noti = new EmailNotification(c, results);
+            Notification noti = new EmailNotification(check, results);
             // append for email notification to queue
             SupervisorInit.appendNotification(noti);
 
@@ -112,7 +112,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
     public void setCheck(Check c) throws UnsupportedCheckException {
         if (c instanceof SelfCheck) {
             SelfCheck sc = (SelfCheck) c;
-            this.c = sc;
+            this.check = sc;
         }
         else
             throw new UnsupportedCheckException();

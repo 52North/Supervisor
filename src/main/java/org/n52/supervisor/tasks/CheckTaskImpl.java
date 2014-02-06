@@ -19,7 +19,7 @@ package org.n52.supervisor.tasks;
 import java.util.Collection;
 import java.util.TimerTask;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
@@ -39,13 +39,13 @@ public class CheckTaskImpl extends TimerTask implements CheckTask {
 
     private static Logger log = LoggerFactory.getLogger(CheckTaskImpl.class);
 
-    private ICheckRunner checker;
+    private CheckRunner checker;
 
     private ResultDatabase db;
 
     @Inject
     public CheckTaskImpl(ResultDatabase db, @Assisted
-    ICheckRunner checker) {
+    CheckRunner checker) {
         this.checker = checker;
         this.db = db;
 
@@ -59,7 +59,7 @@ public class CheckTaskImpl extends TimerTask implements CheckTask {
     }
 
     @Override
-    public Collection<CheckResult> checkIt(ICheckRunner c) {
+    public Collection<CheckResult> checkIt(CheckRunner c) {
         boolean b = c.check();
         if ( !b)
             c.notifyFailure();

@@ -19,34 +19,24 @@ package org.n52.supervisor;
 import java.util.Collection;
 
 import org.n52.supervisor.checks.Check;
-import org.n52.supervisor.checks.CheckResult;
-import org.n52.supervisor.checks.UnsupportedCheckException;
-import org.n52.supervisor.db.ResultDatabase;
 
 /**
- * @author Daniel Nüst
+ * 
+ * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
-public interface ICheckRunner {
+public interface CheckFactory {
 
-    public void addResult(CheckResult r);
+    public static final long EVERY_12_HOURS = 1000 * 60 * 60 * 12;
 
-    public boolean check();
+    public static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
 
-    public Check getCheck();
+    public static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
 
-    public Collection<CheckResult> getResults();
+    public static final long EVERY_HOUR = 1000 * 60 * 60;
 
-    public void notifyFailure();
+    public static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
 
-    public void notifySuccess();
-
-    public void setCheck(Check c) throws UnsupportedCheckException;
-
-    /**
-     * @param rd
-     *        is required so that the runner can announce its results
-     */
-    public void setResultDatabase(ResultDatabase rd);
+    public abstract Collection<Check> getChecks();
 
 }

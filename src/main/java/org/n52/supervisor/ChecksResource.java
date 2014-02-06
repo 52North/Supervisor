@@ -58,22 +58,22 @@ public class ChecksResource {
 
     private static Logger log = LoggerFactory.getLogger(ChecksResource.class);
 
-    private ExecutorService manualExecutor;
+    private final ExecutorService manualExecutor;
 
-    private CheckDatabase cd;
+    private final CheckDatabase cd;
 
-    private ResultDatabase rd;
+    private final ResultDatabase rd;
 
-    private CheckerResolver cr;
+    private final CheckerResolver cr;
 
     @Inject
-    public ChecksResource(CheckDatabase cd, ResultDatabase rd, CheckerResolver cr) {
+    public ChecksResource(final CheckDatabase cd, final ResultDatabase rd, final CheckerResolver cr) {
         this.cd = cd;
         this.rd = rd;
         this.cr = cr;
 
         // create thread pool for manually started checks
-        this.manualExecutor = Executors.newSingleThreadExecutor();
+        manualExecutor = Executors.newSingleThreadExecutor();
 
         log.info("NEW {}", this);
     }
@@ -81,14 +81,15 @@ public class ChecksResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCheck(@PathParam("id")
+    public Response getCheck(@PathParam("id") final
     String id) {
         log.debug("Requesting checker with id {}", id);
 
-        Check c = this.cd.getCheck(id);
+        final Check c = cd.getCheck(id);
 
-        if (c != null)
-            return Response.ok().entity(c).build();
+        if (c != null) {
+			return Response.ok().entity(c).build();
+		}
 
         return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
     }
@@ -96,14 +97,14 @@ public class ChecksResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getChecks(@Context
+    public Response getChecks(@Context final
     UriInfo uriInfo) {
-        List<Check> checks = this.cd.getAllChecks();
+        final List<Check> checks = cd.getAllChecks();
 
         // GenericEntity<List<Check>> entity = new GenericEntity<List<Check>>(Lists.newArrayList(checks)) {};
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("{ \"checks\": [");
-        for (Check c : checks) {
+        for (final Check c : checks) {
             sb.append("{ \"id\": \"");
             sb.append(c.getIdentifier());
             sb.append("\", \"uri\": \"");
@@ -125,43 +126,43 @@ public class ChecksResource {
     @GET
     @Path("/{id}/results")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getChecksResults(@Context
-    UriInfo uriInfo, @PathParam("id")
+    public Response getChecksResults(@Context final
+    UriInfo uriInfo, @PathParam("id") final
     String id) {
-        UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ResultsResource.class).queryParam("checkId", id);
+        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ResultsResource.class).queryParam("checkId", id);
         return Response.seeOther(redirect.build()).build();
     }
 
     @PUT
     @Path("/run")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response runChecksNow(@QueryParam("notify")
-    @DefaultValue("true")
-    boolean notify, @QueryParam("all")
-    @DefaultValue("false")
-    boolean runAll, @QueryParam("ids")
-    String ids, @Context
-    UriInfo uri) {
+    public Response runChecksNow(
+    		@QueryParam("notify") @DefaultValue("true")		final boolean notify,
+    		@QueryParam("all")    @DefaultValue("false")	final boolean runAll, 
+    		@QueryParam("ids")								final String ids,
+    		@Context										final UriInfo uri) {
         log.debug("Running processes: notify = {}, all = {}, ids = {}", notify, runAll, ids);
         log.debug(uri.toString());
 
-        if (runAll && ids != null)
-            log.warn("Both ids and 'all' specified.");
+        if (runAll && ids != null) {
+			log.warn("Both ids and 'all' specified.");
+		}
 
         ManualChecker c = null;
         if (runAll) {
-            Collection<ICheckRunner> checkers = new ArrayList<>();
-            List<Check> allChecks = this.cd.getAllChecks();
-            for (Check check : allChecks) {
-                ICheckRunner runner = this.cr.getRunner(check);
-                runner.setResultDatabase(this.rd);
+            final Collection<CheckRunner> checkers = new ArrayList<>();
+            final List<Check> allChecks = cd.getAllChecks();
+            for (final Check check : allChecks) {
+                final CheckRunner runner = cr.getRunner(check);
+                runner.setResultDatabase(rd);
 
-                if (runner != null)
-                    checkers.add(runner);
+                if (runner != null) {
+					checkers.add(runner);
+				}
             }
 
             c = new ManualChecker(checkers, notify);
-            this.manualExecutor.submit(c);
+            manualExecutor.submit(c);
 
             return Response.ok(Response.Status.CREATED).entity("running all processes").build();
         }

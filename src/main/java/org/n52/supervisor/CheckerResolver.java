@@ -18,8 +18,10 @@ package org.n52.supervisor;
 
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.ows.OwsCapabilitiesCheck;
+import org.n52.supervisor.checks.ows.OwsCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.ows.SirCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.ows.SosCapabilitiesCheckRunner;
+import org.n52.supervisor.checks.ows.SpsCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.ows.WpsCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.util.HeapCheck;
 import org.n52.supervisor.checks.util.HeapCheckRunner;
@@ -40,15 +42,15 @@ public class CheckerResolver {
 
     private static Logger log = LoggerFactory.getLogger(CheckerResolver.class);
 
-    public ICheckRunner getRunner(Check check) {
+    public CheckRunner getRunner(final Check check) {
         log.debug("Resolving check: {}", check);
         // String checkType = check.getType();
 
-        ICheckRunner r = null;
+        CheckRunner r = null;
 
         if (check instanceof OwsCapabilitiesCheck) {
-            OwsCapabilitiesCheck occ = (OwsCapabilitiesCheck) check;
-            String serviceType = occ.getServiceType();
+            final OwsCapabilitiesCheck occ = (OwsCapabilitiesCheck) check;
+            final String serviceType = occ.getServiceType();
             log.debug("Resolving OWS check by service type: {}", occ);
 
             switch (serviceType) {
@@ -59,16 +61,21 @@ public class CheckerResolver {
                 r = new SirCapabilitiesCheckRunner(occ);
             case "WPS":
                 r = new WpsCapabilitiesCheckRunner(occ);
+            case "SPS":
+            	r = new SpsCapabilitiesCheckRunner(occ);
             default:
-                break;
+                r = new OwsCapabilitiesCheckRunner(occ);
+                log.error("Configured Servicetype '{}' is not supported! Using generic Checker '{}'.",
+                		serviceType,
+                		r.getClass().getName());
             }
         }
         else if (check instanceof HeapCheck) {
-            HeapCheck hc = (HeapCheck) check;
+            final HeapCheck hc = (HeapCheck) check;
             r = new HeapCheckRunner(hc);
         }
         else if (check instanceof SelfCheck) {
-            SelfCheck sc = (SelfCheck) check;
+            final SelfCheck sc = (SelfCheck) check;
             r = new SelfCheckRunner(sc);
         }
 

@@ -21,7 +21,6 @@ import java.util.Date;
 
 import net.opengis.ows.x11.CapabilitiesBaseType;
 import net.opengis.ows.x11.GetCapabilitiesDocument;
-import net.opengis.ows.x11.GetCapabilitiesType;
 
 import org.apache.xmlbeans.XmlObject;
 import org.n52.supervisor.checks.AbstractServiceCheckRunner;
@@ -30,7 +29,6 @@ import org.n52.supervisor.checks.ServiceCheckResult;
 import org.n52.supervisor.util.XmlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.x52North.sir.x032.CapabilitiesDocument;
 
 /**
  * @author Daniel Nüst
@@ -44,31 +42,31 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 
     protected static final String POSITIVE_TEXT = "Successfully requested capabilities document.";
 
-    public OwsCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
+    public OwsCapabilitiesCheckRunner(final OwsCapabilitiesCheck check) {
         super(check);
     }
 
     protected String buildGetRequest() {
-        OwsCapabilitiesCheck check = (OwsCapabilitiesCheck) this.c;
-        return "Request=GetCapabilities&Service=" + check.getServiceType() + "&serviceVersion="
-                + check.getServiceVersion();
+        final OwsCapabilitiesCheck owsCheck = (OwsCapabilitiesCheck) check;
+        return "Request=GetCapabilities&Service=" + owsCheck.getServiceType() + "&serviceVersion="
+                + owsCheck.getServiceVersion();
     }
 
     @Override
     public boolean check() {
-        OwsCapabilitiesCheck check = (OwsCapabilitiesCheck) this.c;
+        final OwsCapabilitiesCheck owsCheck = (OwsCapabilitiesCheck) check;
 
-        URL sUrl = check.getServiceUrl();
+        final URL sUrl = owsCheck.getServiceUrl();
         log.debug("Checking Capabilities for {}", sUrl);
 
-        if (check.getOwsVersion() != "1.1") {
-            log.error("OWS Version not supported: " + check.getOwsVersion());
-            String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, check.getOwsVersion());
-            ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
+        if (!owsCheck.getOwsVersion().equals("1.1")) {
+            log.error("OWS Version not supported: " + owsCheck.getOwsVersion());
+            final String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, owsCheck.getOwsVersion());
+            final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
                                                           text,
                                                           new Date(),
                                                           CheckResult.ResultType.NEGATIVE,
-                                                          check.getServiceIdentifier());
+                                                          owsCheck.getServiceIdentifier());
             addResult(r);
             return false;
         }
@@ -77,94 +75,112 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 
         // create get capabilities document
         GetCapabilitiesDocument getCapDoc = GetCapabilitiesDocument.Factory.newInstance(XmlTools.DEFAULT_OPTIONS);
-        GetCapabilitiesType getCapabilities = getCapDoc.addNewGetCapabilities();
+        getCapDoc.addNewGetCapabilities();
 
         // send the document
         try {
-            XmlObject response = this.client.xSendPostRequest(sUrl.toString(), getCapDoc);
+            final XmlObject response = client.xSendPostRequest(sUrl.toString(), getCapDoc);
             getCapDoc = null;
 
             // parse response - this is the test!
-            CapabilitiesBaseType caps = CapabilitiesBaseType.Factory.parse(response.getDomNode());
+            final CapabilitiesBaseType caps = CapabilitiesBaseType.Factory.parse(response.getDomNode());
             log.debug("Parsed caps with serviceVersion " + caps.getVersion());
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             log.error("Could not send request", e);
-            ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
+            final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
                                                           String.format("... Could not send request: %s"
                                                                   + e.getMessage()),
                                                           new Date(),
                                                           CheckResult.ResultType.NEGATIVE,
-                                                          check.getServiceIdentifier());
+                                                          owsCheck.getServiceIdentifier());
             addResult(r);
             return false;
         }
 
         // save the good result
-        ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
+        final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
                                                       POSITIVE_TEXT,
                                                       new Date(),
                                                       CheckResult.ResultType.POSITIVE,
-                                                      check.getServiceIdentifier());
+                                                      owsCheck.getServiceIdentifier());
         addResult(r);
         return true;
     }
 
     protected boolean runGetRequestParseDocCheck() {
-        OwsCapabilitiesCheck check = (OwsCapabilitiesCheck) this.c;
+        final OwsCapabilitiesCheck owsCheck = (OwsCapabilitiesCheck) check;
 
-        if ( !check.getOwsVersion().equals("1.1")) {
-            log.error("OWS Version not supported: " + check.getOwsVersion());
-            String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, check.getOwsVersion());
-            ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
+        if ( !owsCheck.getOwsVersion().equals("1.1")) {
+            log.error("OWS Version not supported: " + owsCheck.getOwsVersion());
+            final String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, owsCheck.getOwsVersion());
+            final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
                                                           text,
                                                           new Date(),
                                                           CheckResult.ResultType.NEGATIVE,
-                                                          check.getServiceIdentifier());
+                                                          owsCheck.getServiceIdentifier());
             addResult(r);
             return false;
         }
 
         try {
-            XmlObject response = this.client.xSendGetRequest(this.c.getServiceUrl().toString(), buildGetRequest());
+            final XmlObject response = client.xSendGetRequest(check.getServiceUrl().toString(), buildGetRequest());
 
             ServiceCheckResult r = null;
             boolean rb = false;
 
-            if (response instanceof CapabilitiesDocument) {
-                CapabilitiesDocument caps = (CapabilitiesDocument) response;
-                log.debug("Parsed caps, serviceVersion: " + caps.getCapabilities().getVersion());
+            if (isCapabilitiesDocument(response) && 
+            		hasVersionAttribute(response) && 
+            		isVersionMatching(response,owsCheck.getServiceVersion())) {
+                log.debug("Parsed caps, serviceVersion: " + getVersion(response));
 
-                r = new ServiceCheckResult(this.c.getIdentifier(),
+                r = new ServiceCheckResult(check.getIdentifier(),
                                            POSITIVE_TEXT,
                                            new Date(),
                                            CheckResult.ResultType.POSITIVE,
-                                           this.c.getServiceIdentifier());
+                                           check.getServiceIdentifier());
                 rb = true;
             }
             else {
-                r = new ServiceCheckResult(this.c.getIdentifier(),
+                r = new ServiceCheckResult(check.getIdentifier(),
                                            " ... Response was not a Capabilities document!",
                                            new Date(),
                                            CheckResult.ResultType.NEGATIVE,
-                                           this.c.getServiceIdentifier());
+                                           check.getServiceIdentifier());
             }
 
             addResult(r);
             return rb;
         }
-        catch (Exception e) {
-            ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+        catch (final Exception e) {
+            final ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
                                                           String.format("%s ERROR: %s occured in %s",
                                                                         NEGATIVE_TEXT,
                                                                         e.getMessage(),
                                                                         this.getClass().getCanonicalName()),
                                                           new Date(),
                                                           CheckResult.ResultType.NEGATIVE,
-                                                          this.c.getServiceIdentifier());
+                                                          check.getServiceIdentifier());
             addResult(r);
             return false;
         }
     }
+
+	private String getVersion(final XmlObject response) {
+		return response.getDomNode().getFirstChild().getAttributes().getNamedItem("version").getNodeValue();
+	}
+
+	private boolean isVersionMatching(final XmlObject response,
+			final String owsVersion) {
+		return getVersion(response).equals(owsVersion);
+	}
+
+	private boolean hasVersionAttribute(final XmlObject response) {
+		return response.getDomNode().getFirstChild().getAttributes().getNamedItem("version") != null;
+	}
+
+	private boolean isCapabilitiesDocument(final XmlObject response) {
+		return response.getDomNode().getFirstChild().getLocalName().equals("Capabilities");
+	}
 
 }

@@ -16,7 +16,7 @@
 
 package org.n52.supervisor.tasks;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 
 /**
  * 
@@ -25,6 +25,6 @@ import org.n52.supervisor.ICheckRunner;
  */
 public interface CheckTaskFactory {
 
-    CheckTask create(ICheckRunner checker);
+    CheckTask create(CheckRunner checker);
 
 }
