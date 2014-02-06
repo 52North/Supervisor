@@ -45,8 +45,6 @@ public class SupervisorProperties {
 
     private static final String CHECKS = "CHECKS";
 
-    private static final String DEFAULT_CHECK_INTERVAL_SECS = "DEFAULT_CHECK_INTERVAL_SECS";
-
     private static SupervisorProperties instance;
 
     private static Logger log = LoggerFactory.getLogger(SupervisorProperties.class);

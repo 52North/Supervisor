@@ -20,6 +20,7 @@ import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.ows.OwsCapabilitiesCheck;
 import org.n52.supervisor.checks.ows.SirCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.ows.SosCapabilitiesCheckRunner;
+import org.n52.supervisor.checks.ows.WpsCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.util.HeapCheck;
 import org.n52.supervisor.checks.util.HeapCheckRunner;
 import org.n52.supervisor.checks.util.SelfCheck;
@@ -56,6 +57,8 @@ public class CheckerResolver {
                 break;
             case "SIR":
                 r = new SirCapabilitiesCheckRunner(occ);
+            case "WPS":
+                r = new WpsCapabilitiesCheckRunner(occ);
             default:
                 break;
             }
