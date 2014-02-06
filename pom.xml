@@ -379,12 +379,18 @@
 				<version>1.0.5</version>
 				<configuration>
 					<noticeTemplate>src/main/resources/NOTICE.template</noticeTemplate>
-					<licenseMapping>
-						<param>src/main/resources/license-mappings.xml</param>
-					</licenseMapping>
+                    <!-- backup offline solution -->
+                    <!--
+                    <licenseMapping>
+                        <param>src/main/resources/license-mappings.xml</param>
+                    </licenseMapping>
+                    -->
+            <!-- optional or might be better approach using the github cdn version -->
+                    <licenseMapping>
+                        <param>http://52north.github.io/cdn/licenses/license-mappings.xml</param>
+                    </licenseMapping>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>com.code54.mojo</groupId>
 				<artifactId>buildversion-plugin</artifactId>
