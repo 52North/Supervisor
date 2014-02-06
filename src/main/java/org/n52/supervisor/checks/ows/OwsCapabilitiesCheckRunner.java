@@ -29,7 +29,6 @@ import org.n52.supervisor.checks.ServiceCheckResult;
 import org.n52.supervisor.util.XmlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.x52North.sir.x032.CapabilitiesDocument;
 
 /**
  * @author Daniel Nüst
@@ -132,9 +131,8 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 
             if (isCapabilitiesDocument(response) && 
             		hasVersionAttribute(response) && 
-            		isVersionMatching(response,owsCheck.getOwsVersion())) {
-                final CapabilitiesDocument caps = (CapabilitiesDocument) response;
-                log.debug("Parsed caps, serviceVersion: " + caps.getCapabilities().getVersion());
+            		isVersionMatching(response,owsCheck.getServiceVersion())) {
+                log.debug("Parsed caps, serviceVersion: " + getVersion(response));
 
                 r = new ServiceCheckResult(check.getIdentifier(),
                                            POSITIVE_TEXT,
@@ -168,9 +166,13 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
         }
     }
 
+	private String getVersion(final XmlObject response) {
+		return response.getDomNode().getFirstChild().getAttributes().getNamedItem("version").getNodeValue();
+	}
+
 	private boolean isVersionMatching(final XmlObject response,
 			final String owsVersion) {
-		return response.getDomNode().getFirstChild().getAttributes().getNamedItem("version").getNodeValue().equals(owsVersion);
+		return getVersion(response).equals(owsVersion);
 	}
 
 	private boolean hasVersionAttribute(final XmlObject response) {
@@ -178,7 +180,7 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 	}
 
 	private boolean isCapabilitiesDocument(final XmlObject response) {
-		return response.getDomNode().getFirstChild().getNodeName().equals("Capabilities");
+		return response.getDomNode().getFirstChild().getLocalName().equals("Capabilities");
 	}
 
 }
