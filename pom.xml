@@ -357,6 +357,7 @@
 					<excludes>
 						<exclude>**/logback*</exclude>
 						<exclude>**/js/lib/**</exclude>
+						<exclude>**/*.properties</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
