@@ -16,7 +16,6 @@
 
 package org.n52.supervisor.checks.ows;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
@@ -24,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import net.opengis.wps.x100.CapabilitiesDocument;
 
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.ServiceCheckResult;
@@ -51,9 +49,7 @@ public class WpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
     public boolean check() {
         URL sUrl = this.c.getServiceUrl();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Checking WPS Capabilities via GET " + sUrl);
-        }
+        log.debug("Checking WPS Capabilities via GET to {}", sUrl);
 
         clearResults();
 
@@ -64,15 +60,9 @@ public class WpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
             CapabilitiesDocument caps = CapabilitiesDocument.Factory.parse(response.getDomNode());
             log.debug("Parsed caps with serviceVersion " + caps.getCapabilities().getVersion());
         }
-        catch (IOException | XmlException e) {
+        catch (Exception e) {
             log.error("Could not send request", e);
-            ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
-                                                          String.format("%s ... Could not send request or parse response: %s",
-                                                                        NEGATIVE_TEXT,
-                                                                        e.getMessage()),
-                                                          new Date(),
-                                                          CheckResult.ResultType.NEGATIVE,
-                                                          this.c.getServiceIdentifier());
+            ServiceCheckResult r = new ServiceCheckResult(e, this.c, "ERROR");
             addResult(r);
             return false;
         }

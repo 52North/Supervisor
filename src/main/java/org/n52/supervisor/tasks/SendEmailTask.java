@@ -71,7 +71,7 @@ public class SendEmailTask extends TimerTask {
 
     private static final Object EMAIL_RESULT_DELIMITER_TEXT = "\n";
 
-    private static final Object EMAIL_GOODBYE_TEXT = "\n\nThis message is provided by OwsSupervisor, courtesy of 52°North. Enjoy!\nhttp://52north.org/ -- exploring horizons";
+    private static final Object EMAIL_GOODBYE_TEXT = "\n\nThis message is provided by Supervisor, courtesy of 52°North. Enjoy!\nhttp://52north.org/ -- exploring horizons";
 
     private static final Object EMAIL_HELLO_TEXT = "Attention on deck! The following check results were reported in the system since the last email:\n";
 
@@ -223,11 +223,11 @@ public class SendEmailTask extends TimerTask {
             MimeMessage message = new MimeMessage(mailSession);
 
             if (failureCount > 1)
-                message.setSubject("[OwsSupervisor] " + failureCount + " checks failed");
+                message.setSubject("[Supervisor] " + failureCount + " checks failed");
             else if (failureCount == 1)
-                message.setSubject("[OwsSupervisor] " + failureCount + " check failed");
+                message.setSubject("[Supervisor] " + failureCount + " check failed");
             else
-                message.setSubject("[OwsSupervisor] All checks passed");
+                message.setSubject("[Supervisor] All checks passed");
 
             message.setContent(messageText, EMAIL_CONTENT_ENCODING);
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));

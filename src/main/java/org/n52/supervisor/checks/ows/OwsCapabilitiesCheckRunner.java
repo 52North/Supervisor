@@ -16,7 +16,6 @@
 
 package org.n52.supervisor.checks.ows;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
@@ -24,7 +23,6 @@ import net.opengis.ows.x11.CapabilitiesBaseType;
 import net.opengis.ows.x11.GetCapabilitiesDocument;
 import net.opengis.ows.x11.GetCapabilitiesType;
 
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.supervisor.checks.AbstractServiceCheckRunner;
 import org.n52.supervisor.checks.CheckResult;
@@ -90,7 +88,7 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
             CapabilitiesBaseType caps = CapabilitiesBaseType.Factory.parse(response.getDomNode());
             log.debug("Parsed caps with serviceVersion " + caps.getVersion());
         }
-        catch (IOException | XmlException e) {
+        catch (Exception e) {
             log.error("Could not send request", e);
             ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
                                                           String.format("... Could not send request: %s"
@@ -155,11 +153,12 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
             addResult(r);
             return rb;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
-                                                          String.format("%s ... Could not send request or parse response: %s",
+                                                          String.format("%s ERROR: %s occured in %s",
                                                                         NEGATIVE_TEXT,
-                                                                        e.getMessage()),
+                                                                        e.getMessage(),
+                                                                        this.getClass().getCanonicalName()),
                                                           new Date(),
                                                           CheckResult.ResultType.NEGATIVE,
                                                           this.c.getServiceIdentifier());

@@ -16,7 +16,6 @@
 
 package org.n52.supervisor.checks.ows;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
@@ -96,9 +95,9 @@ public class SosV2LatestObservationCheckRunner extends AbstractServiceCheckRunne
 
             return b;
         }
-        catch (IOException e) {
-            log.error("Could not send request", e);
-            return saveAndReturnNegativeResult(NEGATIVE_TEXT + " ... Could not send request!");
+        catch (Exception e) {
+            log.error("Error during check", e);
+            return saveAndReturnNegativeResult(NEGATIVE_TEXT + " -- ERROR: " + e.getMessage());
         }
     }
 
