@@ -47,7 +47,7 @@ public class WpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
     @Override
     public boolean check() {
-        URL sUrl = this.c.getServiceUrl();
+        URL sUrl = this.check.getServiceUrl();
 
         log.debug("Checking WPS Capabilities via GET to {}", sUrl);
 
@@ -62,16 +62,16 @@ public class WpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
         }
         catch (Exception e) {
             log.error("Could not send request", e);
-            ServiceCheckResult r = new ServiceCheckResult(e, this.c, "ERROR");
+            ServiceCheckResult r = new ServiceCheckResult(e, this.check, "ERROR");
             addResult(r);
             return false;
         }
 
-        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+        ServiceCheckResult r = new ServiceCheckResult(this.check.getIdentifier(),
                                                       POSITIVE_TEXT,
                                                       new Date(),
                                                       CheckResult.ResultType.POSITIVE,
-                                                      this.c.getServiceIdentifier());
+                                                      this.check.getServiceIdentifier());
         addResult(r);
 
         return true;

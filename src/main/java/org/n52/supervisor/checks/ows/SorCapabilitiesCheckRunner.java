@@ -33,7 +33,7 @@ public class SorCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
     @Override
     public boolean check() {
-        log.debug("Checking SOR Capabilities for {}", this.c.getServiceUrl());
+        log.debug("Checking SOR Capabilities for {}", this.check.getServiceUrl());
 
         clearResults();
 

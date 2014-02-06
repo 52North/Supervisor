@@ -41,7 +41,7 @@ public interface CheckRunner {
 
     public void notifySuccess();
 
-    public void setCheck(Check c) throws UnsupportedCheckException;
+    public void setCheck(Check check) throws UnsupportedCheckException;
 
     /**
      * @param rd

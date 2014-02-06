@@ -44,71 +44,73 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
 
     protected Client client = new Client();
 
-    private List<CheckResult> results = new ArrayList<CheckResult>();
+    private final List<CheckResult> results = new ArrayList<CheckResult>();
 
-    protected ServiceCheck c;
+    protected ServiceCheck check;
 
     private ResultDatabase rd;
 
-    public AbstractServiceCheckRunner(ServiceCheck check) {
-        this.c = check;
+    public AbstractServiceCheckRunner(final ServiceCheck check) {
+        this.check = check;
     }
 
     @Override
-    public void addResult(CheckResult r) {
+    public void addResult(final CheckResult result) {
         // if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
         // log.debug("NEGATIVE result added to {}:", this, r);
 
-        this.results.add(r);
-        log.debug("Result added: " + r);
+        results.add(result);
+        log.debug("Result added: " + result);
     }
 
     public void clearResults() {
         if (log.isDebugEnabled()) {
-            log.debug("Clearing " + this.results.size() + " results");
+            log.debug("Clearing " + results.size() + " results");
         }
-        this.results.clear();
+        results.clear();
     }
 
-    protected ServiceCheckResult createNegativeResult(String text) {
-        ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+    protected ServiceCheckResult createNegativeResult(final String text) {
+        final ServiceCheckResult result = new ServiceCheckResult(check.getIdentifier(),
                                                       text,
                                                       new Date(),
                                                       CheckResult.ResultType.NEGATIVE,
-                                                      this.c.getServiceIdentifier());
-        return r;
+                                                      check.getServiceIdentifier());
+        return result;
     }
 
     @Override
     public Check getCheck() {
-        return this.c;
+        return check;
     }
 
     @Override
     public Collection<CheckResult> getResults() {
-        return this.results;
+        return results;
     }
 
     @Override
     public void notifyFailure() {
         log.info("Check FAILED: {}", this);
 
-        if (this.rd != null)
-            this.rd.appendResults(getResults());
+        if (rd != null) {
+			rd.appendResults(getResults());
+		}
 
-        if (this.c.getNotificationEmail() == null) {
+        if (check.getNotificationEmail() == null) {
             log.error("Can not notify via email, is null!");
 
-            Collection<CheckResult> failures = new ArrayList<CheckResult>();
-            for (CheckResult r : this.results) {
-                if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
-                    failures.add(r);
+            final Collection<CheckResult> failures = new ArrayList<CheckResult>();
+            for (final CheckResult r : results) {
+                if (r.getType().equals(CheckResult.ResultType.NEGATIVE)) {
+					failures.add(r);
+				}
             }
 
-            Notification n = new EmailNotification(this.c, failures);
+            final Notification n = new EmailNotification(check, failures);
             SupervisorInit.appendNotification(n);
 
-            log.debug("Submitted email with {} failures to {}.", failures.size(), this.c.getNotificationEmail());
+            log.debug("Submitted email with {} failures to {}.", failures.size(), check.getNotificationEmail());
         }
     }
 
@@ -116,28 +118,29 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
     public void notifySuccess() {
         log.info("Check SUCCESSFUL: {}", this);
 
-        if (this.rd != null)
-            this.rd.appendResults(getResults());
+        if (rd != null) {
+			rd.appendResults(getResults());
+		}
     }
 
-    protected boolean saveAndReturnNegativeResult(String text) {
-        ServiceCheckResult r = createNegativeResult(text);
+    protected boolean saveAndReturnNegativeResult(final String text) {
+        final ServiceCheckResult r = createNegativeResult(text);
         addResult(r);
         return false;
     }
 
     @Override
-    public void setCheck(Check c) throws UnsupportedCheckException {
+    public void setCheck(final Check c) throws UnsupportedCheckException {
         if (c instanceof ServiceCheck) {
-            ServiceCheck sc = (ServiceCheck) c;
-            this.c = sc;
-        }
-        else
-            throw new UnsupportedCheckException();
+            final ServiceCheck sc = (ServiceCheck) c;
+            check = sc;
+        } else {
+			throw new UnsupportedCheckException();
+		}
     }
 
     @Override
-    public void setResultDatabase(ResultDatabase rd) {
+    public void setResultDatabase(final ResultDatabase rd) {
         this.rd = rd;
     }
 
