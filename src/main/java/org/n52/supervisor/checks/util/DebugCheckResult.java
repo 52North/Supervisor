@@ -14,26 +14,34 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.tasks;
+package org.n52.supervisor.checks.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import javax.xml.bind.annotation.XmlRootElement;
 
-public class TaskModule extends AbstractModule {
+import org.n52.supervisor.checks.CheckResult;
 
-    private static Logger log = LoggerFactory.getLogger(TaskModule.class);
+/**
+ * 
+ * @author Daniel
+ * 
+ */
+@XmlRootElement
+public class DebugCheckResult extends CheckResult {
 
-    @Override
-    protected void configure() {
-        bind(TaskServlet.class);
-        bind(IJobScheduler.class).to(JobSchedulerImpl.class);
+    private static final String IDENTIFIER = "[DEBUG]";
 
-        install(new FactoryModuleBuilder().implement(CheckTask.class, CheckTaskImpl.class).build(CheckTaskFactory.class));
+    public DebugCheckResult() {
+        super();
+    }
 
-        log.info("Configured {}", this);
+    public DebugCheckResult(String result) {
+       super(IDENTIFIER, result, new Date(), ResultType.NEUTRAL);
+    }
+
+    public DebugCheckResult(String result, Date timeOfCheck, ResultType type) {
+        super(IDENTIFIER, result, timeOfCheck, type);
     }
 
 }

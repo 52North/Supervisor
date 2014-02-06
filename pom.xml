@@ -6,7 +6,7 @@
 	<packaging>war</packaging>
 
 	<!-- http://semver.org/ -->
-	<version>0.2</version>
+	<version>0.2.1</version>
 
 	<name>Supervisor</name>
 	<description>Web application for supervision of standardizd OGC Web Services</description>
@@ -260,7 +260,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>${project.name}</finalName>
+		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
 			<plugin>
@@ -349,18 +349,14 @@
 					<header>src/main/resources/license_header.txt</header>
 					<excludes>
 						<exclude>**/logback*</exclude>
-						<exclude>**/log4j*</exclude>
-						<exclude>**/bootstrap*</exclude>
 						<exclude>**/js/lib/**</exclude>
 					</excludes>
 					<includes>
 						<include>**/*.java</include>
 						<include>**/*.properties</include>
 						<include>**/*.js</include>
-						<include>**/*.css</include>
 						<include>**/*.xml</include>
 						<include>**/*.xsl</include>
-						<!-- <include>**/*.html</include> -->
 					</includes>
 					<strictCheck>true</strictCheck>
 					<properties>
@@ -387,19 +383,6 @@
 						<param>src/main/resources/license-mappings.xml</param>
 					</licenseMapping>
 				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>com.github.danielflower.mavenplugins</groupId>
-				<artifactId>maven-gitlog-plugin</artifactId>
-				<version>1.5.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 			<plugin>

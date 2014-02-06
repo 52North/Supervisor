@@ -26,11 +26,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
 
 import org.n52.supervisor.db.ResultDatabase;
@@ -38,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * 
@@ -49,7 +46,8 @@ import com.google.inject.Inject;
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public class TaskServlet extends GenericServlet {
+@Singleton
+public class TaskServlet {
 
     /**
      * Inner class to handle storage and cancelling of tasks at runtime.
@@ -98,13 +96,7 @@ public class TaskServlet extends GenericServlet {
 
     private ScheduledThreadPoolExecutor executor;
 
-    private static final String INIT_PARAM_CONFIG_FILE = "configFile";
-
     private static Logger log = LoggerFactory.getLogger(TaskServlet.class);
-
-    public static final String NAME_IN_CONTEXT = "TimerServlet";
-
-    private static final long serialVersionUID = -7342914044857243635L;
 
     private static final String EMAIL_SEND_PERIOD_MINDS = "supervisor.tasks.email.sendPeriodMins";
 
@@ -119,11 +111,16 @@ public class TaskServlet extends GenericServlet {
      */
     private ArrayList<TaskElement> tasks = new ArrayList<TaskServlet.TaskElement>();
 
-    @Inject
     private ResultDatabase rd;
 
-    public TaskServlet() {
+    private String configFile = "/supervisor.properties";
+
+    @Inject
+    public TaskServlet(ResultDatabase rd) throws ServletException {
+        this.rd = rd;
         log.info("NEW {}", this);
+
+        init();
     }
 
     public void cancel(String identifier) {
@@ -137,9 +134,8 @@ public class TaskServlet extends GenericServlet {
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
-        log.info("Destroy " + this.toString());
+    protected void finalize() throws Throwable {
+        log.info("Finalize {}", this);
         executor.shutdownNow();
         executor = null;
         this.tasks.clear();
@@ -150,19 +146,17 @@ public class TaskServlet extends GenericServlet {
         return this.tasks;
     }
 
-    @Override
     public void init() throws ServletException {
-        super.init();
         log.info(" * Initializing Timer ... ");
 
         // get configFile as Inputstream
-        String file = getInitParameter(INIT_PARAM_CONFIG_FILE);
-        InputStream configStream = TaskServlet.class.getResourceAsStream(file);
+        InputStream configStream = TaskServlet.class.getResourceAsStream(configFile);
         if (configStream == null) {
-            log.error("Could not open the config file " + file);
+            log.error("Could not open the config file " + configFile);
             throw new UnavailableException("Could not open the config file.");
         }
 
+        // TODO get properties via Guice
         // load properties file
         try {
             this.props = loadProperties(configStream);
@@ -192,9 +186,6 @@ public class TaskServlet extends GenericServlet {
         else
             log.debug("Not sending emails, not starting email tasks.");
 
-        ServletContext context = getServletContext();
-        context.setAttribute(NAME_IN_CONTEXT, this);
-
         log.info(" ***** Timer initiated successfully! ***** ");
     }
 
@@ -203,11 +194,6 @@ public class TaskServlet extends GenericServlet {
         properties.load(is);
 
         return properties;
-    }
-
-    @Override
-    public void service(ServletRequest req, ServletResponse res) {
-        throw new UnsupportedOperationException("Not supperted by TimerServlet!");
     }
 
     public void submit(String identifier, TimerTask task, long delay) {
@@ -231,7 +217,7 @@ public class TaskServlet extends GenericServlet {
      */
     public void submit(String identifier, TimerTask task, long delay, long period) {
         if (executor == null)
-            log.error("Executor is NULL.");
+            log.error("Executor is NULL, cannot submit task with id {}: {}", identifier, task);
         else {
             executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
 
