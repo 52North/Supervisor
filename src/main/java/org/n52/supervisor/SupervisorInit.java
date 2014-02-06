@@ -31,8 +31,8 @@ import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.db.CheckDatabase;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.id.IdentifierGenerator;
-import org.n52.supervisor.tasks.IJobScheduler;
-import org.n52.supervisor.ui.INotification;
+import org.n52.supervisor.tasks.JobScheduler;
+import org.n52.supervisor.ui.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +52,14 @@ public class SupervisorInit {
 
         private long sleep;
         private Collection<Check> checks;
-        private IJobScheduler scheduler;
+        private JobScheduler scheduler;
         private long submitDelaySecs;
         private CheckerResolver cr;
 
         public DelayedStartThread(long sleep,
                                   Collection<Check> checks,
                                   CheckerResolver cr,
-                                  IJobScheduler scheduler,
+                                  JobScheduler scheduler,
                                   long submitDelaySecs) {
             this.sleep = sleep;
             this.checks = checks;
@@ -78,7 +78,7 @@ public class SupervisorInit {
             }
 
             for (Check c : this.checks) {
-                ICheckRunner runner = this.cr.getRunner(c);
+                CheckRunner runner = this.cr.getRunner(c);
                 String id = this.scheduler.submit(runner, this.submitDelaySecs * 1000);
 
                 log.debug("Submitted check with id {} : {} \n\t and runner: {}", id, c, runner);
@@ -88,13 +88,13 @@ public class SupervisorInit {
 
     private static Logger log = LoggerFactory.getLogger(SupervisorInit.class);
 
-    private static Queue<INotification> notifications;
+    private static Queue<Notification> notifications;
 
     private static final String COMMENT_PREFIX = "#";
 
     public static final String NAME_IN_CONTEXT = "Supervisor";
 
-    public static void appendNotification(INotification notification) {
+    public static void appendNotification(Notification notification) {
         notifications.add(notification);
     }
 
@@ -103,11 +103,11 @@ public class SupervisorInit {
         notifications.clear();
     }
 
-    public static synchronized boolean removeAllNotifications(Collection<INotification> c) {
+    public static synchronized boolean removeAllNotifications(Collection<Notification> c) {
         return notifications.removeAll(c);
     }
 
-    private IJobScheduler scheduler;
+    private JobScheduler scheduler;
 
     private CheckDatabase db;
 
@@ -120,7 +120,7 @@ public class SupervisorInit {
     @Inject
     public SupervisorInit(@Named("context.basepath")
                           String basepath,
-                          IJobScheduler scheduler,
+                          JobScheduler scheduler,
                           CheckDatabase db,
                           ResultDatabase rd,
                           CheckerResolver cr,
@@ -144,15 +144,15 @@ public class SupervisorInit {
         log.info(" ***** NEW {} *****", this);
     }
 
-    public Collection<INotification> getCurrentNotificationsCopy() {
-        return new ArrayList<INotification>(notifications);
+    public Collection<Notification> getCurrentNotificationsCopy() {
+        return new ArrayList<Notification>(notifications);
     }
 
     public void init(String basepath) {
         log.debug("InitializING {} ...", this);
 
         try {
-            notifications = new LinkedBlockingQueue<INotification>();
+            notifications = new LinkedBlockingQueue<Notification>();
 
             SupervisorProperties sp = SupervisorProperties.getInstance();
 

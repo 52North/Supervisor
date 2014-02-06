@@ -150,10 +150,10 @@ public class ChecksResource {
 
         ManualChecker c = null;
         if (runAll) {
-            Collection<ICheckRunner> checkers = new ArrayList<>();
+            Collection<CheckRunner> checkers = new ArrayList<>();
             List<Check> allChecks = this.cd.getAllChecks();
             for (Check check : allChecks) {
-                ICheckRunner runner = this.cr.getRunner(check);
+                CheckRunner runner = this.cr.getRunner(check);
                 runner.setResultDatabase(this.rd);
 
                 if (runner != null)

@@ -17,7 +17,7 @@ package org.n52.supervisor.tasks;
 
 import java.util.Collection;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.checks.CheckResult;
 
 /**
@@ -27,6 +27,6 @@ import org.n52.supervisor.checks.CheckResult;
  */
 public interface CheckTask {
 
-    public Collection<CheckResult> checkIt(ICheckRunner c);
+    public Collection<CheckResult> checkIt(CheckRunner c);
 
 }

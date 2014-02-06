@@ -19,7 +19,7 @@ package org.n52.supervisor.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.n52.supervisor.ICheckFactory;
+import org.n52.supervisor.CheckFactory;
 import org.n52.supervisor.checks.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("unused")
 @Deprecated()
-public class SWSL implements ICheckFactory {
+public class SWSL implements CheckFactory {
 
     private static final String EMAIL_DN = "d.nuest@52north.org";
 
@@ -50,13 +50,13 @@ public class SWSL implements ICheckFactory {
         return checks;
     }
 
-    // private Collection<ICheckRunner> initBS() {
-    // Collection<ICheckRunner> checkers = new ArrayList<ICheckRunner>();
+    // private Collection<CheckRunner> initBS() {
+    // Collection<CheckRunner> checkers = new ArrayList<CheckRunner>();
     //
     // // WPS @ giv-wps
     // try {
     // URL wps = new URL("http://giv-wps.uni-muenster.de:8080/wps/WebProcessingService");
-    // ICheckRunner capsChecker = new WpsCapabilitiesCheckRunner("1.0.0",
+    // CheckRunner capsChecker = new WpsCapabilitiesCheckRunner("1.0.0",
     // wps,
     // "schaeffer@uni-muenster.de",
     // EVERY_12_HOURS);
@@ -69,13 +69,13 @@ public class SWSL implements ICheckFactory {
     // return checkers;
     // }
 
-    // private Collection<ICheckRunner> initGenesis(String notificationEmail) {
-    // Collection<ICheckRunner> checkers = new ArrayList<ICheckRunner>();
+    // private Collection<CheckRunner> initGenesis(String notificationEmail) {
+    // Collection<CheckRunner> checkers = new ArrayList<CheckRunner>();
     //
     // // SIR @ giv-genesis
     // try {
     // URL sir = new URL("http://giv-genesis.uni-muenster.de:8080/SIR/sir");
-    // ICheckRunner capsChecker = new SirCapabilitiesCheckRunner(sir, notificationEmail, EVERY_12_HOURS);
+    // CheckRunner capsChecker = new SirCapabilitiesCheckRunner(sir, notificationEmail, EVERY_12_HOURS);
     // checkers.add(capsChecker);
     // }
     // catch (MalformedURLException e) {
@@ -85,7 +85,7 @@ public class SWSL implements ICheckFactory {
     // // SOR @ giv-genesis
     // try {
     // URL sor = new URL("http://giv-genesis.uni-muenster.de:8080/SOR/sor");
-    // ICheckRunner capsChecker = new SorCapabilitiesCheckRunner(sor, notificationEmail, EVERY_12_HOURS);
+    // CheckRunner capsChecker = new SorCapabilitiesCheckRunner(sor, notificationEmail, EVERY_12_HOURS);
     // checkers.add(capsChecker);
     // }
     // catch (MalformedURLException e) {
@@ -97,13 +97,13 @@ public class SWSL implements ICheckFactory {
     // return checkers;
     // }
     //
-    // private Collection<ICheckRunner> initWeatherSOS(String notificationEmail) {
-    // Collection<ICheckRunner> checkers = new ArrayList<ICheckRunner>();
+    // private Collection<CheckRunner> initWeatherSOS(String notificationEmail) {
+    // Collection<CheckRunner> checkers = new ArrayList<CheckRunner>();
     //
     // // WeatherSOS
     // try {
     // URL weathersos = new URL("http://v-swe.uni-muenster.de:8080/WeatherSOS/sos");
-    // ICheckRunner capsChecker = new SosCapabilitiesCheckRunner(weathersos, notificationEmail,
+    // CheckRunner capsChecker = new SosCapabilitiesCheckRunner(weathersos, notificationEmail,
     // EVERY_12_HOURS);
     // checkers.add(capsChecker);
     //
@@ -144,7 +144,7 @@ public class SWSL implements ICheckFactory {
     // long maximumAge = 1000 * 60 * 30;
     //
     // for (int i = 0; i < offerings.length; i++) {
-    // ICheckRunner checker = new SosLatestObservationCheckRunner(weathersos,
+    // CheckRunner checker = new SosLatestObservationCheckRunner(weathersos,
     // offerings[i],
     // obsProps[i],
     // proc,

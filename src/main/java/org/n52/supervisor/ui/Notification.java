@@ -14,39 +14,18 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor;
+package org.n52.supervisor.ui;
 
 import java.util.Collection;
 
-import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
-import org.n52.supervisor.checks.UnsupportedCheckException;
-import org.n52.supervisor.db.ResultDatabase;
 
 /**
- * @author Daniel Nüst
+ * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
-public interface ICheckRunner {
-
-    public void addResult(CheckResult r);
-
-    public boolean check();
-
-    public Check getCheck();
+public interface Notification {
 
     public Collection<CheckResult> getResults();
-
-    public void notifyFailure();
-
-    public void notifySuccess();
-
-    public void setCheck(Check c) throws UnsupportedCheckException;
-
-    /**
-     * @param rd
-     *        is required so that the runner can announce its results
-     */
-    public void setResultDatabase(ResultDatabase rd);
 
 }

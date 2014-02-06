@@ -25,7 +25,7 @@ import org.n52.supervisor.checks.CheckResult;
  * @author Daniel Nüst
  * 
  */
-public class EmailNotification implements INotification {
+public class EmailNotification implements Notification {
 
     private Collection<CheckResult> results;
 

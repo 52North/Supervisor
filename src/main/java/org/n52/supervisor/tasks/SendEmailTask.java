@@ -39,7 +39,7 @@ import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.util.DebugCheckResult;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
-import org.n52.supervisor.ui.INotification;
+import org.n52.supervisor.ui.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class SendEmailTask extends TimerTask {
     private String adminEmail = null;
 
     // FIXME need to get notifications here
-    private Collection<INotification> notifications;
+    private Collection<Notification> notifications;
 
     private ResultDatabase rd;
 
@@ -93,14 +93,14 @@ public class SendEmailTask extends TimerTask {
         log.info("NEW " + this.toString());
     }
 
-    private boolean doTask(Collection<INotification> notifications) {
+    private boolean doTask(Collection<Notification> notifications) {
         boolean noError = true;
         int overallFailureCounter = 0;
         int overallEmailCounter = 0;
 
         // collect all notifications for each email address
         Map<String, Collection<EmailNotification>> emails = new HashMap<String, Collection<EmailNotification>>();
-        for (INotification iNoti : notifications) {
+        for (Notification iNoti : notifications) {
             if (iNoti instanceof EmailNotification) {
                 EmailNotification msg = (EmailNotification) iNoti;
                 if (emails.containsKey(msg.getRecipientEmail())) {

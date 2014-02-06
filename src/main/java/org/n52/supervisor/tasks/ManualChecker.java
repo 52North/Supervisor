@@ -18,7 +18,7 @@ package org.n52.supervisor.tasks;
 
 import java.util.Collection;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +26,11 @@ public class ManualChecker extends Thread {
 
     private static Logger log = LoggerFactory.getLogger(ManualChecker.class);
 
-    private Collection<ICheckRunner> checkers;
+    private Collection<CheckRunner> checkers;
 
     private boolean notify;
 
-    public ManualChecker(Collection<ICheckRunner> checkers, boolean notify) {
+    public ManualChecker(Collection<CheckRunner> checkers, boolean notify) {
         this.checkers = checkers;
         this.notify = notify;
 
@@ -39,7 +39,7 @@ public class ManualChecker extends Thread {
 
     @Override
     public void run() {
-        for (ICheckRunner checker : this.checkers) {
+        for (CheckRunner checker : this.checkers) {
             try {
                 log.debug("Running checker {} ...", checker);
                 boolean b = checker.check();
