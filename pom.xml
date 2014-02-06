@@ -70,6 +70,7 @@
 	</licenses>
 
 	<properties>
+	   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
