@@ -45,47 +45,45 @@ public class Client {
 
     private static final String POST_METHOD = "POST";
 
-    private synchronized XmlObject doSend(String requestUrl, String requestContent, String requestMethod) throws UnsupportedEncodingException,
+    private synchronized XmlObject doSend(final String requestUrl, final String requestContent, final String requestMethod) throws UnsupportedEncodingException,
             IOException,
             IllegalStateException,
             XmlException {
-        if (log.isDebugEnabled())
-            log.debug("Sending request (first 100 characters): "
-                    + requestContent.substring(0, Math.min(requestContent.length(), 100)));
+    	log.debug("Sending request (first 100 characters): {}",
+                    requestContent.substring(0, Math.min(requestContent.length(), 100)));
 
-        HttpClient httpClient = new DefaultHttpClient();
+        final HttpClient httpClient = new DefaultHttpClient();
 
         HttpRequestBase request = null;
         if (requestMethod.equals(GET_METHOD)) {
-            if (log.isDebugEnabled())
-                log.debug("Client connecting via GET to " + requestUrl);
+        	log.debug("Client connecting via GET to {}",requestUrl);
 
-            StringBuilder fullUrl = new StringBuilder();
+            final StringBuilder fullUrl = new StringBuilder();
             fullUrl.append(requestUrl);
-            if ( !requestUrl.endsWith("?"))
-                fullUrl.append("?");
+            if ( !requestUrl.endsWith("?")) {
+				fullUrl.append("?");
+			}
             fullUrl.append(requestContent);
 
-            HttpGet httpget = new HttpGet(fullUrl.toString());
+            final HttpGet httpget = new HttpGet(fullUrl.toString());
             request = httpget;
         }
         else if (requestMethod.equals(POST_METHOD)) {
-            if (log.isDebugEnabled())
-                log.debug("Client connecting via POST to " + requestUrl);
-            HttpPost httppost = new HttpPost(requestUrl);
+        	log.debug("Client connecting via POST to {}",requestUrl);
+            final HttpPost httppost = new HttpPost(requestUrl);
 
-            StringEntity e = new StringEntity(requestContent,
-                                              SupervisorProperties.getInstance().getClientRequestContentType());
+            final StringEntity e = new StringEntity(requestContent,SupervisorProperties.getInstance().getClientRequestEncoding());
+            e.setContentType(SupervisorProperties.getInstance().getClientRequestContentType());
             httppost.setEntity(e);
             request = httppost;
-        }
-        else
-            throw new IllegalArgumentException("requestMethod not supported!");
+        } else {
+			throw new IllegalArgumentException("requestMethod not supported!");
+		}
 
         log.debug("Sending request: {}", request);
 
         XmlObject xmlResponse = null;
-        HttpResponse response = httpClient.execute(request);
+        final HttpResponse response = httpClient.execute(request);
         xmlResponse = XmlObject.Factory.parse(response.getEntity().getContent());
 
         log.debug("Got response: {}", xmlResponse);
@@ -93,7 +91,7 @@ public class Client {
         return xmlResponse;
     }
 
-    public String sendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException,
+    public String sendGetRequest(final String requestUrl, final String request) throws UnsupportedEncodingException,
             IOException,
             IllegalStateException,
             XmlException {
@@ -103,28 +101,28 @@ public class Client {
         return xSendGetRequest(requestUrl, request).xmlText();
     }
 
-    public String sendPostRequest(String requestUrl, String request) throws IOException,
+    public String sendPostRequest(final String requestUrl, final String request) throws IOException,
             IllegalStateException,
             XmlException {
         if (request.isEmpty()) {
             return "The request is empty!";
         }
-        XmlObject response = doSend(requestUrl, request, POST_METHOD);
+        final XmlObject response = doSend(requestUrl, request, POST_METHOD);
         return response.toString();
     }
 
-    public XmlObject xSendGetRequest(String requestUrl, String request) throws UnsupportedEncodingException,
+    public XmlObject xSendGetRequest(final String requestUrl, final String request) throws UnsupportedEncodingException,
             IOException,
             IllegalStateException,
             XmlException {
-        XmlObject response = doSend(requestUrl, request, GET_METHOD);
+        final XmlObject response = doSend(requestUrl, request, GET_METHOD);
         return response;
     }
 
-    public XmlObject xSendPostRequest(String requestUrl, XmlObject request) throws IOException,
+    public XmlObject xSendPostRequest(final String requestUrl, final XmlObject request) throws IOException,
             IllegalStateException,
             XmlException {
-        XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
+        final XmlObject response = doSend(requestUrl, request.xmlText(), POST_METHOD);
         return response;
     }
 
