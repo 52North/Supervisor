@@ -29,17 +29,25 @@ public class SosCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
     private static final String SOS_SERVICE = "SOS";
 
-    public SosCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
+    public SosCapabilitiesCheckRunner(final OwsCapabilitiesCheck check) {
         super(check);
 
-        if ( !check.getServiceType().equals(SOS_SERVICE))
-            log.warn("Checking non-SOS {} with SOS runner: {}", check, this);
+        if ( !check.getServiceType().equals(SOS_SERVICE)) {
+			log.warn("Checking non-SOS {} with SOS runner: {}", check, this);
+		}
     }
 
     @Override
     public boolean check() {
-        log.debug("Checking SOS Capabilities for " + this.c.getServiceUrl());
+        log.debug("Checking SOS Capabilities for " + c.getServiceUrl());
         return runGetRequestParseDocCheck();
+    }
+    
+    @Override
+    protected String buildGetRequest() {
+    	final String kvpRequest = super.buildGetRequest();
+    	// the parameter 'serviceVersion' is not supported by 52North implementation but 'AcceptVersions' is!
+    	return kvpRequest.replaceFirst("serviceVersion", "AcceptVersions");
     }
 
 }
