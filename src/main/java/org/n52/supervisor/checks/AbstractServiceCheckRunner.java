@@ -23,11 +23,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
-import org.n52.supervisor.ui.INotification;
+import org.n52.supervisor.ui.Notification;
 import org.n52.supervisor.util.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Nüst
  * 
  */
-public abstract class AbstractServiceCheckRunner implements ICheckRunner {
+public abstract class AbstractServiceCheckRunner implements CheckRunner {
 
     protected static final DateFormat ISO8601LocalFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SS.SSS");
 
@@ -105,7 +105,7 @@ public abstract class AbstractServiceCheckRunner implements ICheckRunner {
                     failures.add(r);
             }
 
-            INotification n = new EmailNotification(this.c, failures);
+            Notification n = new EmailNotification(this.c, failures);
             SupervisorInit.appendNotification(n);
 
             log.debug("Submitted email with {} failures to {}.", failures.size(), this.c.getNotificationEmail());

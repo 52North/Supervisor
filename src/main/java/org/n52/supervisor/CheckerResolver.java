@@ -40,11 +40,11 @@ public class CheckerResolver {
 
     private static Logger log = LoggerFactory.getLogger(CheckerResolver.class);
 
-    public ICheckRunner getRunner(Check check) {
+    public CheckRunner getRunner(Check check) {
         log.debug("Resolving check: {}", check);
         // String checkType = check.getType();
 
-        ICheckRunner r = null;
+        CheckRunner r = null;
 
         if (check instanceof OwsCapabilitiesCheck) {
             OwsCapabilitiesCheck occ = (OwsCapabilitiesCheck) check;

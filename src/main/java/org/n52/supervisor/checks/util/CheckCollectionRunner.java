@@ -21,7 +21,7 @@ import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.UnsupportedCheckException;
@@ -37,13 +37,13 @@ import com.google.common.collect.Multimap;
  * 
  */
 @XmlRootElement
-public class CheckCollectionRunner implements ICheckRunner {
+public class CheckCollectionRunner implements CheckRunner {
 
     private static Logger log = LoggerFactory.getLogger(CheckCollectionRunner.class);
 
-    private Multimap<ICheckRunner, Check> checks = ArrayListMultimap.create();
+    private Multimap<CheckRunner, Check> checks = ArrayListMultimap.create();
 
-    public CheckCollectionRunner(Multimap<ICheckRunner, Check> checks) {
+    public CheckCollectionRunner(Multimap<CheckRunner, Check> checks) {
         this.checks = checks;
     }
 
@@ -61,7 +61,7 @@ public class CheckCollectionRunner implements ICheckRunner {
         boolean b = true;
         int success = 0;
         int failure = 0;
-        for (ICheckRunner cr : this.checks.keys()) {
+        for (CheckRunner cr : this.checks.keys()) {
             Collection<Check> collection = this.checks.get(cr);
 
             for (Check c : collection) {
@@ -95,7 +95,7 @@ public class CheckCollectionRunner implements ICheckRunner {
     @Override
     public Collection<CheckResult> getResults() {
         ArrayList<CheckResult> results = new ArrayList<CheckResult>();
-        for (ICheckRunner c : this.checks.keys()) {
+        for (CheckRunner c : this.checks.keys()) {
             results.addAll(c.getResults());
         }
         return results;
@@ -103,14 +103,14 @@ public class CheckCollectionRunner implements ICheckRunner {
 
     @Override
     public void notifyFailure() {
-        for (ICheckRunner c : this.checks.keys()) {
+        for (CheckRunner c : this.checks.keys()) {
             c.notifyFailure();
         }
     }
 
     @Override
     public void notifySuccess() {
-        for (ICheckRunner c : this.checks.keys()) {
+        for (CheckRunner c : this.checks.keys()) {
             c.notifySuccess();
         }
     }
@@ -122,7 +122,7 @@ public class CheckCollectionRunner implements ICheckRunner {
 
     @Override
     public void setResultDatabase(ResultDatabase rd) {
-        for (ICheckRunner r : this.checks.keySet()) {
+        for (CheckRunner r : this.checks.keySet()) {
             r.setResultDatabase(rd);
         }
     }

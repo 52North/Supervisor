@@ -16,14 +16,14 @@
 
 package org.n52.supervisor.tasks;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 
 /**
  * 
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public interface IJobScheduler {
+public interface JobScheduler {
 
     /**
      * Cancels the task with the given identifier.
@@ -39,7 +39,7 @@ public interface IJobScheduler {
      * @param checker
      * @return the id
      */
-    public abstract String submit(ICheckRunner checker);
+    public abstract String submit(CheckRunner checker);
 
     /**
      * 
@@ -48,6 +48,6 @@ public interface IJobScheduler {
      *        delay in milliseconds after which the task is executed the first time
      * @return
      */
-    public abstract String submit(ICheckRunner checker, long delay);
+    public abstract String submit(CheckRunner checker, long delay);
 
 }

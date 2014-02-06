@@ -22,7 +22,7 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.UnsupportedCheckException;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @XmlRootElement
-public class HeapCheckRunner implements ICheckRunner {
+public class HeapCheckRunner implements CheckRunner {
 
     private static final long L1024_2 = 1024 * 1024;
 

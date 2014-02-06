@@ -27,7 +27,7 @@ import org.n52.supervisor.checks.CheckResult.ResultType;
 import org.n52.supervisor.checks.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.ui.EmailNotification;
-import org.n52.supervisor.ui.INotification;
+import org.n52.supervisor.ui.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         if (this.c.getNotificationEmail() == null)
             log.error("Can not notify via email, is null!");
         else {
-            INotification noti = new EmailNotification(c, results);
+            Notification noti = new EmailNotification(c, results);
             // append for email notification to queue
             SupervisorInit.appendNotification(noti);
 

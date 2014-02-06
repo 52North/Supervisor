@@ -18,7 +18,7 @@ package org.n52.supervisor.tasks;
 
 import java.util.TimerTask;
 
-import org.n52.supervisor.ICheckRunner;
+import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.id.IdentifierGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ import com.google.inject.Inject;
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public class JobSchedulerImpl implements IJobScheduler {
+public class JobSchedulerImpl implements JobScheduler {
 
     private static final long DEFAULT_DELAY_MILLISECS = 1000;
 
@@ -61,12 +61,12 @@ public class JobSchedulerImpl implements IJobScheduler {
     }
 
     @Override
-    public String submit(ICheckRunner checker) {
+    public String submit(CheckRunner checker) {
         return submit(checker, DEFAULT_DELAY_MILLISECS);
     }
 
     @Override
-    public String submit(ICheckRunner checker, long delay) {
+    public String submit(CheckRunner checker, long delay) {
         log.debug("Added checker {} with delay {}", checker, delay);
 
         String id = "task_" + this.idGen.generate();
