@@ -69,7 +69,7 @@ public class SosV2LatestObservationCheckRunner extends AbstractServiceCheckRunne
 
     @Override
     public boolean check() {
-        URL sUrl = this.c.getServiceUrl();
+        URL sUrl = this.check.getServiceUrl();
 
         Date maxAge = new Date(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
 
@@ -107,7 +107,7 @@ public class SosV2LatestObservationCheckRunner extends AbstractServiceCheckRunne
     }
 
     private SosLatestObservationCheck theCheck() {
-        return (SosLatestObservationCheck) this.c;
+        return (SosLatestObservationCheck) this.check;
     }
 
 }

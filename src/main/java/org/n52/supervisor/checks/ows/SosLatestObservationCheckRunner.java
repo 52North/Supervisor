@@ -126,7 +126,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
     @Override
     public boolean check() {
-        URL sUrl = this.c.getServiceUrl();
+        URL sUrl = this.check.getServiceUrl();
 
         // max age
         Date maxAge = new Date(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
@@ -177,11 +177,11 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
                 Date timeToCheck = ISO8601LocalFormat.parse(timeString);
                 if (timeToCheck.after(maxAge)) {
                     // ALL OKAY - save the result
-                    ServiceCheckResult r = new ServiceCheckResult(this.c.getIdentifier(),
+                    ServiceCheckResult r = new ServiceCheckResult(this.check.getIdentifier(),
                                                                   POSITIVE_TEXT,
                                                                   new Date(),
                                                                   CheckResult.ResultType.POSITIVE,
-                                                                  this.c.getServiceIdentifier());
+                                                                  this.check.getServiceIdentifier());
                     addResult(r);
                     return true;
                 }
@@ -213,7 +213,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
     }
 
     private SosLatestObservationCheck theCheck() {
-        return (SosLatestObservationCheck) this.c;
+        return (SosLatestObservationCheck) this.check;
     }
 
 }

@@ -39,7 +39,7 @@ public class SosCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
     @Override
     public boolean check() {
-        log.debug("Checking SOS Capabilities for " + c.getServiceUrl());
+        log.debug("Checking SOS Capabilities for " + check.getServiceUrl());
         return runGetRequestParseDocCheck();
     }
     

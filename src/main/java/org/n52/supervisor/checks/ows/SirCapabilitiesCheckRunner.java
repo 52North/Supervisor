@@ -33,7 +33,7 @@ public class SirCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
     @Override
     public boolean check() {
-        log.debug("Checking SIR Capabilities for {}", this.c.getServiceUrl());
+        log.debug("Checking SIR Capabilities for {}", this.check.getServiceUrl());
 
         clearResults();
 
