@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 @XmlRootElement
 public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner {
@@ -71,33 +71,33 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
     private static final String TEMP_OP_PROPERTY_NAME = "om:samplingTime";
 
-    public SosLatestObservationCheckRunner(SosLatestObservationCheck check) {
+    public SosLatestObservationCheckRunner(final SosLatestObservationCheck check) {
         super(check);
     }
 
     private GetObservationDocument buildRequest() {
         // build the request
-        GetObservationDocument getObs = GetObservationDocument.Factory.newInstance();
-        GetObservation obs = getObs.addNewGetObservation();
-        EventTime eventTime = obs.addNewEventTime();
+        final GetObservationDocument getObs = GetObservationDocument.Factory.newInstance();
+        final GetObservation obs = getObs.addNewGetObservation();
+        final EventTime eventTime = obs.addNewEventTime();
 
         // TM_Equals
-        TMEqualsDocument tmEqDoc = TMEqualsDocument.Factory.newInstance();
+        final TMEqualsDocument tmEqDoc = TMEqualsDocument.Factory.newInstance();
 
-        BinaryTemporalOpType tmEq = tmEqDoc.addNewTMEquals();
-        AbstractTimeObjectType timeInstType = tmEq.addNewTimeObject();
-        TimeInstantType timeInst = net.opengis.gml.TimeInstantType.Factory.newInstance();
-        TimePositionType timePos = timeInst.addNewTimePosition();
+        final BinaryTemporalOpType tmEq = tmEqDoc.addNewTMEquals();
+        final AbstractTimeObjectType timeInstType = tmEq.addNewTimeObject();
+        final TimeInstantType timeInst = net.opengis.gml.TimeInstantType.Factory.newInstance();
+        final TimePositionType timePos = timeInst.addNewTimePosition();
         timePos.setStringValue(LATEST_OBSERVATION_VALUE);
         timeInstType.set(timeInst);
         tmEq.addNewPropertyName();
 
         // workaround
-        XmlCursor tmEqualsCursor = tmEq.newCursor();
+        final XmlCursor tmEqualsCursor = tmEq.newCursor();
         if (tmEqualsCursor.toChild(new QName("http://www.opengis.net/gml", "_TimeObject"))) {
             tmEqualsCursor.setName(new QName("http://www.opengis.net/gml", "TimeInstant"));
         }
-        XmlCursor tmEqualsCursor2 = tmEq.newCursor();
+        final XmlCursor tmEqualsCursor2 = tmEq.newCursor();
         if (tmEqualsCursor2.toChild(new QName("http://www.opengis.net/ogc", "PropertyName"))) {
             tmEqualsCursor2.setTextValue(TEMP_OP_PROPERTY_NAME);
         }
@@ -106,7 +106,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
         eventTime.setTemporalOps(tmEqDoc.getTemporalOps());
 
-        XmlCursor cursor = eventTime.newCursor();
+        final XmlCursor cursor = eventTime.newCursor();
         if (cursor.toChild(new QName("http://www.opengis.net/ogc", "temporalOps"))) {
             cursor.setName(new QName("http://www.opengis.net/ogc", "TM_Equals"));
         }
@@ -126,10 +126,10 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
     @Override
     public boolean check() {
-        URL sUrl = this.check.getServiceUrl();
+        final URL sUrl = check.getServiceUrl();
 
         // max age
-        Date maxAge = new Date(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
+        final Date maxAge = new Date(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
 
         log.debug("Checking for latest observation with {}", theCheck());
 
@@ -140,60 +140,63 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
         // send the document and check response
         try {
-            XmlObject response = this.client.xSendPostRequest(sUrl.toString(), getObsDoc);
+            XmlObject response = client.xSendPostRequest(sUrl.toString(), getObsDoc);
             getObsDoc = null;
 
             // check it!
             if (response instanceof ObservationCollectionDocument) {
-                ObservationCollectionDocument obsColl = (ObservationCollectionDocument) response;
+                final ObservationCollectionDocument obsColl = (ObservationCollectionDocument) response;
                 return checkObservationCollection(maxAge, obsColl);
             }
 
-            boolean b = saveAndReturnNegativeResult(NEGATIVE_TEXT + getObservationString()
+            final boolean b = saveAndReturnNegativeResult(NEGATIVE_TEXT + getObservationString()
                     + " ... Response was not the correct document: "
                     + new String(response.xmlText().substring(0, Math.max(200, response.xmlText().length()))));
             response = null;
 
             return b;
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             log.error("Error during check", e);
             return saveAndReturnNegativeResult(NEGATIVE_TEXT + getObservationString() + " -- ERROR: " + e.getMessage());
         }
     }
 
-    private boolean checkObservationCollection(Date maxAge, ObservationCollectionDocument obsColl) {
-        ObservationPropertyType observation = obsColl.getObservationCollection().getMemberArray(0);
+    private boolean checkObservationCollection(final Date maxAge, final ObservationCollectionDocument obsColl) {
+        final ObservationPropertyType observation = obsColl.getObservationCollection().getMemberArray(0);
 
-        TimeObjectPropertyType samplingTime = observation.getObservation().getSamplingTime();
-        AbstractTimeObjectType timeObj = samplingTime.getTimeObject();
+        final TimeObjectPropertyType samplingTime = observation.getObservation().getSamplingTime();
+        final AbstractTimeObjectType timeObj = samplingTime.getTimeObject();
 
         if (timeObj instanceof TimeInstantType) {
-            TimeInstantType timeInstant = (TimeInstantType) timeObj;
-            String timeString = timeInstant.getTimePosition().getStringValue();
+            final TimeInstantType timeInstant = (TimeInstantType) timeObj;
+            final String timeString = timeInstant.getTimePosition().getStringValue();
             log.debug("Parsed response, latest observation was at " + timeString);
 
             try {
-                Date timeToCheck = ISO8601LocalFormat.parse(timeString);
+                final Date timeToCheck = ISO8601LocalFormat.parse(timeString);
                 if (timeToCheck.after(maxAge)) {
                     // ALL OKAY - save the result
-                    ServiceCheckResult r = new ServiceCheckResult(this.check.getIdentifier(),
-                                                                  POSITIVE_TEXT,
-                                                                  new Date(),
-                                                                  CheckResult.ResultType.POSITIVE,
-                                                                  this.check.getServiceIdentifier());
+                	final ServiceCheckResult r = new ServiceCheckResult(
+                			ID_GENERATOR.generate(),
+                			check.getIdentifier(),
+                			POSITIVE_TEXT,
+                			new Date(),
+                			CheckResult.ResultType.POSITIVE,
+                			check.getServiceIdentifier());
                     addResult(r);
                     return true;
                 }
 
                 // to old!
-                return saveAndReturnNegativeResult(String.format("%s %s %s  -- latest observation is too old (%s)!",
-                                                                 NEGATIVE_TEXT,
-                                                                 theCheck().getOffering(),
-                                                                 theCheck().getProcedure(),
-                                                                 timeString));
+                return saveAndReturnNegativeResult(
+                		String.format("%s %s %s  -- latest observation is too old (%s)!",
+                				NEGATIVE_TEXT,
+                				theCheck().getOffering(),
+                				theCheck().getProcedure(),
+                				timeString));
             }
-            catch (ParseException e) {
+            catch (final ParseException e) {
                 log.error("Could not parse sampling time " + timeString, e);
                 return saveAndReturnNegativeResult(NEGATIVE_TEXT + getObservationString()
                         + " -- Could not parse the given time " + timeString + ".");
@@ -205,7 +208,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
     }
 
     private String getObservationString() {
-        SosLatestObservationCheck sloc = theCheck();
+        final SosLatestObservationCheck sloc = theCheck();
         return String.format(" Offering: %s; Observed property: %s; Procedure: %s.",
                              sloc.getOffering(),
                              sloc.getObservedProperty(),
@@ -213,7 +216,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
     }
 
     private SosLatestObservationCheck theCheck() {
-        return (SosLatestObservationCheck) this.check;
+        return (SosLatestObservationCheck) check;
     }
 
 }

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 @XmlRootElement
 public class HeapCheckRunner implements CheckRunner {
@@ -49,24 +49,25 @@ public class HeapCheckRunner implements CheckRunner {
 
     private ResultDatabase rd;
 
-    public HeapCheckRunner(HeapCheck c) {
+    public HeapCheckRunner(final HeapCheck c) {
         this.c = c;
     }
 
     @Override
-    public void addResult(CheckResult r) {
-        if (this.result != null)
-            log.debug("Overriding old result!");
+    public void addResult(final CheckResult r) {
+        if (result != null) {
+			log.debug("Overriding old result!");
+		}
 
-        this.result = r;
+        result = r;
     }
 
     @Override
     public boolean check() {
-        long heapSize = Runtime.getRuntime().totalMemory();
-        long heapMaxSize = Runtime.getRuntime().maxMemory();
-        long heapFreeSize = Runtime.getRuntime().freeMemory();
-        this.lastCheckString = String.format("Size is %s Mb of Mb %s leaving %s Mb.", heapSize / L1024_2, heapMaxSize
+        final long heapSize = Runtime.getRuntime().totalMemory();
+        final long heapMaxSize = Runtime.getRuntime().maxMemory();
+        final long heapFreeSize = Runtime.getRuntime().freeMemory();
+        lastCheckString = String.format("Size is %s Mb of Mb %s leaving %s Mb.", heapSize / L1024_2, heapMaxSize
                 / L1024_2, heapFreeSize / L1024_2);
 
         notifySuccess();
@@ -76,13 +77,13 @@ public class HeapCheckRunner implements CheckRunner {
 
     @Override
     public Check getCheck() {
-        return this.c;
+        return c;
     }
 
     @Override
     public Collection<CheckResult> getResults() {
-        ArrayList<CheckResult> l = new ArrayList<CheckResult>();
-        l.add(this.result);
+        final ArrayList<CheckResult> l = new ArrayList<CheckResult>();
+        l.add(result);
         return l;
     }
 
@@ -90,37 +91,39 @@ public class HeapCheckRunner implements CheckRunner {
     public void notifyFailure() {
         log.error("HeapChecker should not fail!");
 
-        if (this.rd != null)
-            this.rd.appendResults(getResults());
+        if (rd != null) {
+			rd.appendResults(getResults());
+		}
     }
 
     @Override
     public void notifySuccess() {
-        if (log.isDebugEnabled()) {
-            log.debug(this.lastCheckString);
-        }
+    	log.debug(lastCheckString);
 
-        addResult(new HeapCheckResult(this.c.getIdentifier(),
-                                      this.lastCheckString,
-                                      new Date(),
-                                      CheckResult.ResultType.POSITIVE));
+        addResult(new HeapCheckResult(
+        		ID_GENERATOR.generate(),
+        		c.getIdentifier(),
+        		lastCheckString,
+        		new Date(),
+        		CheckResult.ResultType.POSITIVE));
 
-        if (this.rd != null)
-            this.rd.appendResults(getResults());
+        if (rd != null) {
+			rd.appendResults(getResults());
+		}
     }
 
     @Override
-    public void setCheck(Check c) throws UnsupportedCheckException {
+    public void setCheck(final Check c) throws UnsupportedCheckException {
         if (c instanceof HeapCheck) {
-            HeapCheck hc = (HeapCheck) c;
+            final HeapCheck hc = (HeapCheck) c;
             this.c = hc;
-        }
-        else
-            throw new UnsupportedCheckException();
+        } else {
+			throw new UnsupportedCheckException();
+		}
     }
 
     @Override
-    public void setResultDatabase(ResultDatabase rd) {
+    public void setResultDatabase(final ResultDatabase rd) {
         this.rd = rd;
     }
 

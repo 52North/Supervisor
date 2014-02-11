@@ -32,15 +32,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 
     private static Logger log = LoggerFactory.getLogger(OwsCapabilitiesCheckRunner.class);
 
-    protected static final String NEGATIVE_TEXT = "Request for capabilities document FAILED.";
+    protected static final String NEGATIVE_TEXT = "Request for capabilities document FAILED from Service '%s' (Type: '%s', Version: '%s', URL: '%s').";
 
-    protected static final String POSITIVE_TEXT = "Successfully requested capabilities document.";
+    protected static final String POSITIVE_TEXT = "Successfully requested capabilities document from Service '%s' (Type: '%s', Version: '%s', URL: '%s').";
 
     public OwsCapabilitiesCheckRunner(final OwsCapabilitiesCheck check) {
         super(check);
@@ -61,12 +61,17 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 
         if (!owsCheck.getOwsVersion().equals("1.1")) {
             log.error("OWS Version not supported: " + owsCheck.getOwsVersion());
-            final String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, owsCheck.getOwsVersion());
-            final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
-                                                          text,
-                                                          new Date(),
-                                                          CheckResult.ResultType.NEGATIVE,
-                                                          owsCheck.getServiceIdentifier());
+            final String text = String.format("%s ... OWS Version not supported: %s", String.format(NEGATIVE_TEXT,owsCheck.getServiceIdentifier(),
+    				owsCheck.getServiceType(),
+    				owsCheck.getServiceVersion(),
+    				owsCheck.getServiceUrl()), owsCheck.getOwsVersion());
+            final ServiceCheckResult r = new ServiceCheckResult(
+            		ID_GENERATOR.generate(),
+            		owsCheck.getIdentifier(),
+            		text,
+            		new Date(),
+            		CheckResult.ResultType.NEGATIVE,
+            		owsCheck.getServiceIdentifier());
             addResult(r);
             return false;
         }
@@ -88,22 +93,29 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
         }
         catch (final Exception e) {
             log.error("Could not send request", e);
-            final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
-                                                          String.format("... Could not send request: %s"
-                                                                  + e.getMessage()),
-                                                          new Date(),
-                                                          CheckResult.ResultType.NEGATIVE,
-                                                          owsCheck.getServiceIdentifier());
+            final ServiceCheckResult r = new ServiceCheckResult(
+            		ID_GENERATOR.generate(),
+            		owsCheck.getIdentifier(),
+            		String.format("... Could not send request: %s"
+            				+ e.getMessage()),
+            				new Date(),
+            				CheckResult.ResultType.NEGATIVE,
+            				owsCheck.getServiceIdentifier());
             addResult(r);
             return false;
         }
 
         // save the good result
-        final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
-                                                      POSITIVE_TEXT,
-                                                      new Date(),
-                                                      CheckResult.ResultType.POSITIVE,
-                                                      owsCheck.getServiceIdentifier());
+        final ServiceCheckResult r = new ServiceCheckResult(
+        		ID_GENERATOR.generate(),
+        		owsCheck.getIdentifier(),
+        		String.format(POSITIVE_TEXT,owsCheck.getServiceIdentifier(),
+        				owsCheck.getServiceType(),
+        				owsCheck.getServiceVersion(),
+        				owsCheck.getServiceUrl()),
+        		new Date(),
+        		CheckResult.ResultType.POSITIVE,
+        		owsCheck.getServiceIdentifier());
         addResult(r);
         return true;
     }
@@ -113,12 +125,17 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
 
         if ( !owsCheck.getOwsVersion().equals("1.1")) {
             log.error("OWS Version not supported: " + owsCheck.getOwsVersion());
-            final String text = String.format("%s ... OWS Version not supported: %s", NEGATIVE_TEXT, owsCheck.getOwsVersion());
-            final ServiceCheckResult r = new ServiceCheckResult(owsCheck.getIdentifier(),
-                                                          text,
-                                                          new Date(),
-                                                          CheckResult.ResultType.NEGATIVE,
-                                                          owsCheck.getServiceIdentifier());
+            final String text = String.format("%s ... OWS Version not supported: %s", String.format(NEGATIVE_TEXT,owsCheck.getServiceIdentifier(),
+    				owsCheck.getServiceType(),
+    				owsCheck.getServiceVersion(),
+    				owsCheck.getServiceUrl()), owsCheck.getOwsVersion());
+            final ServiceCheckResult r = new ServiceCheckResult(
+            		ID_GENERATOR.generate(),
+            		owsCheck.getIdentifier(),
+            		text,
+            		new Date(),
+            		CheckResult.ResultType.NEGATIVE,
+            		owsCheck.getServiceIdentifier());
             addResult(r);
             return false;
         }
@@ -129,38 +146,50 @@ public class OwsCapabilitiesCheckRunner extends AbstractServiceCheckRunner {
             ServiceCheckResult r = null;
             boolean rb = false;
 
-            if (isCapabilitiesDocument(response) && 
-            		hasVersionAttribute(response) && 
+            if (isCapabilitiesDocument(response) &&
+            		hasVersionAttribute(response) &&
             		isVersionMatching(response,owsCheck.getServiceVersion())) {
                 log.debug("Parsed caps, serviceVersion: " + getVersion(response));
 
-                r = new ServiceCheckResult(check.getIdentifier(),
-                                           POSITIVE_TEXT,
-                                           new Date(),
-                                           CheckResult.ResultType.POSITIVE,
-                                           check.getServiceIdentifier());
+                r = new ServiceCheckResult(
+                		ID_GENERATOR.generate(),
+                		check.getIdentifier(),
+                		String.format(POSITIVE_TEXT,owsCheck.getServiceIdentifier(),
+                				owsCheck.getServiceType(),
+                				owsCheck.getServiceVersion(),
+                				owsCheck.getServiceUrl()),
+                		new Date(),
+                		CheckResult.ResultType.POSITIVE,
+                		check.getServiceIdentifier());
                 rb = true;
             }
             else {
-                r = new ServiceCheckResult(check.getIdentifier(),
-                                           " ... Response was not a Capabilities document!",
-                                           new Date(),
-                                           CheckResult.ResultType.NEGATIVE,
-                                           check.getServiceIdentifier());
+            	r = new ServiceCheckResult(
+            			ID_GENERATOR.generate(),
+            			check.getIdentifier(),
+            			" ... Response was not a Capabilities document!",
+            			new Date(),
+            			CheckResult.ResultType.NEGATIVE,
+            			check.getServiceIdentifier());
             }
 
             addResult(r);
             return rb;
         }
         catch (final Exception e) {
-            final ServiceCheckResult r = new ServiceCheckResult(check.getIdentifier(),
-                                                          String.format("%s ERROR: %s occured in %s",
-                                                                        NEGATIVE_TEXT,
-                                                                        e.getMessage(),
-                                                                        this.getClass().getCanonicalName()),
-                                                          new Date(),
-                                                          CheckResult.ResultType.NEGATIVE,
-                                                          check.getServiceIdentifier());
+            final ServiceCheckResult r = new ServiceCheckResult(
+            		ID_GENERATOR.generate(),
+            		check.getIdentifier(),
+            		String.format("%s ERROR: %s occured in %s",
+            				String.format(NEGATIVE_TEXT,owsCheck.getServiceIdentifier(),
+            	    				owsCheck.getServiceType(),
+            	    				owsCheck.getServiceVersion(),
+            	    				owsCheck.getServiceUrl()),
+            				e.getMessage(),
+            				this.getClass().getCanonicalName()),
+            				new Date(),
+            				CheckResult.ResultType.NEGATIVE,
+            				check.getServiceIdentifier());
             addResult(r);
             return false;
         }

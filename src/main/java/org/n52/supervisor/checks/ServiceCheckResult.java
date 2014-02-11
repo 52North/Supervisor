@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 @XmlRootElement
 public class ServiceCheckResult extends CheckResult {
@@ -34,15 +34,16 @@ public class ServiceCheckResult extends CheckResult {
         //
     }
 
-    public ServiceCheckResult(Exception e, Check c, String message) {
-        this(c.getIdentifier(), String.format("%s -- ERROR: %s occured for %s",
+    public ServiceCheckResult(final String identifier, final Exception e, final Check c, final String message) {
+        this(identifier,c.getIdentifier(), String.format("%s -- ERROR: %s occured for %s",
                                               message,
                                               e.getMessage(),
                                               c.getIdentifier()), new Date(), CheckResult.ResultType.NEGATIVE, null);
     }
 
-    public ServiceCheckResult(Exception e, ServiceCheck c, String message) {
-        this(c.getIdentifier(),
+    public ServiceCheckResult(final String identifier, final Exception e, final ServiceCheck c, final String message) {
+        this(identifier,
+        	 c.getIdentifier(),
              String.format("%s : %s occured for %s @ %s [%s]",
                            message,
                            e.getMessage(),
@@ -54,26 +55,27 @@ public class ServiceCheckResult extends CheckResult {
              c.getServiceIdentifier());
     }
 
-    public ServiceCheckResult(String checkIdentifier,
-                              String result,
-                              Date timeOfCheck,
-                              ResultType type,
-                              String serviceIdentifier) {
-        super(checkIdentifier, result, timeOfCheck, type);
+    public ServiceCheckResult(final String identifier,
+    							final String checkIdentifier,
+    							final String result,
+    							final Date timeOfCheck,
+    							final ResultType type,
+    							final String serviceIdentifier) {
+        super(identifier, checkIdentifier, result, timeOfCheck, type);
         this.serviceIdentifier = serviceIdentifier;
     }
 
     public String getServiceIdentifier() {
-        return this.serviceIdentifier;
+        return serviceIdentifier;
     }
 
-    public void setServiceIdentifier(String serviceIdentifier) {
+    public void setServiceIdentifier(final String serviceIdentifier) {
         this.serviceIdentifier = serviceIdentifier;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("ServiceCheckResult [serviceIdentifier=");
         builder.append(serviceIdentifier);
         builder.append("]");

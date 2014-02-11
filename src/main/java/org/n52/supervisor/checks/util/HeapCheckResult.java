@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.n52.supervisor.checks.CheckResult;
 
 /**
- * 
+ *
  * @author Daniel
  *
  */
@@ -33,8 +33,8 @@ public class HeapCheckResult extends CheckResult {
         super();
     }
 
-    public HeapCheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type) {
-        super(checkIdentifier, result, timeOfCheck, type);
+    public HeapCheckResult(final String identifier, final String checkIdentifier, final String result, final Date timeOfCheck, final ResultType type) {
+        super(identifier, checkIdentifier, result, timeOfCheck, type);
     }
 
 }

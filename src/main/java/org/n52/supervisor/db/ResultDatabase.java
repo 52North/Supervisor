@@ -32,32 +32,34 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 /**
- * 
+ *
  * @author Daniel
- * 
+ *
  */
 @Singleton
 public class ResultDatabase {
 
-    private Queue<CheckResult> latestResults;
+    public static final CheckResult NO_CHECK_RESULT_WITH_GIVEN_ID = new CheckResult() {};
+
+	private Queue<CheckResult> latestResults;
 
     private static Logger log = LoggerFactory.getLogger(ResultDatabase.class);
 
-    private int maxStoredResults;
+    private final int maxStoredResults;
 
     @Inject
-    public ResultDatabase(@Named("supervisor.checks.maxStoredResults")
+    public ResultDatabase(@Named("supervisor.checks.maxStoredResults") final
     int maxStoredResults) {
         this.maxStoredResults = maxStoredResults;
         latestResults = new LinkedBlockingQueue<CheckResult>(this.maxStoredResults);
         log.info("NEW {}", this);
     }
 
-    public void appendResult(CheckResult result) {
+    public void appendResult(final CheckResult result) {
         latestResults.add(result);
     }
 
-    public void appendResults(Collection<CheckResult> results) {
+    public void appendResults(final Collection<CheckResult> results) {
         // if (latestResults.size() >= 100) { // FIXME make append non static so that config parameter can be
         // // used: this.maxStoredResults
         // log.debug("Too many results. Got " + results.size() + " new and " + latestResults.size() +
@@ -90,13 +92,22 @@ public class ResultDatabase {
         return maxStoredResults;
     }
 
-    public CheckResult getResult(String id) {
-        throw new UnsupportedOperationException("query with result id not yet implemented.");
+    /**
+     * @param id the identifier of a {@link CheckResult}.
+     * @return The {@link CheckResult} with the given id or {@link ResultDatabase#NO_CHECK_RESULT_WITH_GIVEN_ID}.
+     */
+    public CheckResult getResult(final String id){
+        for (final CheckResult checkResult : latestResults) {
+			if (checkResult.getIdentifier().equals(id)) {
+				return checkResult;
+			}
+		}
+        return NO_CHECK_RESULT_WITH_GIVEN_ID;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("ResultDatabase [maxStoredResults=");
         builder.append(maxStoredResults);
         builder.append("]");
