@@ -23,9 +23,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.n52.supervisor.checks.CheckResult;
 
 /**
- * 
+ *
  * @author Daniel
- * 
+ *
  */
 @XmlRootElement
 public class DebugCheckResult extends CheckResult {
@@ -36,12 +36,12 @@ public class DebugCheckResult extends CheckResult {
         super();
     }
 
-    public DebugCheckResult(String result) {
-       super(IDENTIFIER, result, new Date(), ResultType.NEUTRAL);
+    public DebugCheckResult(final String result) {
+       super(IDENTIFIER,IDENTIFIER, result, new Date(), ResultType.NEUTRAL);
     }
 
-    public DebugCheckResult(String result, Date timeOfCheck, ResultType type) {
-        super(IDENTIFIER, result, timeOfCheck, type);
+    public DebugCheckResult(final String result, final Date timeOfCheck, final ResultType type) {
+        super(IDENTIFIER,IDENTIFIER, result, timeOfCheck, type);
     }
 
 }

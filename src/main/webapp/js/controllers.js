@@ -53,10 +53,10 @@ var supervisorControllers = angular.module('supervisorControllers', []);
 
 supervisorControllers.controller('ResultListCtrl', [ '$scope', '$http',
 		function ResultListCtrl($scope, $http) {
-			$http.get('api/v1/results').success(function(data) {
+			$http.get('api/v1/results?expanded=true').success(function(data) {
 				$scope.results = data['results'];
 			});
-
+			
 			$scope.orderProp = 'checkTime';
 
 			$scope.getClass = function(type) {

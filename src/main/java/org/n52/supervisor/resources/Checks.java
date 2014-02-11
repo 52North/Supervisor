@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor;
+package org.n52.supervisor.resources;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,6 +37,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.n52.supervisor.CheckRunner;
+import org.n52.supervisor.CheckerResolver;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.db.CheckDatabase;
 import org.n52.supervisor.db.ResultDatabase;
@@ -48,29 +53,29 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.SessionScoped;
 
 /**
- * 
+ *
  * @author Daniel Nüst
- * 
+ *
  */
 @Path("/api/v1/checks")
 @SessionScoped
-public class ChecksResource {
+public class Checks {
 
-    private static Logger log = LoggerFactory.getLogger(ChecksResource.class);
+    private static Logger log = LoggerFactory.getLogger(Checks.class);
 
     private final ExecutorService manualExecutor;
 
-    private final CheckDatabase cd;
+    private final CheckDatabase checkDatabase;
 
-    private final ResultDatabase rd;
+    private final ResultDatabase resultDatabase;
 
-    private final CheckerResolver cr;
+    private final CheckerResolver checkResolver;
 
     @Inject
-    public ChecksResource(final CheckDatabase cd, final ResultDatabase rd, final CheckerResolver cr) {
-        this.cd = cd;
-        this.rd = rd;
-        this.cr = cr;
+    public Checks(final CheckDatabase cd, final ResultDatabase rd, final CheckerResolver cr) {
+        checkDatabase = cd;
+        resultDatabase = rd;
+        checkResolver = cr;
 
         // create thread pool for manually started checks
         manualExecutor = Executors.newSingleThreadExecutor();
@@ -81,14 +86,13 @@ public class ChecksResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCheck(@PathParam("id") final
-    String id) {
+    public Response getCheck(@PathParam("id") final String id) {
         log.debug("Requesting checker with id {}", id);
 
-        final Check c = cd.getCheck(id);
+        final Check check = checkDatabase.getCheck(id);
 
-        if (c != null) {
-			return Response.ok().entity(c).build();
+        if (check != null) {
+			return Response.ok().entity(check).build();
 		}
 
         return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
@@ -97,28 +101,23 @@ public class ChecksResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getChecks(@Context final
-    UriInfo uriInfo) {
-        final List<Check> checks = cd.getAllChecks();
+    public Response getChecks(@Context final UriInfo uriInfo) throws JSONException {
+        final List<Check> checks = checkDatabase.getAllChecks();
 
         // GenericEntity<List<Check>> entity = new GenericEntity<List<Check>>(Lists.newArrayList(checks)) {};
-        final StringBuilder sb = new StringBuilder();
-        sb.append("{ \"checks\": [");
-        for (final Check c : checks) {
-            sb.append("{ \"id\": \"");
-            sb.append(c.getIdentifier());
-            sb.append("\", \"uri\": \"");
-            URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(c.getIdentifier()).build();
-            sb.append(path);
-            sb.append("\", ");
-            sb.append("\"results\": \"");
-            path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(c.getIdentifier() + "/results").build();
-            sb.append(path);
-            sb.append("\" },");
+        final JSONObject result = new JSONObject();
+        final JSONArray jsonChecks = new JSONArray();
+        result.put("checks", jsonChecks);
+        for (final Check check : checks) {
+        	final JSONObject jsonCheck = new JSONObject();
+        	jsonCheck.put("id", check.getIdentifier());
+        	URI path = uriInfo.getBaseUriBuilder().path(Checks.class).path(check.getIdentifier()).build();
+        	jsonCheck.put("uri", path);
+        	path = uriInfo.getBaseUriBuilder().path(Checks.class).path(check.getIdentifier() + "/results").build();
+        	jsonCheck.put("results",path);
+            jsonChecks.put(jsonCheck);
         }
-        sb.replace(sb.length() - 1, sb.length(), ""); // remove last comma
-        sb.append("] }");
-        return Response.ok(sb.toString()).build();
+        return Response.ok(result).build();
 
         // return Response.ok(entity).build();
     }
@@ -126,10 +125,10 @@ public class ChecksResource {
     @GET
     @Path("/{id}/results")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getChecksResults(@Context final
-    UriInfo uriInfo, @PathParam("id") final
-    String id) {
-        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ResultsResource.class).queryParam("checkId", id);
+    public Response getChecksResults(
+    		@Context 			final UriInfo uriInfo,
+    		@PathParam("id") 	final String id) {
+        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(Results.class).queryParam("checkId", id);
         return Response.seeOther(redirect.build()).build();
     }
 
@@ -138,7 +137,7 @@ public class ChecksResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response runChecksNow(
     		@QueryParam("notify") @DefaultValue("true")		final boolean notify,
-    		@QueryParam("all")    @DefaultValue("false")	final boolean runAll, 
+    		@QueryParam("all")    @DefaultValue("false")	final boolean runAll,
     		@QueryParam("ids")								final String ids,
     		@Context										final UriInfo uri) {
         log.debug("Running processes: notify = {}, all = {}, ids = {}", notify, runAll, ids);
@@ -148,21 +147,21 @@ public class ChecksResource {
 			log.warn("Both ids and 'all' specified.");
 		}
 
-        ManualChecker c = null;
+        ManualChecker manualChecker = null;
         if (runAll) {
             final Collection<CheckRunner> checkers = new ArrayList<>();
-            final List<Check> allChecks = cd.getAllChecks();
+            final List<Check> allChecks = checkDatabase.getAllChecks();
             for (final Check check : allChecks) {
-                final CheckRunner runner = cr.getRunner(check);
-                runner.setResultDatabase(rd);
+                final CheckRunner runner = checkResolver.getRunner(check);
+                runner.setResultDatabase(resultDatabase);
 
                 if (runner != null) {
 					checkers.add(runner);
 				}
             }
 
-            c = new ManualChecker(checkers, notify);
-            manualExecutor.submit(c);
+            manualChecker = new ManualChecker(checkers, notify);
+            manualExecutor.submit(manualChecker);
 
             return Response.ok(Response.Status.CREATED).entity("running all processes").build();
         }

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 public abstract class AbstractServiceCheckRunner implements CheckRunner {
 
@@ -56,26 +56,23 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
 
     @Override
     public void addResult(final CheckResult result) {
-        // if (r.getType().equals(CheckResult.ResultType.NEGATIVE))
-        // log.debug("NEGATIVE result added to {}:", this, r);
-
         results.add(result);
         log.debug("Result added: " + result);
     }
 
     public void clearResults() {
-        if (log.isDebugEnabled()) {
-            log.debug("Clearing " + results.size() + " results");
-        }
+    	log.debug("Clearing {} results",results.size());
         results.clear();
     }
 
     protected ServiceCheckResult createNegativeResult(final String text) {
-        final ServiceCheckResult result = new ServiceCheckResult(check.getIdentifier(),
-                                                      text,
-                                                      new Date(),
-                                                      CheckResult.ResultType.NEGATIVE,
-                                                      check.getServiceIdentifier());
+    	final ServiceCheckResult result = new ServiceCheckResult(
+    			ID_GENERATOR.generate(),
+    			check.getIdentifier(),
+    			text,
+    			new Date(),
+    			CheckResult.ResultType.NEGATIVE,
+    			check.getServiceIdentifier());
         return result;
     }
 

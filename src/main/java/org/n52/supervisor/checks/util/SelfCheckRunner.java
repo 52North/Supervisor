@@ -32,11 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * this check collects information about currently running checks and the state of the service.
- * 
+ *
  * @author Daniel Nüst (d.nuest@52north.org)
- * 
+ *
  */
 public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
@@ -46,26 +46,23 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
     private ResultDatabase rd;
 
-    public SelfCheckRunner(SelfCheck check) {
+    public SelfCheckRunner(final SelfCheck check) {
         super(check);
     }
 
     @Override
     public boolean check() {
         // check if everything is running fine...
-        long heapSize = Runtime.getRuntime().totalMemory();
-        long heapMaxSize = Runtime.getRuntime().maxMemory();
-        long heapFreeSize = Runtime.getRuntime().freeMemory();
+        final long heapSize = Runtime.getRuntime().totalMemory();
+        final long heapMaxSize = Runtime.getRuntime().maxMemory();
+        final long heapFreeSize = Runtime.getRuntime().freeMemory();
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
-        sb.append("Self check ran succesfully, service is most probably up and running. Go to <a href='");
-        sb.append(this.check.getServiceUrl());
-        sb.append("' title='Supervisor HTML Interface'>");
-        sb.append(this.check.getServiceUrl());
-        sb.append("</a>");
-        sb.append(" for the current check status.");
-
+        sb.append("Self check ran succesfully, service is most probably up and running. ");
+        sb.append("Service URL: '");
+        sb.append(check.getServiceUrl());
+        sb.append(".");
         sb.append(" *** Heap Info: Size (Mb) is ");
         sb.append(heapSize / L1024_2);
         sb.append(" of ");
@@ -75,7 +72,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         sb.append(".");
 
         // TODO add currently running tasks and their last message
-        CheckResult result = new SelfCheckResult(this.check.getIdentifier(), sb.toString(), new Date(), ResultType.POSITIVE);
+        final CheckResult result = new SelfCheckResult(ID_GENERATOR.generate(),check.getIdentifier(), sb.toString(), new Date(), ResultType.POSITIVE);
         addResult(result);
 
         return true;
@@ -84,42 +81,44 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
     @Override
     public void notifyFailure() {
         log.error("SelfChecker cannot fail!");
-        if (this.rd != null)
-            this.rd.appendResults(getResults());
+        if (rd != null) {
+			rd.appendResults(getResults());
+		}
     }
 
     @Override
     public void notifySuccess() {
         log.debug("Check SUCCESSFUL: {}", this);
 
-        Collection<CheckResult> results = getResults();
+        final Collection<CheckResult> results = getResults();
 
-        if (this.check.getNotificationEmail() == null)
-            log.error("Can not notify via email, is null!");
-        else {
-            Notification noti = new EmailNotification(check, results);
+        if (check.getNotificationEmail() == null) {
+			log.error("Can not notify via email, is null!");
+		} else {
+            final Notification noti = new EmailNotification(check, results);
             // append for email notification to queue
             SupervisorInit.appendNotification(noti);
 
             log.debug("Submitted email with {} successes.", results.size());
         }
 
-        if (this.rd != null)
-            this.rd.appendResults(getResults());
+        if (rd != null) {
+			rd.appendResults(getResults());
+		}
     }
 
     @Override
-    public void setCheck(Check c) throws UnsupportedCheckException {
+    public void setCheck(final Check c) throws UnsupportedCheckException {
         if (c instanceof SelfCheck) {
-            SelfCheck sc = (SelfCheck) c;
-            this.check = sc;
-        }
-        else
-            throw new UnsupportedCheckException();
+            final SelfCheck sc = (SelfCheck) c;
+            check = sc;
+        } else {
+			throw new UnsupportedCheckException();
+		}
     }
 
     @Override
-    public void setResultDatabase(ResultDatabase rd) {
+    public void setResultDatabase(final ResultDatabase rd) {
         this.rd = rd;
     }
 

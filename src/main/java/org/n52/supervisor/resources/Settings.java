@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor;
+package org.n52.supervisor.resources;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,8 +24,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilderException;
 import javax.ws.rs.core.UriInfo;
 
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,23 +38,23 @@ import com.google.inject.name.Named;
 
 @Path("/api/v1/settings")
 @Singleton
-public class SettingsResource {
+public class Settings {
 
     private static final String MAX_RESULTS_PATH = "maxResults";
 
     private static final String PAGE_REFRESH_PATH = "pageRefreshSecs";
 
-    private static Logger log = LoggerFactory.getLogger(SettingsResource.class);
+    private static Logger log = LoggerFactory.getLogger(Settings.class);
 
     private String baseUrl;
 
-    private long pageRefreshSecs;
+    private final long pageRefreshSecs;
 
-    private long maxResults;
+    private final long maxResults;
 
     @Inject
-    public SettingsResource(@Named("supervisor.ui.html.pageRefreshSecs")
-    long pageRefreshSecs, @Named("supervisor.ui.html.maxChecks")
+    public Settings(@Named("supervisor.ui.html.pageRefreshSecs") final
+    long pageRefreshSecs, @Named("supervisor.ui.html.maxChecks") final
     long maxResults) {
         this.pageRefreshSecs = pageRefreshSecs;
         this.maxResults = maxResults;
@@ -62,60 +65,43 @@ public class SettingsResource {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatisticsIndex(@Context
-    UriInfo uriInfo) {
+    public Response getStatisticsIndex(@Context final
+    UriInfo uriInfo) throws IllegalArgumentException, UriBuilderException, JSONException {
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(" { ");
-        sb.append("\"maxResults\" : \"");
-        sb.append(uriInfo.getBaseUriBuilder().path(SettingsResource.class).path(MAX_RESULTS_PATH).build());
-        sb.append("\"");
-        sb.append(" , ");
-        sb.append("\"pageRefresh\" : \"");
-        sb.append(uriInfo.getBaseUriBuilder().path(SettingsResource.class).path(PAGE_REFRESH_PATH).build());
-        sb.append("\"");
-        sb.append(" } ");
+    	final JSONObject result = new JSONObject();
+    	result.put(MAX_RESULTS_PATH, uriInfo.getBaseUriBuilder().path(Settings.class).path(MAX_RESULTS_PATH).build());
+        result.put(PAGE_REFRESH_PATH, uriInfo.getBaseUriBuilder().path(Settings.class).path(PAGE_REFRESH_PATH).build());
 
-        return Response.ok(sb.toString()).build();
+        return Response.ok(result.toString()).build();
     }
 
     @GET
     @Path("/{setting}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response settingJson(@PathParam("setting")
-    String setting) {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(" { ");
+    public Response settingJson(@PathParam("setting") final String setting) throws JSONException {
+    	final JSONObject result = new JSONObject();
         switch (setting) {
         case MAX_RESULTS_PATH:
-            sb.append("\"maxResults\" : \"");
-            sb.append(this.maxResults);
-            sb.append("\"");
+        	result.put(MAX_RESULTS_PATH, maxResults);
             break;
         case PAGE_REFRESH_PATH:
-            sb.append("\"pageRefreshSecs\" : \"");
-            sb.append(this.pageRefreshSecs);
-            sb.append("\"");
+        	result.put(PAGE_REFRESH_PATH,pageRefreshSecs);
             break;
         default:
             return Response.status(Status.BAD_REQUEST).entity("\"settings parameter not supported\"").build();
         }
-        sb.append(" } ");
-
-        return Response.ok(sb.toString()).build();
+        return Response.ok(result.toString()).build();
     }
 
     @GET
     @Path("/{setting}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response settingText(@PathParam("setting")
-    String setting) {
+    public Response settingText(@PathParam("setting") final String setting) {
         switch (setting) {
         case MAX_RESULTS_PATH:
-            return Response.ok(Long.toString(this.maxResults)).build();
+            return Response.ok(Long.toString(maxResults)).build();
         case PAGE_REFRESH_PATH:
-            return Response.ok(Long.toString(this.pageRefreshSecs)).build();
+            return Response.ok(Long.toString(pageRefreshSecs)).build();
         default:
             return Response.status(Status.BAD_REQUEST).entity("settings parameter not supported").build();
         }
@@ -123,8 +109,8 @@ public class SettingsResource {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SettingsResource [baseUrl=");
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Settings [baseUrl=");
         builder.append(baseUrl);
         builder.append(", pageRefreshSecs=");
         builder.append(pageRefreshSecs);

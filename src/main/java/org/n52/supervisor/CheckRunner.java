@@ -22,12 +22,16 @@ import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
+import org.n52.supervisor.id.IdentifierGenerator;
+import org.n52.supervisor.id.ShortAlphanumericIdentifierGenerator;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 public interface CheckRunner {
+
+	final IdentifierGenerator ID_GENERATOR = new ShortAlphanumericIdentifierGenerator();
 
     public void addResult(CheckResult r);
 

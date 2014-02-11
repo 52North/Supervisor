@@ -30,48 +30,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * Uses GET only
- * 
+ *
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
- * 
+ *
  */
 @XmlRootElement
 public class WpsCapabilitiesCheckRunner extends OwsCapabilitiesCheckRunner {
 
     private static Logger log = LoggerFactory.getLogger(WpsCapabilitiesCheckRunner.class);
 
-    public WpsCapabilitiesCheckRunner(OwsCapabilitiesCheck check) {
+    public WpsCapabilitiesCheckRunner(final OwsCapabilitiesCheck check) {
         super(check);
     }
 
     @Override
     public boolean check() {
-        URL sUrl = this.check.getServiceUrl();
+        final URL sUrl = check.getServiceUrl();
 
         log.debug("Checking WPS Capabilities via GET to {}", sUrl);
 
         clearResults();
 
         try {
-            XmlObject response = this.client.xSendGetRequest(sUrl.toString(), buildGetRequest());
+            final XmlObject response = client.xSendGetRequest(sUrl.toString(), buildGetRequest());
 
             // parse response - this is the test!
-            CapabilitiesDocument caps = CapabilitiesDocument.Factory.parse(response.getDomNode());
+            final CapabilitiesDocument caps = CapabilitiesDocument.Factory.parse(response.getDomNode());
             log.debug("Parsed caps with serviceVersion " + caps.getCapabilities().getVersion());
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             log.error("Could not send request", e);
-            ServiceCheckResult r = new ServiceCheckResult(e, this.check, "ERROR");
+            final ServiceCheckResult r = new ServiceCheckResult(ID_GENERATOR.generate(),e, check, "ERROR");
             addResult(r);
             return false;
         }
 
-        ServiceCheckResult r = new ServiceCheckResult(this.check.getIdentifier(),
-                                                      POSITIVE_TEXT,
-                                                      new Date(),
-                                                      CheckResult.ResultType.POSITIVE,
-                                                      this.check.getServiceIdentifier());
+        final ServiceCheckResult r = new ServiceCheckResult(
+        		ID_GENERATOR.generate(),
+        		check.getIdentifier(),
+        		POSITIVE_TEXT,
+        		new Date(),
+        		CheckResult.ResultType.POSITIVE,
+        		check.getServiceIdentifier());
         addResult(r);
 
         return true;

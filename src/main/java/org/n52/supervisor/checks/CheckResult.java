@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author Daniel Nüst
- * 
+ *
  */
 @XmlRootElement
 public abstract class CheckResult {
@@ -33,21 +33,32 @@ public abstract class CheckResult {
 
     private String checkIdentifier;
 
+    /**
+     * Do NOT use any HTML code here because the source code will be rendered!
+     */
     private String result;
 
-    private Date timeOfCheck;
+    private Date checkTime;
 
     private ResultType type;
+
+	private String identifier;
 
     public CheckResult() {
         // required for jaxb
     }
 
-    public CheckResult(String checkIdentifier, String result, Date timeOfCheck, ResultType type) {
+    public CheckResult(final String identifier) {
+    	super();
+    	this.identifier = identifier;
+    }
+
+    public CheckResult(final String identifier, final String checkIdentifier, final String result, final Date timeOfCheck, final ResultType type) {
         super();
+        this.identifier = identifier;
         this.checkIdentifier = checkIdentifier;
         this.result = result;
-        this.timeOfCheck = timeOfCheck;
+        checkTime = timeOfCheck;
         this.type = type;
     }
 
@@ -59,33 +70,41 @@ public abstract class CheckResult {
         return result;
     }
 
-    public Date getTimeOfCheck() {
-        return timeOfCheck;
+    public Date getCheckTime() {
+        return checkTime;
     }
 
     public ResultType getType() {
         return type;
     }
 
-    public void setCheckIdentifier(String checkIdentifier) {
+    public String getIdentifier() {
+    	return identifier;
+    }
+
+    public void setIdentifier(final String identifier) {
+    	this.identifier = identifier;
+    }
+
+    public void setCheckIdentifier(final String checkIdentifier) {
         this.checkIdentifier = checkIdentifier;
     }
 
-    public void setResult(String result) {
+    public void setResult(final String result) {
         this.result = result;
     }
 
-    public void setTimeOfCheck(Date timeOfCheck) {
-        this.timeOfCheck = timeOfCheck;
+    public void setCheckTime(final Date checkTime) {
+        this.checkTime = checkTime;
     }
 
-    public void setType(ResultType type) {
+    public void setType(final ResultType type) {
         this.type = type;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("CheckResult [");
         if (checkIdentifier != null) {
             builder.append("checkIdentifier=");
@@ -97,9 +116,9 @@ public abstract class CheckResult {
             builder.append(result);
             builder.append(", ");
         }
-        if (timeOfCheck != null) {
-            builder.append("timeOfCheck=");
-            builder.append(timeOfCheck);
+        if (checkTime != null) {
+            builder.append("checkTime=");
+            builder.append(checkTime);
             builder.append(", ");
         }
         if (type != null) {
@@ -109,5 +128,55 @@ public abstract class CheckResult {
         builder.append("]");
         return builder.toString();
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((checkIdentifier == null) ? 0 : checkIdentifier.hashCode());
+		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
+		result = prime * result + ((checkTime == null) ? 0 : checkTime.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof CheckResult)) {
+			return false;
+		}
+		final CheckResult other = (CheckResult) obj;
+		if (checkIdentifier == null) {
+			if (other.checkIdentifier != null) {
+				return false;
+			}
+		} else if (!checkIdentifier.equals(other.checkIdentifier)) {
+			return false;
+		}
+		if (result == null) {
+			if (other.result != null) {
+				return false;
+			}
+		} else if (!result.equals(other.result)) {
+			return false;
+		}
+		if (checkTime == null) {
+			if (other.checkTime != null) {
+				return false;
+			}
+		} else if (!checkTime.equals(other.checkTime)) {
+			return false;
+		}
+		if (type != other.type) {
+			return false;
+		}
+		return true;
+	}
 
 }

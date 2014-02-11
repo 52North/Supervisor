@@ -19,12 +19,12 @@ package org.n52.supervisor.guice;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.n52.supervisor.ApiResource;
 import org.n52.supervisor.CheckerResolver;
-import org.n52.supervisor.ChecksResource;
-import org.n52.supervisor.ResultsResource;
-import org.n52.supervisor.SettingsResource;
 import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.resources.Api;
+import org.n52.supervisor.resources.Checks;
+import org.n52.supervisor.resources.Results;
+import org.n52.supervisor.resources.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,12 +60,12 @@ public class SupervisorModule extends JerseyServletModule {
         // bind the JAX-RS resources
         // http://code.google.com/p/google-guice/wiki/ServletModule
         bind(CheckerResolver.class);
-        bind(SettingsResource.class);
-        bind(ApiResource.class);
-        bind(ResultsResource.class);
+        bind(Settings.class);
+        bind(Api.class);
+        bind(Results.class);
 
         bind(SupervisorInit.class);
-        bind(ChecksResource.class);
+        bind(Checks.class);
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("com.sun.jersey.config.property.JSPTemplatesBasePath", "/");

@@ -8,13 +8,15 @@
 
 	<ul class="list-unstyled">
 		<!-- <li class="ng-class:result.type" -->
-		<li ng-class="getClass(result.type)"
-			ng-repeat="result in results | filter:query | orderBy:orderProp">
-			<!-- <span class="result-list-type">{{result.type}}</span>  --> <span
-			class="result-list-result">{{result.result}}</span> <br />Details: <span
-			class="result-list-check">{{result.check}}</span><a
-			ng-href="{{result.check}}"><span class="caret"></span></a><br /> <span
-			class="result-list-time">{{result.checkTime}}</span>
+		<li ng-class="getClass(result.type)" ng-repeat="result in results | filter:query | orderBy:orderProp">
+			<!--
+			 disabled because the type is reflected by the background color! 
+			<span class="result-list-type">{{result.type}}</span>
+			-->
+            <b>Time</b>: <span class="result-list-time">{{result.checkTime}}</span>&nbsp;|&nbsp;
+            <b>Details</b>: <a ng-href="{{result.uri}}"><span class="result-list-id">{{result.id}}</span></a>&nbsp;|&nbsp;
+            <b>Check</b>: <a ng-href="{{result.check}}"><span class="result-list-checkIdentifier">{{result.checkIdentifier}}</span></a> <br />
+            <b>Message</b>: <span class="result-list-result">{{result.result}}</span> <br />
 		</li>
 	</ul>
 
