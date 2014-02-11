@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.supervisor;
+package org.n52.supervisor.resources;
 
 import java.net.URI;
 
@@ -41,7 +41,7 @@ import com.google.inject.servlet.SessionScoped;
  */
 @Path("/api")
 @SessionScoped
-public class ApiResource {
+public class Api {
 
 	protected static final String RESULTS = "results";
 	protected static final String CHECKS = "checks";
@@ -51,7 +51,7 @@ public class ApiResource {
 	@GET
     @Path("/")
     public Response forwardToCurrentVersion(@Context final UriInfo uriInfo) {
-        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ApiResource.class).path(API_ROOT);
+        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(Api.class).path(API_ROOT);
         return Response.seeOther(redirect.build()).build();
     }
 
@@ -62,9 +62,9 @@ public class ApiResource {
     	final JSONObject result = new JSONObject();
     	final JSONObject resources = new JSONObject();
     	result.put(RESOURCES, resources);
-    	URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).build();
+    	URI path = uriInfo.getBaseUriBuilder().path(Checks.class).build();
     	resources.put(CHECKS,path);
-    	path = uriInfo.getBaseUriBuilder().path(ResultsResource.class).build();
+    	path = uriInfo.getBaseUriBuilder().path(Results.class).build();
     	resources.put(RESULTS,path);
         return Response.ok(result.toString()).build();
     }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.supervisor;
+package org.n52.supervisor.resources;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -50,14 +50,14 @@ import com.google.inject.servlet.SessionScoped;
  */
 @Path("/api/v1/results")
 @SessionScoped
-public class ResultsResource {
+public class Results {
 
-    private static Logger log = LoggerFactory.getLogger(ResultsResource.class);
+    private static Logger log = LoggerFactory.getLogger(Results.class);
 
     private final ResultDatabase db;
 
     @Inject
-    public ResultsResource(final ResultDatabase db) {
+    public Results(final ResultDatabase db) {
         this.db = db;
 
         log.info("NEW {}", this);
@@ -110,9 +110,9 @@ public class ResultsResource {
         for (final CheckResult checkResult : results) {
         	final JSONObject jsonResult = new JSONObject();
         	jsonResult.put("id", checkResult.getIdentifier());
-        	URI path = uriInfo.getBaseUriBuilder().path(ResultsResource.class).path(checkResult.getIdentifier()).build();
+        	URI path = uriInfo.getBaseUriBuilder().path(Results.class).path(checkResult.getIdentifier()).build();
         	jsonResult.put("uri", path);
-        	path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(checkResult.getCheckIdentifier()).build();
+        	path = uriInfo.getBaseUriBuilder().path(Checks.class).path(checkResult.getCheckIdentifier()).build();
         	jsonResult.put("check", path);
         	if (expanded) {
         		jsonResult.put("checkIdentifier", checkResult.getCheckIdentifier());

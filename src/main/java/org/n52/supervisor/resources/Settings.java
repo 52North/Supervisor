@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor;
+package org.n52.supervisor.resources;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,13 +38,13 @@ import com.google.inject.name.Named;
 
 @Path("/api/v1/settings")
 @Singleton
-public class SettingsResource {
+public class Settings {
 
     private static final String MAX_RESULTS_PATH = "maxResults";
 
     private static final String PAGE_REFRESH_PATH = "pageRefreshSecs";
 
-    private static Logger log = LoggerFactory.getLogger(SettingsResource.class);
+    private static Logger log = LoggerFactory.getLogger(Settings.class);
 
     private String baseUrl;
 
@@ -53,7 +53,7 @@ public class SettingsResource {
     private final long maxResults;
 
     @Inject
-    public SettingsResource(@Named("supervisor.ui.html.pageRefreshSecs") final
+    public Settings(@Named("supervisor.ui.html.pageRefreshSecs") final
     long pageRefreshSecs, @Named("supervisor.ui.html.maxChecks") final
     long maxResults) {
         this.pageRefreshSecs = pageRefreshSecs;
@@ -69,8 +69,8 @@ public class SettingsResource {
     UriInfo uriInfo) throws IllegalArgumentException, UriBuilderException, JSONException {
 
     	final JSONObject result = new JSONObject();
-    	result.put(MAX_RESULTS_PATH, uriInfo.getBaseUriBuilder().path(SettingsResource.class).path(MAX_RESULTS_PATH).build());
-        result.put(PAGE_REFRESH_PATH, uriInfo.getBaseUriBuilder().path(SettingsResource.class).path(PAGE_REFRESH_PATH).build());
+    	result.put(MAX_RESULTS_PATH, uriInfo.getBaseUriBuilder().path(Settings.class).path(MAX_RESULTS_PATH).build());
+        result.put(PAGE_REFRESH_PATH, uriInfo.getBaseUriBuilder().path(Settings.class).path(PAGE_REFRESH_PATH).build());
 
         return Response.ok(result.toString()).build();
     }
@@ -110,7 +110,7 @@ public class SettingsResource {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("SettingsResource [baseUrl=");
+        builder.append("Settings [baseUrl=");
         builder.append(baseUrl);
         builder.append(", pageRefreshSecs=");
         builder.append(pageRefreshSecs);

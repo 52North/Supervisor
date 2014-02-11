@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor;
+package org.n52.supervisor.resources;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -40,6 +40,8 @@ import javax.ws.rs.core.UriInfo;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.n52.supervisor.CheckRunner;
+import org.n52.supervisor.CheckerResolver;
 import org.n52.supervisor.checks.Check;
 import org.n52.supervisor.db.CheckDatabase;
 import org.n52.supervisor.db.ResultDatabase;
@@ -57,9 +59,9 @@ import com.google.inject.servlet.SessionScoped;
  */
 @Path("/api/v1/checks")
 @SessionScoped
-public class ChecksResource {
+public class Checks {
 
-    private static Logger log = LoggerFactory.getLogger(ChecksResource.class);
+    private static Logger log = LoggerFactory.getLogger(Checks.class);
 
     private final ExecutorService manualExecutor;
 
@@ -70,7 +72,7 @@ public class ChecksResource {
     private final CheckerResolver checkResolver;
 
     @Inject
-    public ChecksResource(final CheckDatabase cd, final ResultDatabase rd, final CheckerResolver cr) {
+    public Checks(final CheckDatabase cd, final ResultDatabase rd, final CheckerResolver cr) {
         checkDatabase = cd;
         resultDatabase = rd;
         checkResolver = cr;
@@ -109,9 +111,9 @@ public class ChecksResource {
         for (final Check check : checks) {
         	final JSONObject jsonCheck = new JSONObject();
         	jsonCheck.put("id", check.getIdentifier());
-        	URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(check.getIdentifier()).build();
+        	URI path = uriInfo.getBaseUriBuilder().path(Checks.class).path(check.getIdentifier()).build();
         	jsonCheck.put("uri", path);
-        	path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(check.getIdentifier() + "/results").build();
+        	path = uriInfo.getBaseUriBuilder().path(Checks.class).path(check.getIdentifier() + "/results").build();
         	jsonCheck.put("results",path);
             jsonChecks.put(jsonCheck);
         }
@@ -126,7 +128,7 @@ public class ChecksResource {
     public Response getChecksResults(
     		@Context 			final UriInfo uriInfo,
     		@PathParam("id") 	final String id) {
-        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ResultsResource.class).queryParam("checkId", id);
+        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(Results.class).queryParam("checkId", id);
         return Response.seeOther(redirect.build()).build();
     }
 
