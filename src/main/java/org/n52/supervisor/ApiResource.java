@@ -26,38 +26,47 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 import com.google.inject.servlet.SessionScoped;
 
+/**
+ * This is the API starting point providing links to all available resources.
+ *
+ * Current available resources are:
+ * 	<ul><li>checks</li>
+ *  <li>results</li></ul>
+ *
+ */
 @Path("/api")
 @SessionScoped
 public class ApiResource {
 
-    @GET
+	protected static final String RESULTS = "results";
+	protected static final String CHECKS = "checks";
+	protected static final String RESOURCES = "resources";
+	private static final String API_ROOT = "/v1";
+
+	@GET
     @Path("/")
-    public Response forwardToCurrentVersion(@Context
-    UriInfo uriInfo) {
-        UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ApiResource.class).path("/v1");
+    public Response forwardToCurrentVersion(@Context final UriInfo uriInfo) {
+        final UriBuilder redirect = uriInfo.getBaseUriBuilder().path(ApiResource.class).path(API_ROOT);
         return Response.seeOther(redirect.build()).build();
     }
 
     @GET
-    @Path("/v1")
+    @Path(API_ROOT)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getApiEndpoints(@Context
-    UriInfo uriInfo) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ \"resources\": [");
-        sb.append("{ \"checks\": \"");
-        URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).build();
-        sb.append(path);
-        sb.append("\", ");
-        sb.append("\"results\": \"");
-        path = uriInfo.getBaseUriBuilder().path(ResultsResource.class).build();
-        sb.append(path);
-        sb.append("\" }");
-        sb.append("] }");
-
-        return Response.ok(sb.toString()).build();
+    public Response getApiEndpoints(@Context final UriInfo uriInfo) throws JSONException {
+    	final JSONObject result = new JSONObject();
+    	final JSONObject resources = new JSONObject();
+    	result.put(RESOURCES, resources);
+    	URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).build();
+    	resources.put(CHECKS,path);
+    	path = uriInfo.getBaseUriBuilder().path(ResultsResource.class).build();
+    	resources.put(RESULTS,path);
+        return Response.ok(result.toString()).build();
     }
 
 }

@@ -27,8 +27,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
@@ -38,9 +42,11 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.SessionScoped;
 
 /**
- * 
+ *
  * @author Daniel Nüst
- * 
+ *
+ * TODO implement abstract resource for common methods
+ *
  */
 @Path("/api/v1/results")
 @SessionScoped
@@ -48,21 +54,22 @@ public class ResultsResource {
 
     private static Logger log = LoggerFactory.getLogger(ResultsResource.class);
 
-    private ResultDatabase db;
+    private final ResultDatabase db;
 
     @Inject
-    public ResultsResource(ResultDatabase db) {
+    public ResultsResource(final ResultDatabase db) {
         this.db = db;
 
         log.info("NEW {}", this);
     }
 
-    private List<CheckResult> filterResultsWithCheckId(List<CheckResult> results, String id) {
-        ArrayList<CheckResult> filtered = new ArrayList<>();
+    private List<CheckResult> filterResultsWithCheckId(final List<CheckResult> results, final String id) {
+        final ArrayList<CheckResult> filtered = new ArrayList<>(results.size());
 
-        for (CheckResult cr : results) {
-            if (cr.getCheckIdentifier().equals(id))
-                filtered.add(cr);
+        for (final CheckResult cr : results) {
+            if (cr.getCheckIdentifier().equals(id)) {
+				filtered.add(cr);
+			}
         }
 
         return filtered;
@@ -71,48 +78,51 @@ public class ResultsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCheckResults(@PathParam("id")
-    String id) {
-        if (id != null)
-            return Response.serverError().entity("not implemented yet").build();
+    public Response getCheckResults(@PathParam("id") final String id) throws JSONException {
+    	log.debug("Requesting results with id '{}'",id);
 
-        CheckResult latestResult = this.db.getResult(id);
-
-        return Response.ok().entity(latestResult).build();
+    	final CheckResult checkResult = db.getResult(id);
+    	if (!checkResult.equals(ResultDatabase.NO_CHECK_RESULT_WITH_GIVEN_ID)) {
+    		return Response.ok().entity(checkResult).build();
+    	}
+    	return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
     }
 
-    @GET
+
+
+	@GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getChecks(@Context
-    UriInfo uriInfo, @QueryParam("checkId")
-    String checkId) {
-        List<CheckResult> results = this.db.getLatestResults();
+    public Response getChecks(
+    		@Context final UriInfo uriInfo,
+    		@QueryParam("checkId") final String checkId,
+    		@QueryParam("expanded") final boolean expanded) throws JSONException {
+        List<CheckResult> results = db.getLatestResults();
 
         // GenericEntity<List<Check>> entity = new GenericEntity<List<Check>>(Lists.newArrayList(checks)) {};
 
         if (checkId != null) {
             results = filterResultsWithCheckId(results, checkId);
         }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ \"results\": [   "); // add a few spaces in the end if no results are found
-        for (CheckResult r : results) {
-            sb.append("{ \"check\": \"");
-            URI path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(r.getCheckIdentifier()).build();
-            sb.append(path);
-            sb.append("\" ,");
-            sb.append("\"result\": \"");
-            sb.append(r.getResult());
-            sb.append("\", \"type\": \"");
-            sb.append(r.getType());
-            sb.append("\", \"checkTime\": \"");
-            sb.append(r.getTimeOfCheck());
-            sb.append("\" },");
+        final JSONObject result = new JSONObject();
+        final JSONArray jsonResults = new JSONArray();
+        result.put("results", jsonResults);
+        for (final CheckResult checkResult : results) {
+        	final JSONObject jsonResult = new JSONObject();
+        	jsonResult.put("id", checkResult.getIdentifier());
+        	URI path = uriInfo.getBaseUriBuilder().path(ResultsResource.class).path(checkResult.getIdentifier()).build();
+        	jsonResult.put("uri", path);
+        	path = uriInfo.getBaseUriBuilder().path(ChecksResource.class).path(checkResult.getCheckIdentifier()).build();
+        	jsonResult.put("check", path);
+        	if (expanded) {
+        		jsonResult.put("checkIdentifier", checkResult.getCheckIdentifier());
+        		jsonResult.put("checkTime", checkResult.getCheckTime());
+        		jsonResult.put("result", checkResult.getResult());
+        		jsonResult.put("type", checkResult.getType());
+        	}
+            jsonResults.put(jsonResult);
         }
-        sb.replace(sb.length() - 1, sb.length(), ""); // remove last comma
-        sb.append("] }");
-        return Response.ok(sb.toString()).build();
+        return Response.ok(result.toString()).build();
 
         // return Response.ok(entity).build();
     }
