@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -88,7 +89,19 @@ public class Results {
     	return Response.status(Status.NOT_FOUND).entity("{\"error\": \"entitiy for id not found:" + id + "\" } ").build();
     }
 
-
+    @PUT
+    @Path("/clear")
+    public Response clearResults() {
+    	log.debug("Clearing the results database");
+    	db.clearResults();
+    	if (db.isEmpty()) {
+    		return Response.status(Status.NO_CONTENT).build();
+    	} else {
+    		final String msg = "Results database could not be cleared.";
+    		log.error(msg);
+    		return Response.serverError().entity("{\"error\": \"" + msg + "\" } ").build();
+    	}
+    }
 
 	@GET
     @Path("/")

@@ -146,21 +146,35 @@
 					$('#btReload').click(function() {
 						location.reload(true);
 					});
+					
+					$('#btClear').click(function() {
+						//alert("Handler for .click() called.");
+						$.ajax({
+							dataType : "text",
+							type     : "put",
+							url      : window.location.pathname +
+							           "api/v1/results/clear",
+							success : function(data) {
+								console.log(data);
+								location.reload(true);
+							}
+						});
+					});
 
-					$("#btRunNow").click(
-							function() {
-								// alert("Handler for .click() called.");
-								$.ajax({
-									dataType : "text",
-									type : "put",
-									url : window.location.pathname
-											+ "api/v1/checks/run?all=true",
-									success : function(data) {
-										console.log(data);
-										// $("#settingMaxResults").html(data.maxResults);
-									}
-								});
-							});
+					$("#btRunNow").click(function() {
+						// alert("Handler for .click() called.");
+						$.ajax({
+							dataType : "text",
+							type : "put",
+							url : window.location.pathname
+									+ "api/v1/checks/run?all=true",
+							success : function(data) {
+								console.log(data);
+								// $("#settingMaxResults").html(data.maxResults);
+								location.reload(true);
+							}
+						});
+					});
 
 					// fill settings
 					$.ajax({

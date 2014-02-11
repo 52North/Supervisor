@@ -114,4 +114,8 @@ public class ResultDatabase {
         return builder.toString();
     }
 
+	public boolean isEmpty() {
+		return latestResults.isEmpty();
+	}
+
 }
