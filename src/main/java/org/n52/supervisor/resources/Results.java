@@ -34,7 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

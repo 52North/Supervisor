@@ -30,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
 
 import org.n52.supervisor.db.ResultDatabase;
+import org.n52.supervisor.notification.SendEmailTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

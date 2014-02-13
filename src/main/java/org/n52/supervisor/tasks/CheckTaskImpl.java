@@ -19,8 +19,9 @@ package org.n52.supervisor.tasks;
 import java.util.Collection;
 import java.util.TimerTask;
 
-import org.n52.supervisor.CheckRunner;
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.api.CheckRunner;
+import org.n52.supervisor.api.CheckTask;
 import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

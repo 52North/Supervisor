@@ -18,7 +18,7 @@ package org.n52.supervisor.tasks;
 
 import java.util.Collection;
 
-import org.n52.supervisor.CheckRunner;
+import org.n52.supervisor.api.CheckRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

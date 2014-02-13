@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.guice;
+package org.n52.supervisor;
 
 import java.util.concurrent.Executors;
 
-import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.db.StorageModule;
 import org.n52.supervisor.id.IdentificationModule;
 import org.n52.supervisor.tasks.TaskModule;

@@ -36,7 +36,7 @@
 	</filter-mapping>
 
 	<listener>
-		<listener-class>org.n52.supervisor.guice.GuiceServletConfig</listener-class>
+		<listener-class>org.n52.supervisor.GuiceServletConfig</listener-class>
 	</listener>
 
 	<session-config>

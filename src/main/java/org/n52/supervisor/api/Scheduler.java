@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.tasks;
+package org.n52.supervisor.api;
 
-import org.n52.supervisor.CheckRunner;
 
 /**
  * 
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public interface JobScheduler {
+public interface Scheduler {
 
     /**
      * Cancels the task with the given identifier.

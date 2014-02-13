@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.checks.util;
+package org.n52.supervisor.checks;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.CheckRunner;
-import org.n52.supervisor.checks.Check;
-import org.n52.supervisor.checks.CheckResult;
-import org.n52.supervisor.checks.UnsupportedCheckException;
+import org.n52.supervisor.api.Check;
+import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.api.CheckRunner;
+import org.n52.supervisor.api.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

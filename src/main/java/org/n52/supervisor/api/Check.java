@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.checks;
+package org.n52.supervisor.api;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

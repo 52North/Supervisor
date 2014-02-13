@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor;
+package org.n52.supervisor.api;
 
 import java.util.Collection;
 
-import org.n52.supervisor.checks.Check;
-import org.n52.supervisor.checks.CheckResult;
-import org.n52.supervisor.checks.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.id.IdentifierGenerator;
 import org.n52.supervisor.id.ShortAlphanumericIdentifierGenerator;

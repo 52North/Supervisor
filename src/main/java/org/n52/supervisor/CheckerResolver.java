@@ -16,7 +16,8 @@
 
 package org.n52.supervisor;
 
-import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.api.Check;
+import org.n52.supervisor.api.CheckRunner;
 import org.n52.supervisor.checks.ows.OwsCapabilitiesCheck;
 import org.n52.supervisor.checks.ows.OwsCapabilitiesCheckRunner;
 import org.n52.supervisor.checks.ows.SirCapabilitiesCheckRunner;

@@ -16,6 +16,9 @@
 
 package org.n52.supervisor.tasks;
 
+import org.n52.supervisor.api.CheckTask;
+import org.n52.supervisor.api.CheckTaskFactory;
+import org.n52.supervisor.api.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +32,7 @@ public class TaskModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(TaskServlet.class);
-        bind(JobScheduler.class).to(JobSchedulerImpl.class);
+        bind(Scheduler.class).to(JobSchedulerImpl.class);
 
         install(new FactoryModuleBuilder().implement(CheckTask.class, CheckTaskImpl.class).build(CheckTaskFactory.class));
 
