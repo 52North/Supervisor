@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.ui;
+package org.n52.supervisor.notification;
 
 import java.util.Collection;
 
-import org.n52.supervisor.checks.Check;
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.api.Check;
+import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.api.Notification;
 
 /**
  * @author Daniel Nüst

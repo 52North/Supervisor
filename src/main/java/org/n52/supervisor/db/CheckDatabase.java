@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.api.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

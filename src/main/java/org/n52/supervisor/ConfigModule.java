@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.guice;
+package org.n52.supervisor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import org.n52.supervisor.SupervisorProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

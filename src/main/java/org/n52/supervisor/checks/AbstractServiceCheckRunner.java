@@ -23,11 +23,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.n52.supervisor.CheckRunner;
 import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.api.Check;
+import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.api.CheckRunner;
+import org.n52.supervisor.api.Notification;
+import org.n52.supervisor.api.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
-import org.n52.supervisor.ui.EmailNotification;
-import org.n52.supervisor.ui.Notification;
+import org.n52.supervisor.notification.EmailNotification;
 import org.n52.supervisor.util.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

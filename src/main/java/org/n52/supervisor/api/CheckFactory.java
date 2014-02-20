@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.checks;
+package org.n52.supervisor.api;
+
+import java.util.Collection;
+
 
 /**
  * 
- * @author Daniel
+ * @author Daniel Nüst (d.nuest@52north.org)
  * 
  */
-public class UnsupportedCheckException extends Exception {
+public interface CheckFactory {
 
-    private static final long serialVersionUID = -5446103004242014271L;
+    public static final long EVERY_12_HOURS = 1000 * 60 * 60 * 12;
 
-    public UnsupportedCheckException() {
-        super();
-    }
-    
-    public UnsupportedCheckException(String message) {
-        super(message);
-    }
+    public static final long EVERY_24_HOURS = 1000 * 60 * 60 * 24;
+
+    public static final long EVERY_HALF_HOUR = 1000 * 60 * 30;
+
+    public static final long EVERY_HOUR = 1000 * 60 * 60;
+
+    public static final long EVERY_WEEK = 1000 * 60 * 60 * 24 * 7;
+
+    public abstract Collection<Check> getChecks();
 
 }

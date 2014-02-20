@@ -13,20 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.n52.supervisor.tasks;
 
-import java.util.Collection;
+package org.n52.supervisor.checks;
 
-import org.n52.supervisor.CheckRunner;
-import org.n52.supervisor.checks.CheckResult;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.n52.supervisor.api.Check;
 
 /**
  * 
  * @author Daniel
  * 
  */
-public interface CheckTask {
+@XmlRootElement
+public class CheckCollection extends Check {
 
-    public Collection<CheckResult> checkIt(CheckRunner c);
+    protected String type = "CheckCollection";
+
+    public CheckCollection() {
+        super();
+    }
+
+    public CheckCollection(String identifier) {
+        super(identifier);
+    }
 
 }

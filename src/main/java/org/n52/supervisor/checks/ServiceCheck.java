@@ -20,6 +20,8 @@ import java.net.URL;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.n52.supervisor.api.Check;
+
 /**
  * 
  * @author Daniel

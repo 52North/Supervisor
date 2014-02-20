@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.guice;
+package org.n52.supervisor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.n52.supervisor.CheckerResolver;
-import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.resources.Api;
 import org.n52.supervisor.resources.Checks;
 import org.n52.supervisor.resources.Results;

@@ -27,12 +27,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.PreDestroy;
 
-import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.api.Check;
+import org.n52.supervisor.api.CheckRunner;
+import org.n52.supervisor.api.Notification;
+import org.n52.supervisor.api.Scheduler;
 import org.n52.supervisor.db.CheckDatabase;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.id.IdentifierGenerator;
-import org.n52.supervisor.tasks.JobScheduler;
-import org.n52.supervisor.ui.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +53,14 @@ public class SupervisorInit {
 
         private long sleep;
         private Collection<Check> checks;
-        private JobScheduler scheduler;
+        private Scheduler scheduler;
         private long submitDelaySecs;
         private CheckerResolver cr;
 
         public DelayedStartThread(long sleep,
                                   Collection<Check> checks,
                                   CheckerResolver cr,
-                                  JobScheduler scheduler,
+                                  Scheduler scheduler,
                                   long submitDelaySecs) {
             this.sleep = sleep;
             this.checks = checks;
@@ -107,7 +108,7 @@ public class SupervisorInit {
         return notifications.removeAll(c);
     }
 
-    private JobScheduler scheduler;
+    private Scheduler scheduler;
 
     private CheckDatabase db;
 
@@ -120,7 +121,7 @@ public class SupervisorInit {
     @Inject
     public SupervisorInit(@Named("context.basepath")
                           String basepath,
-                          JobScheduler scheduler,
+                          Scheduler scheduler,
                           CheckDatabase db,
                           ResultDatabase rd,
                           CheckerResolver cr,

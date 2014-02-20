@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.n52.supervisor.tasks;
+package org.n52.supervisor.notification;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,11 +35,10 @@ import javax.mail.internet.MimeMessage;
 
 import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.SupervisorProperties;
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.api.Notification;
 import org.n52.supervisor.checks.util.DebugCheckResult;
 import org.n52.supervisor.db.ResultDatabase;
-import org.n52.supervisor.ui.EmailNotification;
-import org.n52.supervisor.ui.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

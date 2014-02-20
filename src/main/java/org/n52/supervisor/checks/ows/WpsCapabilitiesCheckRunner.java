@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import net.opengis.wps.x100.CapabilitiesDocument;
 
 import org.apache.xmlbeans.XmlObject;
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.checks.ServiceCheckResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

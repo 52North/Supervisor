@@ -17,7 +17,7 @@ package org.n52.supervisor.checks.util;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.checks.Check;
+import org.n52.supervisor.api.Check;
 
 /**
  * 

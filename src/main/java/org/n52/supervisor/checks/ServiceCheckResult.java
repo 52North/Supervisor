@@ -20,6 +20,9 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.n52.supervisor.api.Check;
+import org.n52.supervisor.api.CheckResult;
+
 /**
  * @author Daniel Nüst
  *

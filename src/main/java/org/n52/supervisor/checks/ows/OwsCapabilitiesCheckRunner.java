@@ -23,8 +23,8 @@ import net.opengis.ows.x11.CapabilitiesBaseType;
 import net.opengis.ows.x11.GetCapabilitiesDocument;
 
 import org.apache.xmlbeans.XmlObject;
+import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.checks.AbstractServiceCheckRunner;
-import org.n52.supervisor.checks.CheckResult;
 import org.n52.supervisor.checks.ServiceCheckResult;
 import org.n52.supervisor.util.XmlTools;
 import org.slf4j.Logger;

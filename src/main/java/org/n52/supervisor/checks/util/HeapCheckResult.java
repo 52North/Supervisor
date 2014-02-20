@@ -19,7 +19,7 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.n52.supervisor.checks.CheckResult;
+import org.n52.supervisor.api.CheckResult;
 
 /**
  *

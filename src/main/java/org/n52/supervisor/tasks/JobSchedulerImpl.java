@@ -18,7 +18,10 @@ package org.n52.supervisor.tasks;
 
 import java.util.TimerTask;
 
-import org.n52.supervisor.CheckRunner;
+import org.n52.supervisor.api.CheckRunner;
+import org.n52.supervisor.api.CheckTask;
+import org.n52.supervisor.api.CheckTaskFactory;
+import org.n52.supervisor.api.Scheduler;
 import org.n52.supervisor.id.IdentifierGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +35,7 @@ import com.google.inject.Inject;
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
  */
-public class JobSchedulerImpl implements JobScheduler {
+public class JobSchedulerImpl implements Scheduler {
 
     private static final long DEFAULT_DELAY_MILLISECS = 1000;
 
