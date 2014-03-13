@@ -12,6 +12,10 @@ The Supervisor is a Java server application with a simple user interface and API
 
 The basic procedure is as follows: A check is activated in Supervisor and runs at a specific interval. The check has a specific results, for example "passed", "neutral" or "fail", and it can be accessed via an API and a browser-based user interface.
 
+## Configuration
+
+You can add your own configuration easily by putting your own copy of supervisor.properties into the user home of the service that executes your servlet container, e.g. ``/home/tomcat/.Supervisor/supervisor.properties``. If you are unsure where to put this file, take a look at the log file and search for ``ConfigModule``, which will tell you where exactly Supervisor looks for the files.
+
 ## Developer documentation
 
 ### Code structure
