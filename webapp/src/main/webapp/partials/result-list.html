@@ -1,0 +1,25 @@
+<div id="content" ng-controller="ResultListCtrl">
+	<!-- <p class="lead"> -->
+	<p class="text-muted">
+		The latest check results ({{results.length}} of maximum <span
+			id="settingMaxResults"></span>, automatic refresh every <span
+			id="settingPageRefreshSecs"></span> seconds).
+	</p>
+
+	<ul class="list-unstyled">
+		<!-- <li class="ng-class:result.type" -->
+		<li ng-class="getClass(result.type)" ng-repeat="result in results | filter:query | orderBy:orderProp">
+			<!--
+			 disabled because the type is reflected by the background color! 
+			<span class="result-list-type">{{result.type}}</span>
+			-->
+            <b>Time</b>: <span class="result-list-time">{{result.checkTime}}</span>&nbsp;|&nbsp;
+            <b>Details</b>: <a ng-href="{{result.uri}}"><span class="result-list-id">{{result.id}}</span></a>&nbsp;|&nbsp;
+            <b>Check</b>: <a ng-href="{{result.check}}"><span class="result-list-checkIdentifier">{{result.checkIdentifier}}</span></a> <br />
+            <b>Message</b>: <span class="result-list-result">{{result.result}}</span> <br />
+		</li>
+	</ul>
+
+	<!-- raw data: -->
+	<!-- {{results | json}} -->
+</div>

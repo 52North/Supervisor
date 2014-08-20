@@ -1,0 +1,21 @@
+﻿@CHARSET "UTF-8";
+
+.checkTime {
+	font-style: italic;
+}
+
+.checkService {
+	font-weight: bold;
+}
+
+.checkPositive {
+	color: #00FF00;
+}
+
+.checkNegative {
+	color: #FF0000;
+}
+
+.checkNeutral {
+	color: #000000;
+}
