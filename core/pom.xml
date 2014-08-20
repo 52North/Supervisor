@@ -8,7 +8,7 @@
 		<version>0.3-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>api</artifactId>
+	<artifactId>core</artifactId>
 	<packaging>jar</packaging>
 
 	<inceptionYear>2013</inceptionYear>
