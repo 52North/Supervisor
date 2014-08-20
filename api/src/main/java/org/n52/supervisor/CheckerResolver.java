@@ -21,10 +21,6 @@ import java.util.Set;
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckRunner;
 import org.n52.supervisor.checks.RunnerFactory;
-import org.n52.supervisor.checks.util.HeapCheck;
-import org.n52.supervisor.checks.util.HeapCheckRunner;
-import org.n52.supervisor.checks.util.SelfCheck;
-import org.n52.supervisor.checks.util.SelfCheckRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
