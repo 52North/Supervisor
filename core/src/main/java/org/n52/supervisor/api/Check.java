@@ -18,9 +18,6 @@ package org.n52.supervisor.api;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
 /**
  * 
  * @author Daniel
@@ -35,10 +32,14 @@ public abstract class Check {
 
     protected String type = "GenericCheck";
 
-    @Inject
-    @Named("supervisor.checks.defaultIntervalSeconds")
+    /*
+     * injects only work on objects created by Guice.
+     * this is most likely not the case for Checkers.
+     */
+//    @Inject
+//    @Named(SupervisorProperties.DEFAULT_CHECK_INTERVAL)
     private long intervalSeconds;
-
+    
     public Check() {
         // required for jaxb
     }

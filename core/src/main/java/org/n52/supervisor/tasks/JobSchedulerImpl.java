@@ -18,6 +18,7 @@ package org.n52.supervisor.tasks;
 
 import java.util.TimerTask;
 
+import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.CheckRunner;
 import org.n52.supervisor.api.CheckTask;
 import org.n52.supervisor.api.CheckTaskFactory;
@@ -48,10 +49,13 @@ public class JobSchedulerImpl implements Scheduler {
     @Inject
     private CheckTaskFactory taskFactory;
 
+	private SupervisorProperties sp;
+
     @Inject
-    protected JobSchedulerImpl(TaskServlet timer, IdentifierGenerator idGen) {
+    protected JobSchedulerImpl(TaskServlet timer, IdentifierGenerator idGen, SupervisorProperties sp) {
         this.timerServlet = timer;
         this.idGen = idGen;
+        this.sp = sp;
         log.info("NEW " + this);
     }
 
@@ -74,7 +78,13 @@ public class JobSchedulerImpl implements Scheduler {
 
         String id = "task_" + this.idGen.generate();
         CheckTask t = this.taskFactory.create(checker);
-        submit(id, t, delay, checker.getCheck().getIntervalSeconds() * 1000);
+        long intervalSec = checker.getCheck().getIntervalSeconds();
+        
+        if (intervalSec == 0) {
+        	intervalSec = this.sp.getDefaultCheckIntervalSeconds();
+        }
+        
+        submit(id, t, delay, intervalSec * 1000);
 
         return id;
     }
