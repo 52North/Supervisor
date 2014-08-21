@@ -104,6 +104,8 @@ public class SupervisorProperties {
 
     private boolean useConfigCheckers;
 
+	private static SupervisorProperties instance;
+
     private SupervisorProperties(Properties props) {
         // the actual checks
         this.checkConfigurations = new ArrayList<String>();
@@ -210,9 +212,12 @@ public class SupervisorProperties {
         return this.useConfigCheckers;
     }
     
+    public static SupervisorProperties instance() {
+    	return instance;
+    }
+    
     public static class Module extends ConfigModule {
 
-		private SupervisorProperties instance;
 
 		@Override
 		protected void configure() {
