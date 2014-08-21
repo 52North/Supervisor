@@ -26,6 +26,7 @@ import java.util.List;
 import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.api.CheckResult.ResultType;
 import org.n52.supervisor.api.CheckRunner;
 import org.n52.supervisor.api.Notification;
 import org.n52.supervisor.api.UnsupportedCheckException;
@@ -69,15 +70,28 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
     }
 
     protected ServiceCheckResult createNegativeResult(final String text) {
-    	final ServiceCheckResult result = new ServiceCheckResult(
+    	ResultType type = CheckResult.ResultType.NEGATIVE;
+    	final ServiceCheckResult result = createResult(text, type);
+        return result;
+    }
+
+    
+    protected ServiceCheckResult createPositiveResult(final String text) {
+    	ResultType type = CheckResult.ResultType.POSITIVE;
+    	final ServiceCheckResult result = createResult(text, type);
+        return result;
+    }
+    
+    protected ServiceCheckResult createResult(final String text, ResultType type) {
+		final ServiceCheckResult result = new ServiceCheckResult(
     			ID_GENERATOR.generate(),
     			check.getIdentifier(),
     			text,
     			new Date(),
-    			CheckResult.ResultType.NEGATIVE,
+    			type,
     			check.getServiceIdentifier());
-        return result;
-    }
+		return result;
+	}
 
     @Override
     public Check getCheck() {

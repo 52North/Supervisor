@@ -19,7 +19,6 @@ package org.n52.supervisor.checks.json;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +35,8 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.n52.supervisor.api.CheckResult.ResultType;
 import org.n52.supervisor.checks.AbstractServiceCheckRunner;
 import org.n52.supervisor.checks.ServiceCheck;
-import org.n52.supervisor.checks.ServiceCheckResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +46,8 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 	
 	private String apiTrackUrl;
 	private String aggregationTrackUrl;
+
+	private long interval;
 
 //	public static void main(String[] args) {
 //		String u1 = "https://envirocar.org/api/stable/tracks";
@@ -62,6 +61,11 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 	public EnviroCarAggregationChecker(String apiTrackUrl, String aggregationTrackUrl) {
 		this.apiTrackUrl = apiTrackUrl;
 		this.aggregationTrackUrl = aggregationTrackUrl;
+	}
+	
+	@Override
+	public long getIntervalSeconds() {
+		return interval;
 	}
 
 	
@@ -88,17 +92,11 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 				}
 				
 				if (apiTrackSet.isEmpty()) {
-					addResult(new ServiceCheckResult(ecCheck.getClass().toString(),
-							ecCheck.getClass().toString(),
-							"No missing tracks in aggregation",
-							new Date(), ResultType.POSITIVE, "enviroCar-aggregation"));
+					addResult(createPositiveResult("No missing tracks in aggregation"));
 					return true;
 				}
 				else {
-					addResult(new ServiceCheckResult(ecCheck.getClass().toString(),
-							ecCheck.getClass().toString(),
-							createMissingString(apiTrackSet),
-							new Date(), ResultType.NEGATIVE, "enviroCar-aggregation"));
+					addResult(createNegativeResult(createMissingString(apiTrackSet)));
 				}
 				
 			} catch (IOException e) {
