@@ -174,15 +174,18 @@ public class TaskServlet {
         boolean sendEmails = Boolean.parseBoolean(props.getProperty(SEND_EMAILS));
 
         if (sendEmails) {
+        	/*
+        	 * disabled for the moment, does not work as expected
+        	 */
             // add task for email notifications, with out without admin email
-            String adminEmail = this.props.getProperty(EMAIL_ADMIN_EMAIL);
-
-            long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
-            if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
-                log.info("Found admin email address for send email task.");
-                SendEmailTask set = new SendEmailTask(adminEmail, this.rd);
-                submit(EMAIL_SENDER_TASK_ID, set, emailSendInterval, emailSendInterval);
-            }
+//            String adminEmail = this.props.getProperty(EMAIL_ADMIN_EMAIL);
+//
+//            long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
+//            if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
+//                log.info("Found admin email address for send email task.");
+//                SendEmailTask set = new SendEmailTask(adminEmail, this.rd);
+//                submit(EMAIL_SENDER_TASK_ID, set, emailSendInterval, emailSendInterval);
+//            }
         }
         else
             log.debug("Not sending emails, not starting email tasks.");
