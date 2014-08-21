@@ -42,7 +42,7 @@ public class ConfigModule extends AbstractModule {
 
 	private static final String DEFAULT_PATH = "/";
 
-    private static Properties loadProperties(final String name) {
+    protected static Properties loadProperties(final String name) {
     	log.trace("Loading properties '{}'", name);
 
         final Properties properties = new Properties();
@@ -95,17 +95,10 @@ public class ConfigModule extends AbstractModule {
         final Properties appProps = loadProperties("app.properties");
         Names.bindProperties(binder(), appProps);
 
-        final Properties supervisorProps = loadProperties("supervisor.properties");
-        Names.bindProperties(binder(), supervisorProps);
-
 		Multibinder<RunnerFactory> binder = Multibinder.newSetBinder(binder(),
 				RunnerFactory.class);
 		binder.addBinding().to(BasicRunnerFactory.class);
         
-        // FIXME remove manual instantiation of property manager
-        final SupervisorProperties sp = SupervisorProperties.getInstance(supervisorProps);
-        log.warn("Instantiated property manager manually: {}", sp);
-
         log.info("Configured {}", this);
     }
 }

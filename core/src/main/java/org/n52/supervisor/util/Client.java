@@ -32,6 +32,8 @@ import org.n52.supervisor.SupervisorProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 /**
  * 
  * @author Daniel
@@ -44,6 +46,9 @@ public class Client {
     private static Logger log = LoggerFactory.getLogger(Client.class);
 
     private static final String POST_METHOD = "POST";
+    
+    @Inject
+    private SupervisorProperties properties;
 
     private synchronized XmlObject doSend(final String requestUrl, final String requestContent, final String requestMethod) throws UnsupportedEncodingException,
             IOException,
@@ -72,8 +77,8 @@ public class Client {
         	log.debug("Client connecting via POST to {}",requestUrl);
             final HttpPost httppost = new HttpPost(requestUrl);
 
-            final StringEntity e = new StringEntity(requestContent,SupervisorProperties.getInstance().getClientRequestEncoding());
-            e.setContentType(SupervisorProperties.getInstance().getClientRequestContentType());
+            final StringEntity e = new StringEntity(requestContent, properties.getClientRequestEncoding());
+            e.setContentType(properties.getClientRequestContentType());
             httppost.setEntity(e);
             request = httppost;
         } else {

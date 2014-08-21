@@ -123,6 +123,8 @@ public class SupervisorInit {
     private CheckerResolver cr;
 
     private IdentifierGenerator idGen;
+    
+    private SupervisorProperties sp;
 
     @Inject
     public SupervisorInit(@Named("context.basepath")
@@ -131,9 +133,10 @@ public class SupervisorInit {
                           CheckDatabase db,
                           ResultDatabase rd,
                           CheckerResolver cr,
-                          IdentifierGenerator idGen) {
+                          IdentifierGenerator idGen, SupervisorProperties sp) {
         this.scheduler = scheduler;
         this.db = db;
+        this.sp = sp;
         this.rd = rd;
         this.cr = cr;
         this.idGen = idGen;
@@ -161,10 +164,9 @@ public class SupervisorInit {
         try {
             notifications = new LinkedBlockingQueue<Notification>();
 
-            SupervisorProperties sp = SupervisorProperties.getInstance();
 
             // initialize checkers
-            db.addAll(loadCheckers(sp));// SWSL.checkers;
+            db.addAll(loadCheckers());// SWSL.checkers;
 
             // submit checkers delayed
             DelayedStartThread dst = new DelayedStartThread(5 * 1000, db.getAllChecks(), this.cr, scheduler, 1);
@@ -179,7 +181,7 @@ public class SupervisorInit {
         log.trace("InitializED {}", this);
     }
 
-    private Collection<Check> loadCheckers(SupervisorProperties sp) {
+    private Collection<Check> loadCheckers() {
         Collection<Check> checks = new ArrayList<Check>();
 
         if (sp.isUseConfigCheckers()) {

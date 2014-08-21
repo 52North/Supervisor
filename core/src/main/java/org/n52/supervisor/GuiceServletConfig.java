@@ -60,6 +60,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
     protected Injector getInjector() {
     	List<AbstractModule> modules = new ArrayList<>();
     	
+    	modules.add(new SupervisorProperties.Module());
     	modules.add(new IdentificationModule());
     	modules.add(new ConfigModule());
     	modules.add(new StorageModule());

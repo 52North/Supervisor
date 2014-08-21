@@ -51,6 +51,9 @@ import com.google.inject.name.Named;
  */
 public class SendEmailTask extends TimerTask {
 
+    @Inject
+    private SupervisorProperties properties;
+	
     private class PropertyAuthenticator extends Authenticator {
         private Properties p;
 
@@ -211,11 +214,10 @@ public class SendEmailTask extends TimerTask {
     }
 
     protected void sendEmail(String recipient, String messageText, int failureCount) throws MessagingException {
-        SupervisorProperties sp = SupervisorProperties.getInstance();
 
         // send it
-        if (sp.isSendEmails()) {
-            Properties mailProps = SupervisorProperties.getInstance().getMailSessionProperties();
+        if (properties.isSendEmails()) {
+            Properties mailProps = properties.getMailSessionProperties();
             Session mailSession = Session.getDefaultInstance(mailProps, new PropertyAuthenticator(mailProps));
             Transport transport = mailSession.getTransport();
 
@@ -230,7 +232,7 @@ public class SendEmailTask extends TimerTask {
 
             message.setContent(messageText, EMAIL_CONTENT_ENCODING);
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
-            message.setSender(sp.getEmailSender());
+            message.setSender(properties.getEmailSender());
 
             transport.connect();
             transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));

@@ -27,6 +27,9 @@ import javax.mail.internet.InternetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Provides;
+import com.google.inject.name.Names;
+
 /**
  * This singleton class handles service wide properties.
  * 
@@ -44,8 +47,6 @@ public class SupervisorProperties {
     private static final String CHECK_SUBMIT_DELAY_SECS = "CHECK_SUBMIT_DELAY_SECS";
 
     private static final String CHECKS = "CHECKS";
-
-    private static SupervisorProperties instance;
 
     private static Logger log = LoggerFactory.getLogger(SupervisorProperties.class);
 
@@ -79,33 +80,7 @@ public class SupervisorProperties {
 
     private static final String USE_CONFIG_CHECKERS = "supervisor.checks.load.configFile";
 
-    /**
-     * This methode provides the only instance of PropertiesManager.
-     * 
-     * @return The instance of the PropertiesManager
-     */
-    public static SupervisorProperties getInstance() {
-        if (instance == null) {
-            log.error("PropertiesManager is not instantiated!");
-            return null;
-        }
-        return instance;
-    }
-
-    /**
-     * This methode provides the only instance of PropertiesManager.
-     * 
-     * @param configStream
-     *        The servletcontext stream to get the path for the phenomenonXML file of the web.xml
-     * @param basepath
-     * @return The instance of the PropertiesManager
-     */
-    public static SupervisorProperties getInstance(Properties props) {
-        if (instance == null) {
-            instance = new SupervisorProperties(props);
-        }
-        return instance;
-    }
+	public static final String DEFAULT_CHECK_INTERVAL = "supervisor.checks.defaultIntervalSeconds";
 
     private String adminEmail;
 
@@ -115,7 +90,7 @@ public class SupervisorProperties {
 
     private int checkSubmitDelaySecs;
 
-    private long defaultCheckIntervalMillis;
+    private long defaultCheckInterval;
 
     private InternetAddress emailSender;
 
@@ -173,6 +148,14 @@ public class SupervisorProperties {
         this.checkSubmitDelaySecs = Integer.parseInt(props.getProperty(CHECK_SUBMIT_DELAY_SECS));
 
         log.info("NEW " + this.toString());
+        
+        this.defaultCheckInterval = 0;
+        try {
+        	this.defaultCheckInterval = Long.parseLong(props.getProperty(DEFAULT_CHECK_INTERVAL));
+        }
+        catch (NumberFormatException e) {
+        	log.warn("could not parse property '{}'", DEFAULT_CHECK_INTERVAL);
+        }
     }
 
     public String getAdminEmail() {
@@ -199,8 +182,8 @@ public class SupervisorProperties {
         return "UTF-8";
     }
 
-    public long getDefaultCheckIntervalMillis() {
-        return this.defaultCheckIntervalMillis;
+    public long getDefaultCheckIntervalSeconds() {
+        return this.defaultCheckInterval;
     }
 
     public Address getEmailSender() {
@@ -225,6 +208,25 @@ public class SupervisorProperties {
 
     public boolean isUseConfigCheckers() {
         return this.useConfigCheckers;
+    }
+    
+    public static class Module extends ConfigModule {
+
+		private SupervisorProperties instance;
+
+		@Override
+		protected void configure() {
+	        final Properties supervisorProps = loadProperties("supervisor.properties");
+	        
+	        Names.bindProperties(binder(), supervisorProps);
+			instance = new SupervisorProperties(supervisorProps);
+		}
+		
+		@Provides
+		SupervisorProperties provideSupervisorProperties() {
+			return instance;
+		}
+    	
     }
 
 }
