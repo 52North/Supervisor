@@ -81,6 +81,8 @@ public class ServiceCheckResult extends CheckResult {
         final StringBuilder builder = new StringBuilder();
         builder.append("ServiceCheckResult [serviceIdentifier=");
         builder.append(serviceIdentifier);
+        builder.append(", CheckResult = ");
+        builder.append(super.toString());
         builder.append("]");
         return builder.toString();
     }

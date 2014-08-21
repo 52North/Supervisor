@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -40,6 +42,7 @@ import org.n52.supervisor.checks.ServiceCheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@XmlRootElement
 public class EnviroCarAggregationChecker extends ServiceCheck {
 	
 	private static final Logger logger = LoggerFactory.getLogger(EnviroCarAggregationChecker.class);
@@ -49,6 +52,8 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 
 	private long interval;
 
+	private String email;
+
 //	public static void main(String[] args) {
 //		String u1 = "https://envirocar.org/api/stable/tracks";
 //		String u2 = "http://ags.dev.52north.org:8080/point-aggregation/aggregatedTracks";
@@ -57,18 +62,38 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 //		boolean result = new Runner(checker).check();
 //	}
 	
+	public EnviroCarAggregationChecker() {
+	}
+	
 
-	public EnviroCarAggregationChecker(String apiTrackUrl, String aggregationTrackUrl) {
+	public EnviroCarAggregationChecker(String apiTrackUrl, String aggregationTrackUrl, String email) {
 		this.apiTrackUrl = apiTrackUrl;
 		this.aggregationTrackUrl = aggregationTrackUrl;
+		this.email = email;
+	}
+	
+	@Override
+	public String getNotificationEmail() {
+		return email;
 	}
 	
 	@Override
 	public long getIntervalSeconds() {
 		return interval;
 	}
-
 	
+	public String getApiTrackUrl() {
+		return apiTrackUrl;
+	}
+
+	public String getAggregationTrackUrl() {
+		return aggregationTrackUrl;
+	}
+
+	public long getInterval() {
+		return interval;
+	}
+
 	public static class Runner extends AbstractServiceCheckRunner {
 
 		private EnviroCarAggregationChecker ecCheck;

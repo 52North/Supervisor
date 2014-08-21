@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.api.CheckResult.ResultType;
@@ -32,6 +33,7 @@ import org.n52.supervisor.api.Notification;
 import org.n52.supervisor.api.UnsupportedCheckException;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.notification.EmailNotification;
+import org.n52.supervisor.notification.SendEmailTask;
 import org.n52.supervisor.util.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +115,7 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
 
         if (check.getNotificationEmail() == null) {
             log.error("Can not notify via email, is null!");
-
+        } else {
             final Collection<CheckResult> failures = new ArrayList<CheckResult>();
             for (final CheckResult r : results) {
                 if (r.getType().equals(CheckResult.ResultType.NEGATIVE)) {
@@ -123,8 +125,10 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
 
             final Notification n = new EmailNotification(check, failures);
             SupervisorInit.appendNotification(n);
-
-            log.debug("Submitted email with {} failures to {}.", failures.size(), check.getNotificationEmail());
+            SendEmailTask set = new SendEmailTask(
+            		SupervisorProperties.instance().getAdminEmail(), rd);
+            set.addNotification(n);
+            set.run();
         }
     }
 

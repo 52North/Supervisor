@@ -82,7 +82,7 @@ public class SendEmailTask extends TimerTask {
     private String adminEmail = null;
 
     // FIXME need to get notifications here
-    private Collection<Notification> notifications;
+    private Collection<Notification> notifications = new ArrayList<Notification>();
 
     private ResultDatabase rd;
 
@@ -92,6 +92,10 @@ public class SendEmailTask extends TimerTask {
         this.adminEmail = adminEmail;
         this.rd = rd;
 
+        if (properties == null) {
+        	properties = SupervisorProperties.instance();
+        }
+        
         log.info("NEW " + this.toString());
     }
 
@@ -245,5 +249,9 @@ public class SendEmailTask extends TimerTask {
             log.debug("Email Content: " + messageText);
         }
     }
+
+	public void addNotification(Notification n) {
+		notifications.add(n);
+	}
 
 }
