@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user -->
+<!-- -->
+<!-- For professional support please see -->
+<!-- http://www.qos.ch/shop/products/professionalSupport -->
+<!-- -->
+<configuration>
+	<appender name="supervisorconsole" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{ISO8601} [%t] %-5p %c: %m%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="supervisorfile"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${catalina.home}/logs/supervisor.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${catalina.home}/logs/supervisor.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- keep 14 days worth of history -->
+			<maxHistory>14</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{ISO8601} [%t] %-5p %c: %m%n</pattern>
+		</encoder>
+	</appender>
+	<logger name="org.n52" level="TRACE" />
+	<logger name="org.apache.http" level="WARN" />
+	
+	<root level="INFO">
+		<appender-ref ref="supervisorconsole" />
+		<appender-ref ref="supervisorfile" />
+	</root>
+</configuration>
