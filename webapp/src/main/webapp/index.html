@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="supervisorApp">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description"
+	content="Supervisor webapp for standardized web services">
+<meta name="author" content="52°North GmbH">
+<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+<title>52°North Supervisor</title>
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/sticky-footer-navbar.css" rel="stylesheet">
+<link href="css/styles.css" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/lib/angular/angular.js"></script>
+<script src="js/lib/angular/angular-route.js"></script>
+<script src="js/app.js"></script>
+<script src="js/controllers.js"></script>
+
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+	<!-- Wrap all page content here -->
+	<div id="wrap">
+
+		<!-- Fixed navbar -->
+		<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="container">
+				<a href="http://52north.org" title="52°North Website"><img
+					alt="52N logo" src="images/52n-icon.png"
+					style="float: right; margin-top: 4px; margin-right: 10px;"
+					width="42px" height="42px"></a>
+
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse"
+						data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span> <span
+							class="icon-bar"></span> <span class="icon-bar"></span> <span
+							class="icon-bar"></span>
+					</button>
+					<span class="navbar-brand">Supervisor</span>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="#checks" data-toggle="tab">Checks</a></li>
+						<li><a href="#about" data-toggle="tab">About</a></li>
+						<!-- TODO: add menu items for admin backend... -->
+						<!-- 						<li class="dropdown"><a href="#" class="dropdown-toggle" -->
+						<!-- 							data-toggle="dropdown">Dropdown <b class="caret"></b></a> -->
+						<!-- 							<ul class="dropdown-menu"> -->
+						<!-- 								<li><a href="#">Action</a></li> -->
+						<!-- 								<li><a href="#">Another action</a></li> -->
+						<!-- 								<li><a href="#">Something else here</a></li> -->
+						<!-- 								<li class="divider"></li> -->
+						<!-- 								<li class="dropdown-header">Nav header</li> -->
+						<!-- 								<li><a href="#">Separated link</a></li> -->
+						<!-- 								<li><a href="#">One more separated link</a></li> -->
+						<!-- 							</ul></li> -->
+					</ul>
+				</div>
+				<!--/.nav-collapse -->
+			</div>
+		</div>
+
+		<!-- Begin page content -->
+		<div class="container">
+			<section class="tab-content">
+				<article class="tab-pane active" id="checks">
+					<div class="page-header">
+						<h1>Check Results</h1>
+
+						<button type="button" id="btRunNow" class="btn btn-sm btn-primary">Run
+							checks now!</button>
+						<button type="button" id="btReload" class="btn btn-sm btn-default">Reload
+							page</button>
+						<button type="button" id="btClear" class="btn btn-sm btn-default">Clear
+							results</button>
+						<span id="filters" class="text-muted"
+							style="margin-top: 8px; float: right;">Filter: <input
+							ng-model="query"> Sort by: <select ng-model="orderProp">
+								<option value="type">Type</option>
+								<option value="checkTime">Newest</option>
+								<option value="result">Result</option>
+								<option value="check">Check</option>
+								<!-- http://docs.angularjs.org/tutorial/step_04 -->
+						</select>
+						</span>
+					</div>
+
+					<div ng-view></div>
+
+				</article>
+				<article class="tab-pane" id="about">
+					<div class="page-header">
+						<h1>About</h1>
+					</div>
+					<h2>Project</h2>
+					<p>
+						The Supervisor is a small web service to supervise web services,
+						mainly standardized OGC web services. Details can be found in the
+						52&deg;North Wiki: <a
+							href="https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor"
+							title="Supervisor @ 52°North Wiki">https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor</a>.
+					</p>
+					<p>
+						The project is open source and on GitHub: <a
+							href="https://github.com/52North/Supervisor/"
+							title="Supervisor @ GitHub">https://github.com/52North/Supervisor/</a>
+					</p>
+					<h2>API</h2>
+					<p>
+						Endpoint: <a href="api/">api/</a>
+					</p>
+					<p>The API contains two resources, one for checks and one for check results.</p>
+				</article>
+			</section>
+		</div>
+
+	</div>
+
+	<div id="footer">
+		<div class="container">
+			<p class="text-muted credit">
+				52&deg; North Supervisor | More information: <a
+					href="https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor"
+					title="Supervisor @ 52&deg;North Wiki">52&deg;North Wiki:
+					Supervisor</a> | Build: #${build-commit-abbrev}
+			</p>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$(document).ready(
+				function() {
+					$('#btReload').click(function() {
+						location.reload(true);
+					});
+					
+					$('#btClear').click(function() {
+						//alert("Handler for .click() called.");
+						$.ajax({
+							dataType : "text",
+							type     : "put",
+							url      : window.location.pathname +
+							           "api/v1/results/clear",
+							success : function(data) {
+								console.log(data);
+								location.reload(true);
+							}
+						});
+					});
+
+					$("#btRunNow").click(function() {
+						// alert("Handler for .click() called.");
+						$.ajax({
+							dataType : "text",
+							type : "put",
+							url : window.location.pathname
+									+ "api/v1/checks/run?all=true",
+							success : function(data) {
+								console.log(data);
+								// $("#settingMaxResults").html(data.maxResults);
+								location.reload(true);
+							}
+						});
+					});
+
+					// fill settings
+					$.ajax({
+						dataType : "json",
+						url : window.location.pathname
+								+ "api/v1/settings/maxResults",
+						success : function(data) {
+							console.log(data);
+							$("#settingMaxResults").html(data.maxResults);
+						}
+					});
+					$.ajax({
+						dataType : "json",
+						url : window.location.pathname
+								+ "api/v1/settings/pageRefreshSecs",
+						success : function(data) {
+							console.log(data);
+							$("#settingPageRefreshSecs").html(
+									data.pageRefreshSecs);
+							setInterval('refreshPage()',
+									data.pageRefreshSecs * 1000); // MILLISECONDS
+						}
+					});
+
+				});
+
+		function refreshPage() {
+			location.reload();
+		}
+	</script>
+</body>
+</html>
