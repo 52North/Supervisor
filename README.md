@@ -38,6 +38,22 @@ A check basically consists of two classes. The actual ``Check`` implementation c
 The ``CheckRunner`` is handed this information and executes the check, so this class contains the actual check and notification logic and stores the results of checks during it's lifetime. The runner is controlled by a ``CheckTask``, an executable class that can be run manually or at a time interval.
 The ``CheckTask`` executes the methods of the runner in the required order: ``check()`` and then depending on the result ``notifySuccess()`` or ``notifyFailure()``.
 
+### Important Interfaces
+
+**IServiceChecker**: The main interface, which is eventually wrapped in a task that is scheduled. It contains all information and logic to run a specific check (like execution interval) on a service and the respective actions to take in successful or unsuccessful cases. It provides a template for the generic check procedure, which is (i) =check()=, and (ii) depending of the outcome either =notifyFailure()= or =notifySuccess()=. *Implementing classes:*
+
+<img alt="OwsSupervisor-classes.png" src="https://wiki.52north.org/pub/SensorWeb/OwsSupervisor/OwsSupervisor-classes.png" />
+
+A **CheckerCollection** can consolidate several checkers. This is currently not available via configuration file settings.
+
+*ICheckResult**: The outcome of a check, which has an identifier, a certain type (positive or negative), and a textual description. This result can be used to generate different notification outputs (!HTML page, email, !SMS).
+
+**ICheckerFactory**: A factory interface to be used for compiled checks with =CHECK_CLASSES=, see above. Implement this interface if the existing checkers do not suffice for your needs.
+
+**IJobScheduler**: Wraps the whole tasking component. The task management and execution is done in an extra servlet, =Timer=. It provides an implementation of !IJobScheduler which provides methods for submitting and cancelling an object of class !IServiceChecker.
+
+
+
 ## License
 
 Supervisor is published under The Apache Software License, Version 2.0.
