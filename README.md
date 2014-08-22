@@ -4,8 +4,6 @@ Build status: [![Build Status](https://travis-ci.org/52North/Supervisor.png)](ht
 
 Website: https://wiki.52north.org/bin/view/Sensornet/OwsSupervisor
 
-See https://wiki.52north.org/bin/view/SensorWeb/OwsSupervisor
-
 ## About
 
 The Supervisor is a Java server application with a simple user interface and API to supervise the state of web services. Originally focussing on standardized OGC services, the Supervisor is now a tool to support maintainers of web services to get a quick overview of the current state of the deployments.
