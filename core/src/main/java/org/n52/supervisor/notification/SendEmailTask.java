@@ -32,7 +32,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.api.Notification;
@@ -196,10 +195,9 @@ public class SendEmailTask {
             boolean noError = doTask(notifications);
 
             // all went ok, clear notifications
-            if (noError)
-                SupervisorInit.removeAllNotifications(notifications);
-            else
-                log.error("** Error sending emails.");
+            if (!noError) {
+            	log.error("** Error sending emails.");
+            }
         }
         catch (Error e) {
             log.error("Error fulfilling SendEmailTask");

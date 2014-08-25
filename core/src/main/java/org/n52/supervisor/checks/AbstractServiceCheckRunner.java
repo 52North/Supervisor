@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckResult;
@@ -134,7 +133,6 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
 			}
 
             final Notification n = new EmailNotification(check, failures);
-            SupervisorInit.appendNotification(n);
             SendEmailTask set = new SendEmailTask(
             		SupervisorProperties.instance().getAdminEmail(), rd);
             set.addNotification(n);
