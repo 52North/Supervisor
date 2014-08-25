@@ -31,12 +31,13 @@ public class TaskModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(TaskServlet.class);
+        bind(TaskExecutor.class).to(ThreadPoolTaskExecutor.class);
         bind(Scheduler.class).to(JobSchedulerImpl.class);
 
         install(new FactoryModuleBuilder().implement(CheckTask.class, CheckTaskImpl.class).build(CheckTaskFactory.class));
 
         log.info("Configured {}", this);
+        
     }
 
 }

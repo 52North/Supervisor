@@ -27,8 +27,6 @@ public interface Scheduler {
     /**
      * Cancels the task with the given identifier.
      * 
-     * See {@link java.util.TimerTask#cancel()} for details.
-     * 
      * @param identifier
      */
     public abstract void cancel(String identifier);

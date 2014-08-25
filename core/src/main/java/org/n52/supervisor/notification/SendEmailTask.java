@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.TimerTask;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -49,7 +48,7 @@ import com.google.inject.name.Named;
  * @author Daniel Nüst
  * 
  */
-public class SendEmailTask extends TimerTask {
+public class SendEmailTask {
 
     @Inject
     private SupervisorProperties properties;
@@ -186,8 +185,7 @@ public class SendEmailTask extends TimerTask {
         return noError;
     }
 
-    @Override
-    public void run() {
+    public void execute() {
         if (notifications.size() < 1) {
             log.info("** No notifications, skipping to send emails.");
             return;

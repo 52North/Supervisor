@@ -16,12 +16,9 @@
 
 package org.n52.supervisor.tasks;
 
-import java.util.TimerTask;
 
 import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.CheckRunner;
-import org.n52.supervisor.api.CheckTask;
-import org.n52.supervisor.api.CheckTaskFactory;
 import org.n52.supervisor.api.Scheduler;
 import org.n52.supervisor.id.IdentifierGenerator;
 import org.slf4j.Logger;
@@ -31,7 +28,7 @@ import com.google.inject.Inject;
 
 /**
  * 
- * Class encapsulates a {@link TaskServlet} where tasks are forwared to.
+ * Class encapsulates a {@link ThreadPoolTaskExecutor} where tasks are forwared to.
  * 
  * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
  * 
@@ -42,18 +39,16 @@ public class JobSchedulerImpl implements Scheduler {
 
     private static Logger log = LoggerFactory.getLogger(JobSchedulerImpl.class);
 
-    private TaskServlet timerServlet;
+    private TaskExecutor taskExecutor;
 
     private IdentifierGenerator idGen;
 
-    @Inject
-    private CheckTaskFactory taskFactory;
 
 	private SupervisorProperties sp;
 
     @Inject
-    protected JobSchedulerImpl(TaskServlet timer, IdentifierGenerator idGen, SupervisorProperties sp) {
-        this.timerServlet = timer;
+    protected JobSchedulerImpl(TaskExecutor te, IdentifierGenerator idGen, SupervisorProperties sp) {
+        this.taskExecutor = te;
         this.idGen = idGen;
         this.sp = sp;
         log.info("NEW " + this);
@@ -64,7 +59,7 @@ public class JobSchedulerImpl implements Scheduler {
         if (log.isDebugEnabled()) {
             log.debug("Cancelling Task: " + identifier + ".");
         }
-        this.timerServlet.cancel(identifier);
+        this.taskExecutor.cancel(identifier);
     }
 
     @Override
@@ -77,26 +72,29 @@ public class JobSchedulerImpl implements Scheduler {
         log.debug("Added checker {} with delay {}", checker, delay);
 
         String id = "task_" + this.idGen.generate();
-        CheckTask t = this.taskFactory.create(checker);
+        
         long intervalSec = checker.getCheck().getIntervalSeconds();
         
         if (intervalSec == 0) {
         	intervalSec = this.sp.getDefaultCheckIntervalSeconds();
         }
         
-        submit(id, t, delay, intervalSec * 1000);
+        submit(id, checker, delay, intervalSec * 1000);
 
         return id;
     }
 
-    private void submit(String identifier, CheckTask task, long delay, long period) {
+    private void submit(String identifier, CheckRunner task, long delay, long period) {
         log.debug("Scheduling Task: {} for execution now, and with period of {} ms after a delay of {} ms.",
                   task,
                   period,
                   delay);
 
-        TimerTask t = (TimerTask) task;
-        this.timerServlet.submit(identifier, t, delay, period);
+        try {
+			this.taskExecutor.submit(identifier, task, delay, period);
+		} catch (TaskExecutorException e) {
+			log.warn(e.getMessage(), e);
+		}
     }
 
     @Override
@@ -105,7 +103,7 @@ public class JobSchedulerImpl implements Scheduler {
         sb.append("JobSchedulerImpl [default delay (msecs) (ALWAYS applied!)=");
         sb.append(DEFAULT_DELAY_MILLISECS);
         sb.append(", internal task handler: ");
-        sb.append(this.timerServlet);
+        sb.append(this.taskExecutor);
         sb.append("]");
         return sb.toString();
     }

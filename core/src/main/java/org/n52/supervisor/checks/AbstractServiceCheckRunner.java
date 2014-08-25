@@ -128,7 +128,7 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
             SendEmailTask set = new SendEmailTask(
             		SupervisorProperties.instance().getAdminEmail(), rd);
             set.addNotification(n);
-            set.run();
+            set.execute();
         }
     }
 
