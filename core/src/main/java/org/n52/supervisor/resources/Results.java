@@ -17,6 +17,9 @@ package org.n52.supervisor.resources;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -117,6 +120,34 @@ public class Results {
         if (checkId != null) {
             results = filterResultsWithCheckId(results, checkId);
         }
+        
+        Collections.sort(results, Collections.reverseOrder(new Comparator<CheckResult>() {
+
+			@Override
+			public int compare(CheckResult o1, CheckResult o2) {
+				Date t1 = o1.getCheckTime();
+				Date t2 = o2.getCheckTime();
+				
+				if (t1 == null && t2 == null) {
+					return 0;
+				}
+				if (t1 == null) {
+					return -1;
+				}
+				if (t2 == null) {
+					return 1;
+				}
+				
+				if (t1.equals(t2)) {
+					return 0;
+				}
+				
+				boolean b = t1.before(t2);
+				
+				return b ? -1 : 1;
+			}
+		}));
+        
         final JSONObject result = new JSONObject();
         final JSONArray jsonResults = new JSONArray();
         result.put("results", jsonResults);

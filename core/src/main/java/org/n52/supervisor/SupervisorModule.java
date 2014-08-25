@@ -47,10 +47,10 @@ public class SupervisorModule extends JerseyServletModule {
         bindConstant().annotatedWith(Names.named("service.baseurl")).to("http://localhost:8080/Supervisor");
 
         // TODO make task servlet injectable and remove servlet context
-        // TaskServlet timerServlet = (TaskServlet)
-        // getServletContext().getAttribute(TaskServlet.NAME_IN_CONTEXT);
+        // ThreadPoolTaskExecutor timerServlet = (ThreadPoolTaskExecutor)
+        // getServletContext().getAttribute(ThreadPoolTaskExecutor.NAME_IN_CONTEXT);
         // if (timerServlet != null)
-        // bind(TaskServlet.class).toInstance(timerServlet);
+        // bind(ThreadPoolTaskExecutor.class).toInstance(timerServlet);
 
         // else
         // log.error("TimerServlet instance is null!");

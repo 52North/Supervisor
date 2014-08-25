@@ -13,38 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.n52.supervisor.tasks;
 
-package org.n52.supervisor.api;
+import org.quartz.SchedulerException;
+
+public class TaskExecutorException extends Exception {
 
 
-/**
- * 
- * @author Daniel Nüst (daniel.nuest@uni-muenster.de)
- * 
- */
-public interface Scheduler {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Cancels the task with the given identifier.
-     * 
-     * @param identifier
-     */
-    public abstract void cancel(String identifier);
+	public TaskExecutorException(String string) {
+		super(string);
+	}
 
-    /**
-     * 
-     * @param checker
-     * @return the id
-     */
-    public abstract String submit(CheckRunner checker);
-
-    /**
-     * 
-     * @param checker
-     * @param delay
-     *        delay in milliseconds after which the task is executed the first time
-     * @return
-     */
-    public abstract String submit(CheckRunner checker, long delay);
-
+	public TaskExecutorException(SchedulerException e) {
+		super(e);
+	}
+	
 }

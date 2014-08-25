@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.TimerTask;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -33,7 +32,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.n52.supervisor.SupervisorInit;
 import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.api.Notification;
@@ -49,7 +47,7 @@ import com.google.inject.name.Named;
  * @author Daniel Nüst
  * 
  */
-public class SendEmailTask extends TimerTask {
+public class SendEmailTask {
 
     @Inject
     private SupervisorProperties properties;
@@ -186,8 +184,7 @@ public class SendEmailTask extends TimerTask {
         return noError;
     }
 
-    @Override
-    public void run() {
+    public void execute() {
         if (notifications.size() < 1) {
             log.info("** No notifications, skipping to send emails.");
             return;
@@ -198,10 +195,9 @@ public class SendEmailTask extends TimerTask {
             boolean noError = doTask(notifications);
 
             // all went ok, clear notifications
-            if (noError)
-                SupervisorInit.removeAllNotifications(notifications);
-            else
-                log.error("** Error sending emails.");
+            if (!noError) {
+            	log.error("** Error sending emails.");
+            }
         }
         catch (Error e) {
             log.error("Error fulfilling SendEmailTask");

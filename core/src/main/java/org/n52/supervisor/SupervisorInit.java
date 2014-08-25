@@ -20,16 +20,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.PreDestroy;
 
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckRunner;
-import org.n52.supervisor.api.Notification;
 import org.n52.supervisor.api.Scheduler;
 import org.n52.supervisor.db.CheckDatabase;
 import org.n52.supervisor.db.ResultDatabase;
@@ -95,24 +92,9 @@ public class SupervisorInit {
 
     private static Logger log = LoggerFactory.getLogger(SupervisorInit.class);
 
-    private static Queue<Notification> notifications;
-
     private static final String COMMENT_PREFIX = "#";
 
     public static final String NAME_IN_CONTEXT = "Supervisor";
-
-    public static void appendNotification(Notification notification) {
-        notifications.add(notification);
-    }
-
-    public static void clearNotifications() {
-        log.info("Clearing notifications!");
-        notifications.clear();
-    }
-
-    public static synchronized boolean removeAllNotifications(Collection<Notification> c) {
-        return notifications.removeAll(c);
-    }
 
     private Scheduler scheduler;
 
@@ -154,16 +136,10 @@ public class SupervisorInit {
         log.info(" ***** NEW {} *****", this);
     }
 
-    public Collection<Notification> getCurrentNotificationsCopy() {
-        return new ArrayList<Notification>(notifications);
-    }
-
     public void init(String basepath) {
         log.debug("InitializING {} ...", this);
 
         try {
-            notifications = new LinkedBlockingQueue<Notification>();
-
 
             // initialize checkers
             db.addAll(loadCheckers());// SWSL.checkers;
@@ -314,8 +290,5 @@ public class SupervisorInit {
 
         this.db.close();
         this.rd.close();
-        notifications.clear();
-        notifications = null;
     }
-
 }

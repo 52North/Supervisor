@@ -19,7 +19,7 @@ package org.n52.supervisor.checks.util;
 import java.util.Collection;
 import java.util.Date;
 
-import org.n52.supervisor.SupervisorInit;
+import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.api.Notification;
@@ -28,6 +28,7 @@ import org.n52.supervisor.api.CheckResult.ResultType;
 import org.n52.supervisor.checks.AbstractServiceCheckRunner;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.notification.EmailNotification;
+import org.n52.supervisor.notification.SendEmailTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,10 +96,11 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
         if (check.getNotificationEmail() == null) {
 			log.error("Can not notify via email, is null!");
 		} else {
-            final Notification noti = new EmailNotification(check, results);
-            // append for email notification to queue
-            SupervisorInit.appendNotification(noti);
-
+            final Notification n = new EmailNotification(check, results);
+            SendEmailTask set = new SendEmailTask(
+            		SupervisorProperties.instance().getAdminEmail(), rd);
+            set.addNotification(n);
+            set.execute();
             log.debug("Submitted email with {} successes.", results.size());
         }
 

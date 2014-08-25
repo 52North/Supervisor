@@ -56,7 +56,9 @@ public class ResultDatabase {
     }
 
     public void appendResult(final CheckResult result) {
-        latestResults.add(result);
+    	if (!latestResults.contains(result)) {
+    		latestResults.add(result);
+    	}
     }
 
     public void appendResults(final Collection<CheckResult> results) {

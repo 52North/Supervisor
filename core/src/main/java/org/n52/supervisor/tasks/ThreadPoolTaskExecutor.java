@@ -26,11 +26,9 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletException;
-import javax.servlet.UnavailableException;
-
-import org.n52.supervisor.db.ResultDatabase;
-import org.n52.supervisor.notification.SendEmailTask;
+import org.n52.supervisor.api.CheckRunner;
+import org.n52.supervisor.api.CheckTask;
+import org.n52.supervisor.api.CheckTaskFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +46,180 @@ import com.google.inject.Singleton;
  * 
  */
 @Singleton
-public class TaskServlet {
+public class ThreadPoolTaskExecutor implements TaskExecutor {
+
+
+    private static final String CHECK_THREAD_COUNT = "CHECK_THREAD_COUNT";
+
+    private ScheduledThreadPoolExecutor executor;
+
+    private static Logger log = LoggerFactory.getLogger(ThreadPoolTaskExecutor.class);
+
+    private static final String SEND_EMAILS = "supervisor.tasks.email.send";
+
+    private Properties props;
 
     /**
+     * List that holds all repeated task during run-time.
+     */
+    private ArrayList<TaskElement> tasks = new ArrayList<ThreadPoolTaskExecutor.TaskElement>();
+
+    private String configFile = "/supervisor.properties";
+
+    private CheckTaskFactory taskFactory;
+    
+    @Inject
+    public ThreadPoolTaskExecutor(CheckTaskFactory taskFactory) throws TaskExecutorException {
+        log.info("NEW {}", this);
+
+        this.taskFactory = taskFactory;
+        
+        init();
+    }
+
+    public void cancel(String identifier) {
+        for (TaskElement te : this.tasks) {
+            if (te.id.equals(identifier)) {
+                te.task.cancel();
+                log.info("CANCELED " + te);
+            }
+
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        log.info("Finalize {}", this);
+        executor.shutdownNow();
+        executor = null;
+        this.tasks.clear();
+        this.tasks = null;
+    }
+
+    public ArrayList<TaskElement> getTasks() {
+        return this.tasks;
+    }
+
+    public void init() throws TaskExecutorException {
+        log.info(" * Initializing Timer ... ");
+
+        // get configFile as Inputstream
+        InputStream configStream = ThreadPoolTaskExecutor.class.getResourceAsStream(configFile);
+        if (configStream == null) {
+            log.error("Could not open the config file " + configFile);
+            throw new TaskExecutorException("Could not open the config file.");
+        }
+
+        // TODO get properties via Guice
+        // load properties file
+        try {
+            this.props = loadProperties(configStream);
+        }
+        catch (IOException e) {
+            log.error("Could not load properties file!", e);
+            throw new TaskExecutorException("Could not load properties file!");
+        }
+
+        // init executor
+        int threadCount = Integer.parseInt(this.props.getProperty(CHECK_THREAD_COUNT));
+        executor = new ScheduledThreadPoolExecutor(threadCount);
+
+        boolean sendEmails = Boolean.parseBoolean(props.getProperty(SEND_EMAILS));
+
+        if (sendEmails) {
+        	/*
+        	 * disabled for the moment, does not work as expected
+        	 */
+            // add task for email notifications, with out without admin email
+//            String adminEmail = this.props.getProperty(EMAIL_ADMIN_EMAIL);
+//
+//            long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
+//            if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
+//                log.info("Found admin email address for send email task.");
+//                SendEmailTask set = new SendEmailTask(adminEmail, this.rd);
+//                submit(EMAIL_SENDER_TASK_ID, set, emailSendInterval, emailSendInterval);
+//            }
+        }
+        else
+            log.debug("Not sending emails, not starting email tasks.");
+
+        log.info(" ***** Timer initiated successfully! ***** ");
+    }
+
+    private Properties loadProperties(InputStream is) throws IOException {
+        Properties properties = new Properties();
+        properties.load(is);
+
+        return properties;
+    }
+
+    public void submit(String identifier, CheckRunner cr, long delay) throws TaskExecutorException {
+    	TimerTask task = createTimerTask(cr);
+    	
+        executor.schedule(task, delay, TimeUnit.MILLISECONDS);
+        if (log.isDebugEnabled()) {
+            log.debug("Submitted: " + task + " with delay = " + delay);
+        }
+
+        this.tasks.add(new TaskElement(identifier, task, delay, 0l));
+    }
+
+    private TimerTask createTimerTask(CheckRunner cr) throws TaskExecutorException {
+    	CheckTask t = this.taskFactory.create(cr);
+    	
+    	if (t instanceof TimerTask) {
+    		return (TimerTask) t;
+    	}
+
+    	throw new TaskExecutorException(
+    			String.format("Could not create TimerTask from CheckRunner %s", cr));
+	}
+
+	/**
+     * 
+     * " Finally, fixed-rate execution is appropriate for scheduling multiple repeating timer tasks that must
+     * remain synchronized with respect to one another." See
+     * {@link Timer#scheduleAtFixedRate(TimerTask, long, long)} for details.
+     * 
+     * @param task
+     * @param delay
+     * @param period
+	 * @throws TaskExecutorException 
+     */
+    public void submit(String identifier, CheckRunner cr, long delay, long period) throws TaskExecutorException {
+		if (executor == null)
+            log.error("Executor is NULL, cannot submit task with id {}: {}", identifier, cr);
+        else {
+        	TimerTask task = createTimerTask(cr);
+            executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
+
+            this.tasks.add(new TaskElement(identifier, task, delay, period));
+
+            log.debug("Submitted: {} with period = {}, delay = {}", task, period, delay);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ThreadPoolTaskExecutor [");
+        if (props != null) {
+            builder.append("props=");
+            builder.append(props);
+            builder.append(", ");
+        }
+        if (tasks != null) {
+            builder.append("tasks=");
+            builder.append(tasks);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
+	 /**
      * Inner class to handle storage and cancelling of tasks at runtime.
      */
-    private class TaskElement {
+    public class TaskElement {
         protected Date date;
         protected long delay;
         protected String id;
@@ -90,162 +256,4 @@ public class TaskServlet {
             return sb.toString();
         }
     }
-
-    private static final String CHECK_THREAD_COUNT = "CHECK_THREAD_COUNT";
-
-    private static final String EMAIL_SENDER_TASK_ID = "EmailSenderTask";
-
-    private ScheduledThreadPoolExecutor executor;
-
-    private static Logger log = LoggerFactory.getLogger(TaskServlet.class);
-
-    private static final String EMAIL_SEND_PERIOD_MINDS = "supervisor.tasks.email.sendPeriodMins";
-
-    private static final String EMAIL_ADMIN_EMAIL = "supervisor.admin.email";
-
-    private static final String SEND_EMAILS = "supervisor.tasks.email.send";
-
-    private Properties props;
-
-    /**
-     * List that holds all repeated task during run-time.
-     */
-    private ArrayList<TaskElement> tasks = new ArrayList<TaskServlet.TaskElement>();
-
-    private ResultDatabase rd;
-
-    private String configFile = "/supervisor.properties";
-
-    @Inject
-    public TaskServlet(ResultDatabase rd) throws ServletException {
-        this.rd = rd;
-        log.info("NEW {}", this);
-
-        init();
-    }
-
-    public void cancel(String identifier) {
-        for (TaskElement te : this.tasks) {
-            if (te.id.equals(identifier)) {
-                te.task.cancel();
-                log.info("CANCELED " + te);
-            }
-
-        }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        log.info("Finalize {}", this);
-        executor.shutdownNow();
-        executor = null;
-        this.tasks.clear();
-        this.tasks = null;
-    }
-
-    public ArrayList<TaskElement> getTasks() {
-        return this.tasks;
-    }
-
-    public void init() throws ServletException {
-        log.info(" * Initializing Timer ... ");
-
-        // get configFile as Inputstream
-        InputStream configStream = TaskServlet.class.getResourceAsStream(configFile);
-        if (configStream == null) {
-            log.error("Could not open the config file " + configFile);
-            throw new UnavailableException("Could not open the config file.");
-        }
-
-        // TODO get properties via Guice
-        // load properties file
-        try {
-            this.props = loadProperties(configStream);
-        }
-        catch (IOException e) {
-            log.error("Could not load properties file!", e);
-            throw new UnavailableException("Could not load properties file!");
-        }
-
-        // init executor
-        int threadCount = Integer.parseInt(this.props.getProperty(CHECK_THREAD_COUNT));
-        executor = new ScheduledThreadPoolExecutor(threadCount);
-
-        boolean sendEmails = Boolean.parseBoolean(props.getProperty(SEND_EMAILS));
-
-        if (sendEmails) {
-        	/*
-        	 * disabled for the moment, does not work as expected
-        	 */
-            // add task for email notifications, with out without admin email
-//            String adminEmail = this.props.getProperty(EMAIL_ADMIN_EMAIL);
-//
-//            long emailSendInterval = Long.valueOf(this.props.getProperty(EMAIL_SEND_PERIOD_MINDS));
-//            if ( !adminEmail.contains("@ADMIN_EMAIL@")) {
-//                log.info("Found admin email address for send email task.");
-//                SendEmailTask set = new SendEmailTask(adminEmail, this.rd);
-//                submit(EMAIL_SENDER_TASK_ID, set, emailSendInterval, emailSendInterval);
-//            }
-        }
-        else
-            log.debug("Not sending emails, not starting email tasks.");
-
-        log.info(" ***** Timer initiated successfully! ***** ");
-    }
-
-    private Properties loadProperties(InputStream is) throws IOException {
-        Properties properties = new Properties();
-        properties.load(is);
-
-        return properties;
-    }
-
-    public void submit(String identifier, TimerTask task, long delay) {
-        executor.schedule(task, delay, TimeUnit.MILLISECONDS);
-        if (log.isDebugEnabled()) {
-            log.debug("Submitted: " + task + " with delay = " + delay);
-        }
-
-        this.tasks.add(new TaskElement(identifier, task, delay, 0l));
-    }
-
-    /**
-     * 
-     * " Finally, fixed-rate execution is appropriate for scheduling multiple repeating timer tasks that must
-     * remain synchronized with respect to one another." See
-     * {@link Timer#scheduleAtFixedRate(TimerTask, long, long)} for details.
-     * 
-     * @param task
-     * @param delay
-     * @param period
-     */
-    public void submit(String identifier, TimerTask task, long delay, long period) {
-        if (executor == null)
-            log.error("Executor is NULL, cannot submit task with id {}: {}", identifier, task);
-        else {
-            executor.scheduleAtFixedRate(task, delay, period, TimeUnit.MILLISECONDS);
-
-            this.tasks.add(new TaskElement(identifier, task, delay, period));
-
-            log.debug("Submitted: {} with period = {}, delay = {}", task, period, delay);
-        }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("TaskServlet [");
-        if (props != null) {
-            builder.append("props=");
-            builder.append(props);
-            builder.append(", ");
-        }
-        if (tasks != null) {
-            builder.append("tasks=");
-            builder.append(tasks);
-        }
-        builder.append("]");
-        return builder.toString();
-    }
-
 }
