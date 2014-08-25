@@ -94,11 +94,25 @@ public class CheckCollectionRunner implements CheckRunner {
 
     @Override
     public Collection<CheckResult> getResults() {
+        return getResults(false);
+    }
+    
+    private Collection<CheckResult> getResults(boolean clear) {
         ArrayList<CheckResult> results = new ArrayList<CheckResult>();
         for (CheckRunner c : this.checks.keys()) {
-            results.addAll(c.getResults());
+        	if (clear) {
+        		results.addAll(c.getAndClearResults());
+        	}
+        	else {
+        		results.addAll(c.getResults());
+        	}
         }
         return results;
+    }
+    
+    @Override
+    public Collection<CheckResult> getAndClearResults() {
+        return getResults(true);
     }
 
     @Override

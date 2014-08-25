@@ -86,6 +86,11 @@ public class HeapCheckRunner implements CheckRunner {
         l.add(result);
         return l;
     }
+    
+    @Override
+    public Collection<CheckResult> getAndClearResults() {
+    	return getResults();
+    }
 
     @Override
     public void notifyFailure() {

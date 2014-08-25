@@ -61,12 +61,12 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
     }
 
     @Override
-    public void addResult(final CheckResult result) {
+    public synchronized void addResult(final CheckResult result) {
         results.add(result);
         log.debug("Result added: " + result);
     }
 
-    public void clearResults() {
+    public synchronized void clearResults() {
     	log.debug("Clearing {} results",results.size());
         results.clear();
     }
@@ -101,8 +101,15 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
     }
 
     @Override
-    public Collection<CheckResult> getResults() {
+    public synchronized Collection<CheckResult> getResults() {
         return results;
+    }
+    
+    @Override
+    public synchronized Collection<CheckResult> getAndClearResults() {
+    	List<CheckResult> copy = new ArrayList<CheckResult>(this.results);
+    	results.clear();
+    	return copy;
     }
 
     @Override
@@ -117,11 +124,14 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
             log.error("Can not notify via email, is null!");
         } else {
             final Collection<CheckResult> failures = new ArrayList<CheckResult>();
-            for (final CheckResult r : results) {
-                if (r.getType().equals(CheckResult.ResultType.NEGATIVE)) {
-					failures.add(r);
-				}
-            }
+            
+            synchronized (this) {
+            	for (final CheckResult r : results) {
+                    if (r.getType().equals(CheckResult.ResultType.NEGATIVE)) {
+    					failures.add(r);
+    				}
+                }	
+			}
 
             final Notification n = new EmailNotification(check, failures);
             SupervisorInit.appendNotification(n);

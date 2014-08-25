@@ -37,6 +37,8 @@ public interface CheckRunner {
     public Check getCheck();
 
     public Collection<CheckResult> getResults();
+    
+    public Collection<CheckResult> getAndClearResults();
 
     public void notifyFailure();
 

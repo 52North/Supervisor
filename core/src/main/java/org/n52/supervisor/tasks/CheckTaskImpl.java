@@ -62,12 +62,14 @@ public class CheckTaskImpl extends TimerTask implements CheckTask {
     @Override
     public Collection<CheckResult> checkIt(CheckRunner c) {
         boolean b = c.check();
-        if ( !b)
-            c.notifyFailure();
-        else
-            c.notifySuccess();
+        if ( !b) {
+        	c.notifyFailure();
+        }
+        else {
+        	c.notifySuccess();
+        }
 
-        return c.getResults();
+        return c.getAndClearResults();
     }
 
     @Override
