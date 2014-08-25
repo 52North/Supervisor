@@ -1,4 +1,4 @@
-Copyright (C) 2013 52°North Initiative for Geospatial Open Source Software GmbH
+Copyright (C) 2013 - 2014 52°North Initiative for Geospatial Open Source Software GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@ limitations under the License.
 This project includes:
   AOP alliance under Public Domain
   ASM Core under BSD 3-Clause License
+  c3p0:JDBC DataSources/Resource Pools under GNU LESSER GENERAL PUBLIC LICENSE
   Collections under The Apache Software License, Version 2.0
   Commons Codec under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
   Commons Logging under The Apache Software License, Version 2.0
+  core under The Apache Software License, Version 2.0
   Data Mapper for Jackson under The Apache Software License, Version 2.0
   Google Guice - Core Library under The Apache Software License, Version 2.0
   Google Guice - Extensions - AssistedInject under The Apache Software License, Version 2.0
+  Google Guice - Extensions - MultiBindings under The Apache Software License, Version 2.0
   Google Guice - Extensions - Servlet under The Apache Software License, Version 2.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
   Hamcrest All under New BSD License
@@ -44,38 +47,42 @@ This project includes:
   jersey-servlet under CDDL 1.1 or GPL2 w/ CPE
   Jettison under The Apache Software License, Version 2.0
   Joda time under Apache 2
+  json under The Apache Software License, Version 2.0
   JSON (JavaScript Object Notation) under provided without support or warranty
   JSONassert under The Apache Software License, Version 2.0
   jsr311-api under CDDL License
   JUnit under Common Public License Version 1.0
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
-  OASIS WS-N specification schemas - including WS-BrokeredNotification (v1.3) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OASIS WS-Resources specification schemas v1.2 under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC Filter schema (spec. v2.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC GML schema (spec. v3.1.1) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC GML schema (spec. v3.2.1) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC O&M schema (spec. v1.0.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC O&M schema (spec. v2.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC OWS schema (spec. v1.0.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC OWS schema (spec. v1.1.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SensorML schema (spec. v1.0.1) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SIR schema 0.3.2 (OGC Discussion Paper 10-171) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SOR schema 0.3.1 (OGC Discussion Paper 09-112r1) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SOS schema (spec. v1.0.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SOS schema (spec. v2.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SPS schema (spec. v1.0.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SWECommon schema (spec. v1.0.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SWECommon schema (spec. v1.0.1) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SWECommon schema (spec. v2.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC SWES schema (spec. v2.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  OGC WPS schema (spec. v1.0.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+  OASIS WS-N specification schemas - including WS-BrokeredNotification (v1.3) under The Apache Software License, Version 2.0
+  OASIS WS-Resources specification schemas v1.2 under The Apache Software License, Version 2.0
+  OGC Filter schema (spec. v2.0) under The Apache Software License, Version 2.0
+  OGC GML schema (spec. v3.1.1) under The Apache Software License, Version 2.0
+  OGC GML schema (spec. v3.2.1) under The Apache Software License, Version 2.0
+  OGC O&M schema (spec. v1.0.0) under The Apache Software License, Version 2.0
+  OGC O&M schema (spec. v2.0) under The Apache Software License, Version 2.0
+  OGC OWS schema (spec. v1.0.0) under The Apache Software License, Version 2.0
+  OGC OWS schema (spec. v1.1.0) under The Apache Software License, Version 2.0
+  OGC SensorML schema (spec. v1.0.1) under The Apache Software License, Version 2.0
+  OGC SIR schema 0.3.2 (OGC Discussion Paper 10-171) under The Apache Software License, Version 2.0
+  OGC SOR schema 0.3.1 (OGC Discussion Paper 09-112r1) under The Apache Software License, Version 2.0
+  OGC SOS schema (spec. v1.0.0) under The Apache Software License, Version 2.0
+  OGC SOS schema (spec. v2.0) under The Apache Software License, Version 2.0
+  OGC SPS schema (spec. v1.0.0) under The Apache Software License, Version 2.0
+  OGC SWECommon schema (spec. v1.0.0) under The Apache Software License, Version 2.0
+  OGC SWECommon schema (spec. v1.0.1) under The Apache Software License, Version 2.0
+  OGC SWECommon schema (spec. v2.0) under The Apache Software License, Version 2.0
+  OGC SWES schema (spec. v2.0) under The Apache Software License, Version 2.0
+  OGC WPS schema (spec. v1.0.0) under The Apache Software License, Version 2.0
+  ows under The Apache Software License, Version 2.0
+  quartz under The Apache Software License, Version 2.0
   servlet-api under CDDL 1.1 or GPL2 w/ CPE
   SLF4J API Module under MIT License
   Streaming API for XML under GNU General Public Library or COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
   Supervisor under The Apache Software License, Version 2.0
-  W3C WS-Addressing specification schemas (v1.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
-  W3C xlink schema (spec. v1.1.0) under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+  W3C WS-Addressing specification schemas (v1.0) under The Apache Software License, Version 2.0
+  W3C xlink schema (spec. v1.1.0) under The Apache Software License, Version 2.0
+  webapp under The Apache Software License, Version 2.0
   Xml Compatibility extensions for Jackson under The Apache Software License, Version 2.0 or GNU Lesser General Public License (LGPL), Version 2.1
   XmlBeans under The Apache Software License, Version 2.0
 
