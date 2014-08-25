@@ -110,7 +110,7 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 				Map<?, ?> aggregationJson = executeGetAndParseJson(ecCheck.aggregationTrackUrl);
 				
 				Set<String> apiTrackSet = resolveTrackSet(trackJson);
-				Set<String> aggregationTrackSet = resolveAggergationSet(aggregationJson);
+				Set<String> aggregationTrackSet = resolveAggregationSet(aggregationJson);
 				
 				for (String string : aggregationTrackSet) {
 					apiTrackSet.remove(string);
@@ -144,7 +144,7 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 		}
 
 		@SuppressWarnings("unchecked")
-		private Set<String> resolveAggergationSet(Map<?, ?> aggregationJson) {
+		private Set<String> resolveAggregationSet(Map<?, ?> aggregationJson) {
 			Set<String> result = new HashSet<>();
 			
 			List<Map<?, ?>> idList = (List<Map<?, ?>>) aggregationJson.get("tracks");
