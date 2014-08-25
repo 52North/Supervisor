@@ -80,7 +80,6 @@ public class QuartzTaskExecutor implements TaskExecutor {
 			builder = builder.startNow();
 		}
 		
-		period = 10000;
 		if (period != 0) {
 			builder.withSchedule(
 					SimpleScheduleBuilder.simpleSchedule()
