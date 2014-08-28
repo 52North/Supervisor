@@ -22,14 +22,13 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.PreDestroy;
-
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckRunner;
 import org.n52.supervisor.api.Scheduler;
 import org.n52.supervisor.db.CheckDatabase;
 import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.id.IdentifierGenerator;
+import org.nnsoft.guice.lifegycle.Dispose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,10 +282,10 @@ public class SupervisorInit {
         return checks;
     }
 
-    @PreDestroy
-    protected void shutdown() throws Throwable {
+    @Dispose
+    public void shutdown() throws Throwable {
         log.info("SHUTDOWN called...");
-
+        this.scheduler.shutdown();
         this.db.close();
         this.rd.close();
     }

@@ -21,9 +21,13 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.Executors;
 
+import javax.servlet.ServletContextEvent;
+
 import org.n52.supervisor.db.StorageModule;
 import org.n52.supervisor.id.IdentificationModule;
 import org.n52.supervisor.tasks.TaskModule;
+import org.nnsoft.guice.lifegycle.DisposeModule;
+import org.nnsoft.guice.lifegycle.Disposer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +59,15 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 
     }
 
+	private Injector injector;
+    
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    	super.contextDestroyed(servletContextEvent);
+    	
+    	injector.getInstance(Disposer.class).dispose();
+    }
+
     @Override
     protected Injector getInjector() {
     	List<AbstractModule> modules = new ArrayList<>();
@@ -65,6 +78,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
     	modules.add(new StorageModule());
     	modules.add(new SupervisorModule());
     	modules.add(new TaskModule());
+    	modules.add(new DisposeModule());
     	
     	try  {
     		ServiceLoader<AbstractModule> loader = ServiceLoader.load(AbstractModule.class);
@@ -82,7 +96,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
     		logger.warn(e.getMessage(), e);
     	}
     	
-        Injector injector = Guice.createInjector(modules);
+        injector = Guice.createInjector(modules);
 
         // FIXME remove the hack to create an instance!
         Executors.newSingleThreadExecutor().submit(new InitThread(injector));

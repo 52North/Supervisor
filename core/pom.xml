@@ -110,6 +110,11 @@
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-assistedinject</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.99soft.guice</groupId>
+			<artifactId>lifegycle</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
