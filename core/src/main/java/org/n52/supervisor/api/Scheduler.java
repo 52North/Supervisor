@@ -46,4 +46,9 @@ public interface Scheduler {
      */
     public abstract String submit(CheckRunner checker, long delay);
 
+	/**
+	 * an implementation should free all resources and stop threads
+	 */
+	public abstract void shutdown();
+
 }

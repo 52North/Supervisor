@@ -41,5 +41,10 @@ public interface TaskExecutor {
 	 * @param identifier
 	 */
 	void cancel(String identifier);
+
+	/**
+	 * an implementation shall shutdown and free all resources
+	 */
+	void shutdown();
 	
 }
