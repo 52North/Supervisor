@@ -116,6 +116,8 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 		}
         results.removeAll(toRemove);
         
+        this.lastNotificationTime = new Date();
+        
         if (check.getNotificationEmail() == null) {
 			log.error("Can not notify via email, is null!");
 		} else {
@@ -124,8 +126,6 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
             log.debug("Submitted email with {} successes.", results.size());
         }
 
-        this.lastNotificationTime = new Date();
-        
     }
 
     @Override
