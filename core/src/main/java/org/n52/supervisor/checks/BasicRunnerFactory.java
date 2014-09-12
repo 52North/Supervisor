@@ -21,8 +21,14 @@ import org.n52.supervisor.checks.util.HeapCheck;
 import org.n52.supervisor.checks.util.HeapCheckRunner;
 import org.n52.supervisor.checks.util.SelfCheck;
 import org.n52.supervisor.checks.util.SelfCheckRunner;
+import org.n52.supervisor.db.ResultDatabase;
+
+import com.google.inject.Inject;
 
 public class BasicRunnerFactory implements RunnerFactory {
+	
+	@Inject
+	private ResultDatabase rd;
 
 	@Override
 	public CheckRunner resolveRunner(Check check) {
@@ -37,6 +43,10 @@ public class BasicRunnerFactory implements RunnerFactory {
             r = new SelfCheckRunner(sc);
         }
         
+		if (r != null) {
+			r.setResultDatabase(rd);
+		}
+		
         return r;
 	}
 

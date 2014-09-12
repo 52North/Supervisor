@@ -15,19 +15,19 @@
  */
 package org.n52.supervisor.checks.util;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
-import org.n52.supervisor.SupervisorProperties;
 import org.n52.supervisor.api.Check;
 import org.n52.supervisor.api.CheckResult;
 import org.n52.supervisor.api.Notification;
 import org.n52.supervisor.api.UnsupportedCheckException;
 import org.n52.supervisor.api.CheckResult.ResultType;
 import org.n52.supervisor.checks.AbstractServiceCheckRunner;
-import org.n52.supervisor.db.ResultDatabase;
 import org.n52.supervisor.notification.EmailNotification;
-import org.n52.supervisor.notification.SendEmailTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 
     private static Logger log = LoggerFactory.getLogger(SelfCheckRunner.class);
 
-    private ResultDatabase rd;
+	private Date lastNotificationTime = new Date();
 
     public SelfCheckRunner(final SelfCheck check) {
         super(check);
@@ -81,31 +81,51 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
     @Override
     public void notifyFailure() {
         log.error("SelfChecker cannot fail!");
-        if (rd != null) {
-			rd.appendResults(getResults());
-		}
     }
 
     @Override
     public void notifySuccess() {
         log.debug("Check SUCCESSFUL: {}", this);
-
-        final Collection<CheckResult> results = getResults();
-
+        
+        List<CheckResult> results = new ArrayList<>(super.getLatestDatabaseResults());
+        
+        Collections.sort(results, new Comparator<CheckResult>() {
+			@Override
+			public int compare(CheckResult o1, CheckResult o2) {
+				if (o1 == null && o2 == null ) {
+					return 0;
+				}
+				
+				if (o1 == null) {
+					return -1;
+				}
+				
+				if (o2 == null) {
+					return 1;
+				}
+				
+				return o1.getCheckTime().compareTo(o2.getCheckTime());
+			}
+		});
+        
+        List<CheckResult> toRemove = new ArrayList<>();
+        for (CheckResult checkResult : results) {
+			if (checkResult.getCheckTime().before(this.lastNotificationTime)) {
+				toRemove.add(checkResult);
+			}
+		}
+        results.removeAll(toRemove);
+        
+        this.lastNotificationTime = new Date();
+        
         if (check.getNotificationEmail() == null) {
 			log.error("Can not notify via email, is null!");
 		} else {
             final Notification n = new EmailNotification(check, results);
-            SendEmailTask set = new SendEmailTask(
-            		SupervisorProperties.instance().getAdminEmail(), rd);
-            set.addNotification(n);
-            set.execute();
+            super.submitNotification(n);
             log.debug("Submitted email with {} successes.", results.size());
         }
 
-        if (rd != null) {
-			rd.appendResults(getResults());
-		}
     }
 
     @Override
@@ -118,9 +138,5 @@ public class SelfCheckRunner extends AbstractServiceCheckRunner {
 		}
     }
 
-    @Override
-    public void setResultDatabase(final ResultDatabase rd) {
-        this.rd = rd;
-    }
 
 }

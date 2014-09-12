@@ -15,6 +15,7 @@
  */
 package org.n52.supervisor.tasks.quartz;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.n52.supervisor.api.CheckResult;
@@ -41,15 +42,19 @@ public class QuartzRunner implements Job {
 	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-        if (!this.check.check()) {
+		boolean success = this.check.check();
+
+		Collection<CheckResult> currentResults = new ArrayList<>(check.getResults());
+		db.appendResults(currentResults);
+		
+        if (!success) {
         	this.check.notifyFailure();
         }
         else {
         	this.check.notifySuccess();
         }
-
-        Collection<CheckResult> currentResults = this.check.getAndClearResults();
-        this.db.appendResults(currentResults);
+        
+        this.check.getAndClearResults();
 
         log.info("*** Ran check, got {} results.", currentResults.size());
         

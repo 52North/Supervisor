@@ -255,4 +255,9 @@ public class ThreadPoolTaskExecutor implements TaskExecutor {
             return sb.toString();
         }
     }
+
+	@Override
+	public void shutdown() {
+		executor.shutdown();
+	}
 }

@@ -129,6 +129,15 @@ public class QuartzTaskExecutor implements TaskExecutor {
 			logger.warn("Error while removing job from quartz", e);
 		}
 	}
+	
+	@Override
+	public void shutdown() {
+		try {
+			this.quartz.shutdown();
+		} catch (SchedulerException e) {
+			logger.warn(e.getMessage(), e);
+		}
+	}
 
 	private static class LocalJobFactory implements JobFactory {
 

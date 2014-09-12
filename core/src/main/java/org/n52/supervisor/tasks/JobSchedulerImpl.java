@@ -106,4 +106,9 @@ public class JobSchedulerImpl implements Scheduler {
         sb.append("]");
         return sb.toString();
     }
+
+	@Override
+	public void shutdown() {
+		this.taskExecutor.shutdown();
+	}
 }

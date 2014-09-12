@@ -1,1 +1,2 @@
 org.n52.supervisor.checks.json.EnviroCarModule
+org.n52.supervisor.checks.json.SOECacheMetadataChecker$Module

@@ -1,12 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.n52.supervisor</groupId>
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 
 	<!-- http://semver.org/ -->
-	<version>0.3-SNAPSHOT</version>
+	<version>0.3</version>
 
 	<name>Supervisor</name>
 	<description>Web application for supervision of standardizd OGC Web Services</description>
@@ -276,6 +275,12 @@
 			</dependency>
 	
 			<dependency>
+				<groupId>org.99soft.guice</groupId>
+				<artifactId>lifegycle</artifactId>
+				<version>0.1</version>
+			</dependency>
+	
+			<dependency>
 				<groupId>com.sun.jersey</groupId>
 				<artifactId>jersey-server</artifactId>
 				<version>${jersey.version}</version>
@@ -435,7 +440,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>

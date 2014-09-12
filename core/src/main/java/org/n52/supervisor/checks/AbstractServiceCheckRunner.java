@@ -114,10 +114,6 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
     public void notifyFailure() {
         log.info("Check FAILED: {}", this);
 
-        if (rd != null) {
-			rd.appendResults(getResults());
-		}
-
         if (check.getNotificationEmail() == null) {
             log.error("Can not notify via email, is null!");
         } else {
@@ -132,20 +128,13 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
 			}
 
             final Notification n = new EmailNotification(check, failures);
-            SendEmailTask set = new SendEmailTask(
-            		SupervisorProperties.instance().getAdminEmail(), rd);
-            set.addNotification(n);
-            set.execute();
+            submitNotification(n);
         }
     }
 
     @Override
     public void notifySuccess() {
         log.info("Check SUCCESSFUL: {}", this);
-
-        if (rd != null) {
-			rd.appendResults(getResults());
-		}
     }
 
     protected boolean saveAndReturnNegativeResult(final String text) {
@@ -168,5 +157,16 @@ public abstract class AbstractServiceCheckRunner implements CheckRunner {
     public void setResultDatabase(final ResultDatabase rd) {
         this.rd = rd;
     }
+
+	public void submitNotification(Notification n) {
+		SendEmailTask set = new SendEmailTask(
+        		SupervisorProperties.instance().getAdminEmail(), rd);
+        set.addNotification(n);
+        set.execute();
+	}
+
+	public List<CheckResult> getLatestDatabaseResults() {
+		return rd.getLatestResults();
+	}
 
 }

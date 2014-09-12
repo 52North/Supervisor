@@ -16,10 +16,10 @@
 	
 	<appender name="supervisorfile"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${catalina.home}/logs/supervisor.log</file>
+		<file>${catalina.base:-.}/logs/supervisor.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>${catalina.home}/logs/supervisor.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${catalina.base:-.}/logs/supervisor.%d{yyyy-MM-dd}.log</fileNamePattern>
 			<!-- keep 14 days worth of history -->
 			<maxHistory>14</maxHistory>
 		</rollingPolicy>

@@ -46,8 +46,6 @@ public class HeapCheckRunner implements CheckRunner {
 
     private HeapCheck c;
 
-    private ResultDatabase rd;
-
     public HeapCheckRunner(final HeapCheck c) {
         this.c = c;
     }
@@ -95,9 +93,6 @@ public class HeapCheckRunner implements CheckRunner {
     public void notifyFailure() {
         log.error("HeapChecker should not fail!");
 
-        if (rd != null) {
-			rd.appendResults(getResults());
-		}
     }
 
     @Override
@@ -111,9 +106,6 @@ public class HeapCheckRunner implements CheckRunner {
         		new Date(),
         		CheckResult.ResultType.POSITIVE));
 
-        if (rd != null) {
-			rd.appendResults(getResults());
-		}
     }
 
     @Override
@@ -126,9 +118,10 @@ public class HeapCheckRunner implements CheckRunner {
 		}
     }
 
-    @Override
-    public void setResultDatabase(final ResultDatabase rd) {
-        this.rd = rd;
-    }
+	@Override
+	public void setResultDatabase(ResultDatabase rd) {
+		
+	}
+
 
 }
