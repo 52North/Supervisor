@@ -179,7 +179,7 @@ public class EnviroCarAggregationChecker extends JsonServiceCheck {
 		protected boolean aggregationHasTrack(String trackId, String aggregationTrackUrl) throws IOException {
 			HttpClient c;
 			try {
-				c = createClient();
+				c = ecCheck.createClient();
 			} catch (Exception e) {
 				throw new IOException(e);
 			}
