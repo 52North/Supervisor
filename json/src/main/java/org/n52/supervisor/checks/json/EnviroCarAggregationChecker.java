@@ -121,7 +121,20 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 					return true;
 				}
 				else {
-					addResult(createNegativeResult(createMissingString(apiTrackSet)));
+					Set<String> missing = new HashSet<>();
+					for (String string : apiTrackSet) {
+						if (!aggregationHasTrack(string, ecCheck.aggregationTrackUrl)) {
+							missing.add(string);
+						}
+					}
+					
+					if (missing.isEmpty()) {
+						addResult(createPositiveResult("No missing tracks in aggregation"));
+						return true;
+					}
+					else {
+						addResult(createNegativeResult(createMissingString(missing)));
+					}
 				}
 				
 			} catch (IOException e) {
@@ -189,6 +202,25 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 			
 			return null;
 		}
+		
+		protected boolean aggregationHasTrack(String trackId, String aggregationTrackUrl) throws IOException {
+			HttpClient c;
+			try {
+				c = createClient();
+			} catch (Exception e) {
+				throw new IOException(e);
+			}
+			HttpResponse resp = c.execute(new HttpGet(aggregationTrackUrl.concat("/").concat(trackId)));
+			
+			if (resp.getStatusLine() != null &&
+					resp.getStatusLine().getStatusCode() < HttpStatus.SC_MULTIPLE_CHOICES) {
+				ObjectMapper om = new ObjectMapper();
+				Map<?, ?> result = om.readValue(resp.getEntity().getContent(), Map.class);
+				return Boolean.valueOf(result.get("aggregated").toString());
+			}
+			
+			return false;
+		}
 
 		protected HttpClient createClient() throws Exception {
 			DefaultHttpClient result = new DefaultHttpClient();
@@ -211,5 +243,7 @@ public class EnviroCarAggregationChecker extends ServiceCheck {
 		
 		
 	}
+
+
 
 }
