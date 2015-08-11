@@ -232,6 +232,7 @@ public class SendEmailTask {
             
             message.setContent(messageText, EMAIL_CONTENT_ENCODING);
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+            message.setFrom(properties.getEmailSender());
             message.setSender(properties.getEmailSender());
 
             transport.connect();
