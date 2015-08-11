@@ -43,7 +43,6 @@ public class SupervisorModule extends JerseyServletModule {
     protected void configureServlets() {
         String basepath = getServletContext().getRealPath("/");
         bindConstant().annotatedWith(Names.named("context.basepath")).to(basepath);
-        bindConstant().annotatedWith(Names.named("service.baseurl")).to("http://localhost:8080/Supervisor");
 
         // TODO make task servlet injectable and remove servlet context
         // ThreadPoolTaskExecutor timerServlet = (ThreadPoolTaskExecutor)
