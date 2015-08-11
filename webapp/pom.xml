@@ -39,8 +39,8 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<admin.email.address>administrator@mydomain.com</admin.email.address>
-				<service.email.password>123456</service.email.password>
+<!-- 				<admin.email.address>administrator@mydomain.com</admin.email.address> -->
+<!-- 				<service.email.password>123456</service.email.password> -->
 			</properties>
 		</profile>
 		<profile>
