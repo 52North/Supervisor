@@ -47,6 +47,8 @@ public class OWSRunnerFactory implements RunnerFactory {
 						serviceType);
 				return new OwsCapabilitiesCheckRunner(occ);
 			}
+		} else if (check instanceof SosLatestObservationCheck) {
+			return new SosLatestObservationCheckRunner((SosLatestObservationCheck) check);
 		}
 		return null;
 	}
