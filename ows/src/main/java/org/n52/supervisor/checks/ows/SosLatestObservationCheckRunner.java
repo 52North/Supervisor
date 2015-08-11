@@ -16,11 +16,20 @@
 package org.n52.supervisor.checks.ows;
 
 import java.net.URL;
-import java.text.ParseException;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.joda.time.DateTime;
+import org.n52.supervisor.api.CheckResult;
+import org.n52.supervisor.checks.AbstractServiceCheckRunner;
+import org.n52.supervisor.checks.ServiceCheckResult;
+import org.n52.supervisor.util.XmlTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.opengis.gml.AbstractTimeObjectType;
 import net.opengis.gml.TimeInstantType;
@@ -33,15 +42,6 @@ import net.opengis.sos.x10.GetObservationDocument;
 import net.opengis.sos.x10.GetObservationDocument.GetObservation;
 import net.opengis.sos.x10.GetObservationDocument.GetObservation.EventTime;
 import net.opengis.swe.x101.TimeObjectPropertyType;
-
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.n52.supervisor.api.CheckResult;
-import org.n52.supervisor.checks.AbstractServiceCheckRunner;
-import org.n52.supervisor.checks.ServiceCheckResult;
-import org.n52.supervisor.util.XmlTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Nüst
@@ -60,7 +60,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
     private static Logger log = LoggerFactory.getLogger(SosLatestObservationCheckRunner.class);
 
-    protected static final String NEGATIVE_TEXT = "Request for latest observation FAILED.";
+    protected static final String NEGATIVE_TEXT = "Request latest observation FAILED.";
 
     protected static final String POSITIVE_TEXT = "Successfully requested latest observation within time limits.";
 
@@ -128,7 +128,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
         final URL sUrl = check.getServiceUrl();
 
         // max age
-        final Date maxAge = new Date(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
+        final DateTime maxAge = new DateTime(System.currentTimeMillis() - (theCheck().getMaximumAgeSeconds() * 1000));
 
         log.debug("Checking for latest observation with {}", theCheck());
 
@@ -161,7 +161,7 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
         }
     }
 
-    private boolean checkObservationCollection(final Date maxAge, final ObservationCollectionDocument obsColl) {
+    private boolean checkObservationCollection(final DateTime maxAge, final ObservationCollectionDocument obsColl) {
         final ObservationPropertyType observation = obsColl.getObservationCollection().getMemberArray(0);
 
         final TimeObjectPropertyType samplingTime = observation.getObservation().getSamplingTime();
@@ -173,8 +173,9 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
             log.debug("Parsed response, latest observation was at " + timeString);
 
             try {
-                final Date timeToCheck = ISO8601LocalFormat.parse(timeString);
-                if (timeToCheck.after(maxAge)) {
+                final DateTime timeToCheck = new DateTime(timeString);
+                
+                if (timeToCheck.isAfter(maxAge)) {
                     // ALL OKAY - save the result
                 	final ServiceCheckResult r = new ServiceCheckResult(
                 			ID_GENERATOR.generate(),
@@ -189,13 +190,15 @@ public class SosLatestObservationCheckRunner extends AbstractServiceCheckRunner 
 
                 // to old!
                 return saveAndReturnNegativeResult(
-                		String.format("%s %s %s  -- latest observation is too old (%s)!",
+                		String.format("%s -- Observation too old: Offering: '%s'; Procedure: '%s'; Obs. Property: '%s'; SamplingTime: '%s'; Allowed Max: '%s'!",
                 				NEGATIVE_TEXT,
                 				theCheck().getOffering(),
                 				theCheck().getProcedure(),
-                				timeString));
+                				theCheck().getObservedProperty(),
+                				timeString,
+                				maxAge));
             }
-            catch (final ParseException e) {
+            catch (final IllegalArgumentException e) {
                 log.error("Could not parse sampling time " + timeString, e);
                 return saveAndReturnNegativeResult(NEGATIVE_TEXT + getObservationString()
                         + " -- Could not parse the given time " + timeString + ".");
