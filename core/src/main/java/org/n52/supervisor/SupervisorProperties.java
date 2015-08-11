@@ -37,7 +37,11 @@ import com.google.inject.name.Names;
  */
 public class SupervisorProperties {
 
-    private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
+	// TODO remove the next two and add some injection magic if required
+	public static final String CLIENT_REQUEST_ENCODING = "UTF-8";
+	public static final String CLIENT_REQUEST_CONTENT_TYPE = "text/xml";
+
+	private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
 
     private static final String CHECK_CLASSES = "CHECK_CLASSES";
 
@@ -176,11 +180,11 @@ public class SupervisorProperties {
     }
 
     public String getClientRequestContentType() {
-        return "text/xml";
+        return CLIENT_REQUEST_CONTENT_TYPE;
     }
 
     public String getClientRequestEncoding() {
-        return "UTF-8";
+        return CLIENT_REQUEST_ENCODING;
     }
 
     public long getDefaultCheckIntervalSeconds() {

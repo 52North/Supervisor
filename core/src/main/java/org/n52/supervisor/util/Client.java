@@ -31,11 +31,10 @@ import org.n52.supervisor.SupervisorProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
 /**
  * 
  * @author Daniel
+ * @author <a href="mailto:e.h.juerrens@52north.org">Eike Hinderk J&uuml;rrens</a>
  * 
  */
 public class Client {
@@ -46,9 +45,6 @@ public class Client {
 
     private static final String POST_METHOD = "POST";
     
-    @Inject
-    private SupervisorProperties properties;
-
     private synchronized XmlObject doSend(final String requestUrl, final String requestContent, final String requestMethod) throws UnsupportedEncodingException,
             IOException,
             IllegalStateException,
@@ -76,8 +72,9 @@ public class Client {
         	log.debug("Client connecting via POST to {}",requestUrl);
             final HttpPost httppost = new HttpPost(requestUrl);
 
-            final StringEntity e = new StringEntity(requestContent, properties.getClientRequestEncoding());
-            e.setContentType(properties.getClientRequestContentType());
+            // TODO Use the constants as fallback defaults and add two parameters, hence the check runner can change them
+            final StringEntity e = new StringEntity(requestContent, SupervisorProperties.CLIENT_REQUEST_ENCODING);
+            e.setContentType(SupervisorProperties.CLIENT_REQUEST_CONTENT_TYPE);
             httppost.setEntity(e);
             request = httppost;
         } else {
