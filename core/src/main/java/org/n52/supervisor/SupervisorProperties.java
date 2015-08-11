@@ -69,8 +69,12 @@ public class SupervisorProperties {
 
     private static final String MAIL_SENDER_ADDRESS = "MAIL_SENDER_ADDRESS";
 
-    private static final String MAIL_SOCKET_CLASS = "javax.net.ssl.SSLSocketFactory";
+    private static final String MAIL_SOCKET_CLASS_SSL = "javax.net.ssl.SSLSocketFactory";
+    
+    private static final String MAIL_SOCKET_CLASS_DEFAULT = "javax.net.DefaultSocketFactory";
 
+    private static final String MAIL_ENABLE_SSL = "MAIL_ENABLE_SSL";
+    
     private static final String MAIL_SOCKET_FALLBACK = "false";
 
     private static final String MAIL_USER = "MAIL_USER";
@@ -138,7 +142,11 @@ public class SupervisorProperties {
         this.mailProps.put("mail.smtp.starttls.required", props.getProperty(MAIL_ENABLE_TLS));
         this.mailProps.put("mail.smtp.auth", props.getProperty(MAIL_ENABLE_AUTH));
         this.mailProps.put("mail.smtp.socketFactory.port", props.getProperty(MAIL_HOST_PORT));
-        this.mailProps.put("mail.smtp.socketFactory.class", MAIL_SOCKET_CLASS);
+        if (Boolean.parseBoolean(props.getProperty(MAIL_ENABLE_SSL))) {
+        	this.mailProps.put("mail.smtp.socketFactory.class", MAIL_SOCKET_CLASS_SSL);
+        } else {
+        	this.mailProps.put("mail.smtp.socketFactory.class", MAIL_SOCKET_CLASS_DEFAULT);
+        }
         this.mailProps.put("mail.smtp.socketFactory.fallback", MAIL_SOCKET_FALLBACK);
         try {
             this.emailSender = new InternetAddress(props.getProperty(MAIL_SENDER_ADDRESS));
