@@ -9,6 +9,7 @@
 	
 	<artifactId>json</artifactId>
 	<packaging>jar</packaging>
+        <name>Supervisor json module</name>
 
 	<inceptionYear>2013</inceptionYear>
 
