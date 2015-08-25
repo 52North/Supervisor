@@ -20,7 +20,6 @@ This project includes:
   Commons Codec under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
   Commons Logging under The Apache Software License, Version 2.0
-  core under The Apache Software License, Version 2.0
   Data Mapper for Jackson under The Apache Software License, Version 2.0
   Google Guice - Core Library under The Apache Software License, Version 2.0
   Google Guice - Extensions - AssistedInject under The Apache Software License, Version 2.0
@@ -47,7 +46,6 @@ This project includes:
   jersey-servlet under CDDL 1.1 or GPL2 w/ CPE
   Jettison under The Apache Software License, Version 2.0
   Joda time under Apache 2
-  json under The Apache Software License, Version 2.0
   JSON (JavaScript Object Notation) under provided without support or warranty
   JSONassert under The Apache Software License, Version 2.0
   jsr311-api under CDDL License
@@ -74,15 +72,17 @@ This project includes:
   OGC SWECommon schema (spec. v2.0) under The Apache Software License, Version 2.0
   OGC SWES schema (spec. v2.0) under The Apache Software License, Version 2.0
   OGC WPS schema (spec. v1.0.0) under The Apache Software License, Version 2.0
-  ows under The Apache Software License, Version 2.0
   quartz under The Apache Software License, Version 2.0
   servlet-api under CDDL 1.1 or GPL2 w/ CPE
   SLF4J API Module under MIT License
   Streaming API for XML under GNU General Public Library or COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
   Supervisor under The Apache Software License, Version 2.0
+  Supervisor core under The Apache Software License, Version 2.0
+  Supervisor json module under The Apache Software License, Version 2.0
+  Supervisor ows components under The Apache Software License, Version 2.0
+  Supervisor webapp under The Apache Software License, Version 2.0
   W3C WS-Addressing specification schemas (v1.0) under The Apache Software License, Version 2.0
   W3C xlink schema (spec. v1.1.0) under The Apache Software License, Version 2.0
-  webapp under The Apache Software License, Version 2.0
   Xml Compatibility extensions for Jackson under The Apache Software License, Version 2.0 or GNU Lesser General Public License (LGPL), Version 2.1
   XmlBeans under The Apache Software License, Version 2.0
 
