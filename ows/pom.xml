@@ -9,6 +9,7 @@
 	
 	<artifactId>ows</artifactId>
 	<packaging>jar</packaging>
+        <name>Supervisor ows components</name>
 
 	<inceptionYear>2013</inceptionYear>
 
