@@ -24,8 +24,13 @@ public class EnviroCarRunnerFactory implements RunnerFactory {
 	@Override
 	public CheckRunner resolveRunner(Check check) {
 		if (check instanceof EnviroCarAggregationChecker) {
-			return new EnviroCarAggregationChecker.Runner((EnviroCarAggregationChecker) check);
+                    EnviroCarAggregationChecker ecaChecker = (EnviroCarAggregationChecker) check;
+                    return ecaChecker.new Runner();
 		}
+                else if (check instanceof EnviroCarFeatureServiceChecker) {
+                    EnviroCarFeatureServiceChecker ecfsCheck = (EnviroCarFeatureServiceChecker) check;
+                    return ecfsCheck.new Runner();
+                }
 		return null;
 	}
 
