@@ -40,13 +40,13 @@ public class EnviroCarAggregationChecker extends BaseEnviroCarChecker {
     private String apiTrackUrl;
     private String aggregationTrackUrl;
     
-//	public static void main(String[] args) {
-//		String u1 = "https://envirocar.org/api/stable/tracks";
-//		String u2 = "http://ags.dev.52north.org:8080/point-aggregation/aggregatedTracks";
-//
-//		EnviroCarAggregationChecker checker = new EnviroCarAggregationChecker(u1, u2);
-//		boolean result = new Runner(checker).check();
-//	}
+	public static void main(String[] args) {
+		String u1 = "https://envirocar.org/api/stable/tracks?limit=250&page=0";
+		String u2 = "http://ags.dev.52north.org:8080/point-aggregation/aggregatedTracks";
+
+		EnviroCarAggregationChecker checker = new EnviroCarAggregationChecker(u1, u2, null);
+		boolean result = checker.new Runner().check();
+	}
     
     public EnviroCarAggregationChecker() {
         super(null);

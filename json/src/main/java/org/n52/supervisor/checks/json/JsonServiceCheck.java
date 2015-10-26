@@ -34,43 +34,46 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.n52.supervisor.checks.ServiceCheck;
 
 public abstract class JsonServiceCheck extends ServiceCheck {
-	
-	protected Map<?, ?> executeGetAndParseJson(String url) throws IOException {
-		HttpClient c;
-		try {
-			c = createClient();
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
-		HttpResponse resp = c.execute(new HttpGet(url));
-		
-		if (resp.getStatusLine() != null &&
-				resp.getStatusLine().getStatusCode() < HttpStatus.SC_MULTIPLE_CHOICES) {
-			ObjectMapper om = new ObjectMapper();
-			Map<?, ?> result = om.readValue(resp.getEntity().getContent(), Map.class);
-			return result;
-		}
-		
-		return null;
-	}
-
-	protected HttpClient createClient() throws Exception {
-		DefaultHttpClient result = new DefaultHttpClient();
-		SchemeRegistry sr = result.getConnectionManager().getSchemeRegistry();
-
-		SSLSocketFactory sslsf = new SSLSocketFactory(new TrustStrategy() {
-
-			@Override
-			public boolean isTrusted(X509Certificate[] arg0, String arg1)
-					throws CertificateException {
-				return true;
-			}
-		}, new AllowAllHostnameVerifier());
-
-		Scheme httpsScheme2 = new Scheme("https", 443, sslsf);
-		sr.register(httpsScheme2);
-
-		return result;
-	}
-
+    
+    protected Map<?, ?> executeGetAndParseJson(String url) throws IOException {
+        HttpClient c;
+        try {
+            c = createClient();
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+        HttpResponse resp = c.execute(new HttpGet(url));
+        
+        return parseJsontoMap(resp);
+    }
+    
+    protected Map<?, ?> parseJsontoMap(HttpResponse resp) throws IOException, IllegalStateException {
+        if (resp.getStatusLine() != null &&
+                resp.getStatusLine().getStatusCode() < HttpStatus.SC_MULTIPLE_CHOICES) {
+            ObjectMapper om = new ObjectMapper();
+            Map<?, ?> result = om.readValue(resp.getEntity().getContent(), Map.class);
+            return result;
+        }
+        return null;
+    }
+    
+    protected HttpClient createClient() throws Exception {
+        DefaultHttpClient result = new DefaultHttpClient();
+        SchemeRegistry sr = result.getConnectionManager().getSchemeRegistry();
+        
+        SSLSocketFactory sslsf = new SSLSocketFactory(new TrustStrategy() {
+            
+            @Override
+            public boolean isTrusted(X509Certificate[] arg0, String arg1)
+                    throws CertificateException {
+                return true;
+            }
+        }, new AllowAllHostnameVerifier());
+        
+        Scheme httpsScheme2 = new Scheme("https", 443, sslsf);
+        sr.register(httpsScheme2);
+        
+        return result;
+    }
+    
 }
