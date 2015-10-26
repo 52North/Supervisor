@@ -20,6 +20,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 
 /**
  *
@@ -49,19 +53,47 @@ public abstract class BaseEnviroCarChecker extends JsonServiceCheck {
         return interval;
     }
     
+    protected Set<String> resolveApiTrackSet(String apiUrl) throws IOException {
+        return resolveApiTrackSet(apiUrl, new HashSet<String>());
+    }
     
     @SuppressWarnings("unchecked")
-    protected Set<String> resolveApiTrackSet(String apiUrl) throws IOException {
-        Map<?, ?> trackJson = super.executeGetAndParseJson(apiUrl);
-        Set<String> result = new HashSet<>();
-
-        List<Map<?, ?>> idList = (List<Map<?, ?>>) trackJson.get("tracks");
-
-        for (Map<?, ?> entry : idList) {
-            result.add((String) entry.get("id"));
+    protected Set<String> resolveApiTrackSet(String apiUrl, Set<String> resultSet) throws IOException {
+        HttpClient c;
+        try {
+            c = createClient();
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-
-        return result;
+        HttpResponse resp = c.execute(new HttpGet(apiUrl));
+        
+        Map<?, ?> json = parseJsontoMap(resp);
+        
+        if (json == null || json.isEmpty()) {
+            return resultSet;
+        }
+        
+        List<Map<?, ?>> idList = (List<Map<?, ?>>) json.get("tracks");
+        for (Map<?, ?> entry : idList) {
+            resultSet.add((String) entry.get("id"));
+        }
+        
+        /*
+         * recursive call
+        */
+        Header[] headers = resp.getHeaders("Link");
+        if (headers != null) {
+            for (Header h : headers) {
+                String a = h.getValue();
+                if (h.getValue().contains("rel=next")) {
+                    String nextUrl = a.substring(a.indexOf("<")+1, a.indexOf(">"));
+                    resolveApiTrackSet(nextUrl, resultSet);
+                }
+            }
+        }
+        
+        return resultSet;
     }
+    
     
 }
