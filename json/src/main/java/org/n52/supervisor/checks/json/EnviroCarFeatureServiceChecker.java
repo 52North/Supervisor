@@ -17,6 +17,8 @@ package org.n52.supervisor.checks.json;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +105,10 @@ public class EnviroCarFeatureServiceChecker extends BaseEnviroCarChecker {
             return false;
         }
         
-        private String createMissingString(Set<String> missing) {
+        private String createMissingString(Set<String> missingSet) {
+            List<String> missing = new ArrayList<>(missingSet);
+            Collections.sort(missing);
+            
             StringBuilder sb = new StringBuilder();
             sb.append("Missing track IDs in FeatureService: [");
             for (String string : missing) {
