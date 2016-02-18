@@ -20,12 +20,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.n52.supervisor.api.CheckResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.EvictingQueue;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -50,7 +50,7 @@ public class ResultDatabase {
     public ResultDatabase(@Named("supervisor.checks.maxStoredResults") final
     int maxStoredResults) {
         this.maxStoredResults = maxStoredResults;
-        latestResults = new LinkedBlockingQueue<CheckResult>(this.maxStoredResults);
+        latestResults = EvictingQueue.create(this.maxStoredResults);
         log.info("NEW {}", this);
     }
 
