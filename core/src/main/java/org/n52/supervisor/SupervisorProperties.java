@@ -37,7 +37,11 @@ import com.google.inject.name.Names;
  */
 public class SupervisorProperties {
 
-    private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
+	// TODO remove the next two and add some injection magic if required
+	public static final String CLIENT_REQUEST_ENCODING = "UTF-8";
+	public static final String CLIENT_REQUEST_CONTENT_TYPE = "text/xml";
+
+	private static final String ADMIN_EMAIL = "ADMIN_EMAIL";
 
     private static final String CHECK_CLASSES = "CHECK_CLASSES";
 
@@ -65,8 +69,12 @@ public class SupervisorProperties {
 
     private static final String MAIL_SENDER_ADDRESS = "MAIL_SENDER_ADDRESS";
 
-    private static final String MAIL_SOCKET_CLASS = "javax.net.ssl.SSLSocketFactory";
+    private static final String MAIL_SOCKET_CLASS_SSL = "javax.net.ssl.SSLSocketFactory";
+    
+    private static final String MAIL_SOCKET_CLASS_DEFAULT = "javax.net.DefaultSocketFactory";
 
+    private static final String MAIL_ENABLE_SSL = "MAIL_ENABLE_SSL";
+    
     private static final String MAIL_SOCKET_FALLBACK = "false";
 
     private static final String MAIL_USER = "MAIL_USER";
@@ -134,7 +142,11 @@ public class SupervisorProperties {
         this.mailProps.put("mail.smtp.starttls.required", props.getProperty(MAIL_ENABLE_TLS));
         this.mailProps.put("mail.smtp.auth", props.getProperty(MAIL_ENABLE_AUTH));
         this.mailProps.put("mail.smtp.socketFactory.port", props.getProperty(MAIL_HOST_PORT));
-        this.mailProps.put("mail.smtp.socketFactory.class", MAIL_SOCKET_CLASS);
+        if (Boolean.parseBoolean(props.getProperty(MAIL_ENABLE_SSL))) {
+        	this.mailProps.put("mail.smtp.socketFactory.class", MAIL_SOCKET_CLASS_SSL);
+        } else {
+        	this.mailProps.put("mail.smtp.socketFactory.class", MAIL_SOCKET_CLASS_DEFAULT);
+        }
         this.mailProps.put("mail.smtp.socketFactory.fallback", MAIL_SOCKET_FALLBACK);
         try {
             this.emailSender = new InternetAddress(props.getProperty(MAIL_SENDER_ADDRESS));
@@ -176,11 +188,11 @@ public class SupervisorProperties {
     }
 
     public String getClientRequestContentType() {
-        return "text/xml";
+        return CLIENT_REQUEST_CONTENT_TYPE;
     }
 
     public String getClientRequestEncoding() {
-        return "UTF-8";
+        return CLIENT_REQUEST_ENCODING;
     }
 
     public long getDefaultCheckIntervalSeconds() {

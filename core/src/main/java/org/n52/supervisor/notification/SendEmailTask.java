@@ -222,15 +222,17 @@ public class SendEmailTask {
 
             MimeMessage message = new MimeMessage(mailSession);
 
-            if (failureCount > 1)
+            if (failureCount > 1) {
                 message.setSubject("[Supervisor] " + failureCount + " checks failed");
-            else if (failureCount == 1)
+            } else if (failureCount == 1) {
                 message.setSubject("[Supervisor] " + failureCount + " check failed");
-            else
+            } else {
                 message.setSubject("[Supervisor] All checks passed");
-
+            }
+            
             message.setContent(messageText, EMAIL_CONTENT_ENCODING);
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+            message.setFrom(properties.getEmailSender());
             message.setSender(properties.getEmailSender());
 
             transport.connect();

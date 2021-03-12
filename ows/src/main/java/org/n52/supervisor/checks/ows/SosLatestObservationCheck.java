@@ -66,7 +66,7 @@ public class SosLatestObservationCheck extends ServiceCheck {
                                      String offering,
                                      String observedProperty,
                                      String procedure,
-                                     long maximumAgeSeconds) throws NumberFormatException, MalformedURLException {
+                                     String maximumAgeSeconds) throws NumberFormatException, MalformedURLException {
         this(notificationEmail,
              Long.valueOf(intervalSeconds).longValue(),
              serviceIdentifier,
