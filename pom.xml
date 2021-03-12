@@ -71,7 +71,6 @@
 	</licenses>
 
 	<properties>
-		<supervisor.webappname>52n-supervisor</supervisor.webappname>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
@@ -86,6 +85,7 @@
 		<!-- override these in your settings.xml with the correct settings -->
 		<admin.email.address>administrator@mydomain.com</admin.email.address>
 		<service.email.password>123456</service.email.password>
+		<supervisor.webappname>52n-supervisor</supervisor.webappname>
 	</properties>
 
 	<modules>
